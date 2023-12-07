@@ -5,7 +5,7 @@ import {
   IsStrongPassword,
 } from 'class-validator'
 
-export class RegisterUserDto {
+export class CreateUserDto {
   @IsAlphanumeric()
   username: string
   @IsString()

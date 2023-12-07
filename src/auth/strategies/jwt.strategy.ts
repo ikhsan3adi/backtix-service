@@ -15,12 +15,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    return await this.userService.findUnique({
-      where: {
-        id: payload.sub,
-        username: payload.username,
-        email: payload.email,
-      },
+    return await this.userService.findUniqueBy({
+      id: payload.sub,
+      username: payload.username,
+      email: payload.email,
     })
   }
 }

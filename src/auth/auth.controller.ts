@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { Request, Response } from 'express'
-import { RegisterUserDto } from './dto/register-user.dto'
+import { CreateUserDto } from '../user/dto/create-user.dto'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { Public } from './decorators/public.decorator'
 import { RefreshAuthGuard } from './guards/refresh-auth.guard'
@@ -21,8 +21,8 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  async signUp(@Body() registerUserDto: RegisterUserDto) {
-    return await this.authService.registerUser(registerUserDto)
+  async signUp(@Body() createUserDto: CreateUserDto) {
+    return await this.authService.registerUser(createUserDto)
   }
 
   @Public()

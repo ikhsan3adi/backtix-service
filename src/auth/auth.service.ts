@@ -1,12 +1,11 @@
 import {
-  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
 import { UserService } from '../user/user.service'
-import { RegisterUserDto } from './dto/register-user.dto'
+import { CreateUserDto } from '../user/dto/create-user.dto'
 import { JwtService } from '@nestjs/jwt'
 import { config } from '../common/config'
 import { PasswordService } from './password.service'
@@ -22,40 +21,22 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async registerUser(registerUserDto: RegisterUserDto) {
-    const userAvailable = await this.userService.find({
-      where: {
-        OR: [
-          { email: registerUserDto.email },
-          { username: registerUserDto.username },
-        ],
-      },
-      select: { email: true, username: true },
-    })
-
-    if (userAvailable?.email === registerUserDto.email) {
-      throw new ConflictException(
-        `Email ${registerUserDto.email} already registered`,
-      )
-    } else if (userAvailable?.username === registerUserDto.username) {
-      throw new ConflictException(
-        `Username ${registerUserDto.username} already registered`,
-      )
-    }
+  async registerUser(createUserDto: CreateUserDto) {
+    await this.userService.checkEmailUsername(createUserDto)
 
     const hashedPassword = await this.passwordService.hashPassword(
-      registerUserDto.password,
+      createUserDto.password,
     )
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...user } = await this.userService.create({
-      ...registerUserDto,
+      ...createUserDto,
       password: hashedPassword,
     })
     return user
   }
 
   async validateUser(username: string, password: string) {
-    const user = await this.userService.findUnique({ where: { username } })
+    const user = await this.userService.findUniqueBy({ username })
 
     if (!user) {
       throw new NotFoundException('User not found')
@@ -110,9 +91,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid/Expired token')
     }
 
-    const user = await this.userService.findUnique({
-      where: { id: payload.sub },
-    })
+    const user = await this.userService.findUniqueBy({ id: payload.sub })
     if (!user) {
       throw new NotFoundException('User not found')
     }
