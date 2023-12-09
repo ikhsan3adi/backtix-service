@@ -3,6 +3,7 @@ import { AppModule } from './app.module'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
 import { config } from './common/config'
+import metadata from './metadata'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -14,6 +15,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build()
   const document = SwaggerModule.createDocument(app, openApiConfig)
+  await SwaggerModule.loadPluginMetadata(metadata)
   SwaggerModule.setup('api', app, document)
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }))

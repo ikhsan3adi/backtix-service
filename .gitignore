@@ -39,3 +39,6 @@ lerna-debug.log*
 
 # uploaded files
 uploads/*
+
+# generated
+src/metadata.ts
