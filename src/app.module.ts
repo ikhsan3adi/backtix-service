@@ -12,6 +12,7 @@ import { AppService } from './app.service'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
 import { config } from './common/config'
+import { FileModule } from './file/file.module'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { config } from './common/config'
     }),
     AuthModule,
     UserModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [

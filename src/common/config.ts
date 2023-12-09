@@ -16,4 +16,7 @@ export const config = {
     port: Number(process.env.REDIS_PORT),
     ttl: Number(process.env.REDIS_TTL) ?? 60 * 60 * 24 * 7,
   },
+  storage: {
+    uploadsPath: 'uploads',
+  },
 }
