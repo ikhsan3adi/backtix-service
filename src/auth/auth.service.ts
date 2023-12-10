@@ -11,6 +11,7 @@ import { config } from '../common/config'
 import { PasswordService } from './password.service'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
+import { UserEntity } from '../user/entities/user.entity'
 
 @Injectable()
 export class AuthService {
@@ -55,7 +56,7 @@ export class AuthService {
     return result
   }
 
-  async login(user: any) {
+  async login(user: UserEntity) {
     const payload = { sub: user.id, username: user.username, email: user.email }
 
     const refreshToken = this.generateRefreshToken(payload)
@@ -98,7 +99,7 @@ export class AuthService {
     return user
   }
 
-  async refreshAuth(user: any) {
+  async refreshAuth(user: UserEntity) {
     const payload = { sub: user.id, username: user.username, email: user.email }
 
     return {

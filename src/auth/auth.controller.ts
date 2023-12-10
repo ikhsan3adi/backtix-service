@@ -2,18 +2,18 @@ import {
   Body,
   Controller,
   Delete,
+  HttpCode,
   Post,
   Put,
-  Req,
-  Res,
   UseGuards,
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
-import { Request, Response } from 'express'
 import { CreateUserDto } from '../user/dto/create-user.dto'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { Public } from './decorators/public.decorator'
 import { RefreshAuthGuard } from './guards/refresh-auth.guard'
+import { User } from '../user/decorators/user.decorator'
+import { UserEntity } from '../user/entities/user.entity'
 
 @Controller('auth')
 export class AuthController {
@@ -28,24 +28,20 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post()
-  async signIn(@Req() req: Request) {
-    return await this.authService.login(req.user)
+  async signIn(@User() user: UserEntity) {
+    return await this.authService.login(user)
   }
 
   @Public()
   @UseGuards(RefreshAuthGuard)
   @Put()
-  async refreshAuth(@Req() req: Request) {
-    return await this.authService.refreshAuth(req.user)
+  async refreshAuth(@User() user: UserEntity) {
+    return await this.authService.refreshAuth(user)
   }
 
   @Delete()
-  async logout(
-    @Body('refreshToken') refreshToken: string,
-    @Res() res: Response,
-  ) {
+  @HttpCode(200)
+  async logout(@Body('refreshToken') refreshToken: string) {
     await this.authService.logout(refreshToken)
-
-    return res.status(200).json({ status: 'success' })
   }
 }
