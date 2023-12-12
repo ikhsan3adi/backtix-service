@@ -19,6 +19,7 @@ model User {
   groups    UserGroup[] @default([USER])
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  activated Boolean @default(false)
   deletedAt DateTime?
 }
 

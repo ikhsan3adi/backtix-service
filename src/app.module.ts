@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
+import { config } from './common/config'
 import { CacheModule } from '@nestjs/cache-manager'
 import type { RedisClientOptions } from 'redis'
 import { redisStore } from 'cache-manager-redis-yet'
@@ -9,10 +10,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 
+import { FileModule } from './file/file.module'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
-import { config } from './common/config'
-import { FileModule } from './file/file.module'
+import { ActivationGuard } from './auth/guards/activation.guard'
 
 @Module({
   imports: [
@@ -37,6 +38,10 @@ import { FileModule } from './file/file.module'
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ActivationGuard,
     },
   ],
 })

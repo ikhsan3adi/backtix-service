@@ -14,6 +14,7 @@ import { Public } from './decorators/public.decorator'
 import { RefreshAuthGuard } from './guards/refresh-auth.guard'
 import { User } from '../user/decorators/user.decorator'
 import { UserEntity } from '../user/entities/user.entity'
+import { AllowUnactivated } from './decorators/allow-unactivated.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -39,6 +40,7 @@ export class AuthController {
     return await this.authService.refreshAuth(user)
   }
 
+  @AllowUnactivated()
   @Delete()
   @HttpCode(200)
   async logout(@Body('refreshToken') refreshToken: string) {

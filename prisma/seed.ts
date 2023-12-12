@@ -9,6 +9,7 @@ async function main() {
     password: 'Superadmin1#',
     email: 'superadmin@email.com',
     fullname: 'Super Admin',
+    activated: true,
     groups: ['ADMIN', 'SUPERADMIN'],
   }
 
