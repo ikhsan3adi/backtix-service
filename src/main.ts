@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
+import helmet from 'helmet'
 import { config } from './common/config'
 import metadata from './metadata'
 
@@ -18,6 +19,7 @@ async function bootstrap() {
   await SwaggerModule.loadPluginMetadata(metadata)
   SwaggerModule.setup('api', app, document)
 
+  app.use(helmet())
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
   await app.listen(config.server.port, config.server.host)
