@@ -22,5 +22,12 @@ export const config = {
   },
   storage: {
     uploadsPath: 'uploads',
+    eventImagePath: 'uploads/events',
+    ticketImagePath: 'uploads/tickets',
+  },
+  fileStream: {
+    baseUrl: process.env.STORAGE_BASE_URL ?? `${process.env.BASE_URL}file/`,
+    eventImageUrlPath: 'events',
+    ticketImageUrlPath: 'tickets',
   },
 }

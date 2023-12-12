@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
 import { config } from './common/config'
+import { ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { CacheModule } from '@nestjs/cache-manager'
 import type { RedisClientOptions } from 'redis'
 import { redisStore } from 'cache-manager-redis-yet'
@@ -47,6 +48,10 @@ import { ActivationGuard } from './auth/guards/activation.guard'
     {
       provide: APP_GUARD,
       useClass: GroupsGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
     },
   ],
 })
