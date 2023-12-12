@@ -10,10 +10,8 @@ export class LocalStorageService extends StorageService {
     return fs.existsSync(join(process.cwd(), path))
   }
 
-  async getFile(path: string, encoding?: string): Promise<string | Buffer> {
-    return encoding
-      ? fs.readFileSync(join(process.cwd(), path), { encoding })
-      : fs.readFileSync(join(process.cwd(), path))
+  async getFile(path: string): Promise<string | Buffer> {
+    return fs.readFileSync(join(process.cwd(), path))
   }
 
   async createFile(
@@ -31,7 +29,13 @@ export class LocalStorageService extends StorageService {
     return newFilename
   }
 
-  deleteFile(path: string): void {
-    return fs.unlinkSync(join(process.cwd(), path))
+  deleteFile(path: string, filename?: string): void {
+    try {
+      return fs.unlinkSync(
+        filename
+          ? join(process.cwd(), path, filename)
+          : join(process.cwd(), path),
+      )
+    } catch {}
   }
 }

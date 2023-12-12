@@ -6,5 +6,5 @@ export abstract class StorageService {
     filename: string,
     data: string | Buffer,
   ): Promise<string>
-  abstract deleteFile(path: string): void
+  abstract deleteFile(path: string, filename?: string): void
 }
