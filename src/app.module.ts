@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common'
-import { APP_GUARD } from '@nestjs/core'
 import { config } from './common/config'
 import { ClassSerializerInterceptor, Module } from '@nestjs/common'
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { CacheModule } from '@nestjs/cache-manager'
+import { MulterModule } from '@nestjs/platform-express'
 import type { RedisClientOptions } from 'redis'
 import { redisStore } from 'cache-manager-redis-yet'
 
@@ -15,6 +15,7 @@ import { AppService } from './app.service'
 import { FileModule } from './file/file.module'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
+import { EventModule } from './event/event.module'
 import { ActivationGuard } from './auth/guards/activation.guard'
 
 @Module({
@@ -30,8 +31,10 @@ import { ActivationGuard } from './auth/guards/activation.guard'
           ttl: config.redis.ttl,
         }),
     }),
+    MulterModule.register(),
     AuthModule,
     UserModule,
+    EventModule,
     FileModule,
   ],
   controllers: [AppController],
