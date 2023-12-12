@@ -23,6 +23,7 @@ model User {
 }
 
 enum UserGroup {
+  SUPERADMIN
   ADMIN
   USER
 }
