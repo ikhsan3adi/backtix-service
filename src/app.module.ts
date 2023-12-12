@@ -6,6 +6,7 @@ import type { RedisClientOptions } from 'redis'
 import { redisStore } from 'cache-manager-redis-yet'
 
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
+import { GroupsGuard } from './auth/guards/groups.guard'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -42,6 +43,10 @@ import { ActivationGuard } from './auth/guards/activation.guard'
     {
       provide: APP_GUARD,
       useClass: ActivationGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: GroupsGuard,
     },
   ],
 })
