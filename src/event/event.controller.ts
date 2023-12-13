@@ -24,11 +24,23 @@ import { UserEntity } from '../user/entities/user.entity'
 import { User } from '../user/decorators/user.decorator'
 import { Groups } from '../auth/decorators/groups.decorator'
 import { Group } from '../user/enums/group.enum'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger'
 
+@ApiBearerAuth()
+@ApiTags('event')
 @Controller('event')
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
+  @ApiBody({ type: CreateEventDto })
+  @ApiConsumes('multipart/form-data')
   @Post()
   @UseInterceptors(
     FileFieldsInterceptor([
@@ -50,6 +62,9 @@ export class EventController {
     )
   }
 
+  @ApiOperation({ summary: '[Admin] Approve draft event' })
+  @ApiTags('admin')
+  @ApiParam({ name: 'id', type: 'string' })
   @Groups(Group.ADMIN)
   @Put(':id/approve')
   async approve(@Param('id') id: string) {
@@ -61,11 +76,15 @@ export class EventController {
     return (await this.eventService.findPublished()).map((e) => new Event(e))
   }
 
+  @ApiParam({ name: 'id', type: 'string' })
   @Get(':id')
   async findOnePublished(@Param('id') id: string) {
     return new Event(await this.eventService.findOnePublished(id))
   }
 
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiBody({ type: UpdateEventDto })
+  @ApiConsumes('multipart/form-data')
   @Patch(':id')
   @UseInterceptors(FilesInterceptor('event', 10))
   async update(
@@ -80,6 +99,7 @@ export class EventController {
     )
   }
 
+  @ApiParam({ name: 'id', type: 'string' })
   @Delete(':id')
   async softDelete(@User() user: UserEntity, @Param('id') id: string) {
     return new Event(await this.eventService.softDelete(user, id))
