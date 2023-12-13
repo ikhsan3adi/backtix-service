@@ -5,6 +5,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { MulterModule } from '@nestjs/platform-express'
 import type { RedisClientOptions } from 'redis'
 import { redisStore } from 'cache-manager-redis-yet'
+import { LoggerMiddleware } from './common/utils/logger'
 
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { GroupsGuard } from './auth/guards/groups.guard'
@@ -57,4 +58,8 @@ import { ActivationGuard } from './auth/guards/activation.guard'
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*')
+  }
+}
