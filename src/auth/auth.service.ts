@@ -28,12 +28,11 @@ export class AuthService {
     const hashedPassword = await this.passwordService.hashPassword(
       createUserDto.password,
     )
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...user } = await this.userService.create({
+
+    return await this.userService.create({
       ...createUserDto,
       password: hashedPassword,
     })
-    return user
   }
 
   async validateUser(username: string, password: string) {

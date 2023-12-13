@@ -23,7 +23,7 @@ export class AuthController {
   @Public()
   @Post('register')
   async signUp(@Body() createUserDto: CreateUserDto) {
-    return await this.authService.registerUser(createUserDto)
+    return new UserEntity(await this.authService.registerUser(createUserDto))
   }
 
   @Public()
