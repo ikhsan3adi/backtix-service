@@ -28,7 +28,6 @@ import { ActivationGuard } from './auth/guards/activation.guard'
             host: config.redis.host,
             port: config.redis.port,
           },
-          ttl: config.redis.ttl,
         }),
     }),
     MulterModule.register(),
