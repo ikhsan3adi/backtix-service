@@ -1,4 +1,4 @@
-import { OmitType } from '@nestjs/swagger'
+import { ApiProperty, OmitType } from '@nestjs/swagger'
 import { CreateEventDto } from './create-event.dto'
 import { UpdateEventImageDto } from './update-event-image.dto'
 import { ArrayMaxSize, IsArray, ValidateNested } from 'class-validator'
@@ -14,4 +14,11 @@ export class UpdateEventDto extends OmitType(CreateEventDto, [
   @Transform(objectStringTransformer(UpdateEventImageDto))
   @ValidateNested()
   images: UpdateEventImageDto[]
+
+  @ApiProperty({
+    description: 'List of event image',
+    type: 'array',
+    items: { type: 'string', format: 'binary' },
+  })
+  event: any[]
 }
