@@ -1,5 +1,10 @@
 import { config } from './common/config'
-import { ClassSerializerInterceptor, Module } from '@nestjs/common'
+import {
+  ClassSerializerInterceptor,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { CacheModule } from '@nestjs/cache-manager'
 import { MulterModule } from '@nestjs/platform-express'
@@ -18,6 +23,7 @@ import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
 import { EventModule } from './event/event.module'
 import { ActivationGuard } from './auth/guards/activation.guard'
+import { MailModule } from './mail/mail.module'
 
 @Module({
   imports: [
@@ -36,6 +42,7 @@ import { ActivationGuard } from './auth/guards/activation.guard'
     UserModule,
     EventModule,
     FileModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [

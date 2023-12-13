@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -12,6 +13,8 @@ import { PasswordService } from './password.service'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
 import { UserEntity } from '../user/entities/user.entity'
+import { MailService } from '../mail/mail.service'
+import { OtpService } from './otp.service'
 
 @Injectable()
 export class AuthService {
@@ -19,6 +22,8 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private passwordService: PasswordService,
+    private mailService: MailService,
+    private otpService: OtpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -101,16 +106,27 @@ export class AuthService {
   async refreshAuth(user: UserEntity) {
     const payload = { sub: user.id, username: user.username, email: user.email }
 
-    return {
-      accessToken: this.jwtService.sign(payload, {
-        secret: config.security.accessTokenKey,
-        expiresIn: config.security.accessTokenExpiration,
-      }),
-    }
+    return { accessToken: this.generateAccessToken(payload) }
   }
 
   async logout(token: string) {
     await this.cacheManager.del(token)
+  }
+
+  async requestActivation(user: UserEntity) {
+    if (user.activated) throw new BadRequestException('ACTIVATED')
+
+    const otp = await this.otpService.createOtp(user.id)
+    // console.log(otp)
+    await this.mailService.sendUserActivation(user, otp)
+
+    return { message: 'Activation code sent' }
+  }
+
+  async activateUser(user: UserEntity, otp: string) {
+    await this.otpService.verifyOtp(user.id, otp)
+
+    return await this.userService.activate(user.id)
   }
 
   private generateAccessToken(payload: any) {

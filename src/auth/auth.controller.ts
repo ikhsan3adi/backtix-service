@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   HttpCode,
+  Patch,
   Post,
   Put,
   UseGuards,
@@ -45,5 +46,17 @@ export class AuthController {
   @HttpCode(200)
   async logout(@Body('refreshToken') refreshToken: string) {
     await this.authService.logout(refreshToken)
+  }
+
+  @AllowUnactivated()
+  @Post('activate')
+  async requestActivation(@User() user: UserEntity) {
+    return await this.authService.requestActivation(user)
+  }
+
+  @AllowUnactivated()
+  @Patch('activate')
+  async activateUser(@User() user: UserEntity, @Body('otp') otp: string) {
+    return new UserEntity(await this.authService.activateUser(user, otp))
   }
 }

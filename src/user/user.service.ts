@@ -30,4 +30,11 @@ export class UserService {
       throw new ConflictException(`Username ${username} already registered`)
     }
   }
+
+  async activate(id: string) {
+    return await this.userRepository.update({
+      where: { id },
+      data: { activated: true },
+    })
+  }
 }

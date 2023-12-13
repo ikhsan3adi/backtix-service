@@ -16,10 +16,19 @@ export const config = {
       process.env.REFRESH_TOKEN_TTL ?? 60 * 60 * 24 * 30 * 1000,
     ),
     bcryptSaltOrRound: 10,
+    otpTTL: Number(process.env.OTP_TTL ?? 300 * 1000),
+    otpPrefix: 'otp-',
   },
   redis: {
     host: process.env.REDIS_HOST,
     port: Number(process.env.REDIS_PORT),
+  },
+  smtp: {
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT,
+    address: process.env.MAIL_ADDRESS,
+    password: process.env.MAIL_PASSWORD,
+    from: process.env.MAIL_FROM,
   },
   storage: {
     uploadsPath: 'uploads',

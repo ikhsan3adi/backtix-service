@@ -8,6 +8,8 @@ import { JwtModule } from '@nestjs/jwt'
 import { config } from '../common/config'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { PasswordService } from './password.service'
+import { MailModule } from '../mail/mail.module'
+import { OtpService } from './otp.service'
 
 @Module({
   imports: [
@@ -17,8 +19,15 @@ import { PasswordService } from './password.service'
       secret: config.security.accessTokenKey,
       signOptions: { expiresIn: config.security.accessTokenExpiration },
     }),
+    MailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, PasswordService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    PasswordService,
+    LocalStrategy,
+    JwtStrategy,
+    OtpService,
+  ],
 })
 export class AuthModule {}
