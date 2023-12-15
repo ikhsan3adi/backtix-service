@@ -17,14 +17,16 @@ export class EventRepository {
   async findMany(params: {
     where?: Prisma.EventWhereInput
     include?: Prisma.EventInclude
+    orderBy?: Prisma.EventOrderByWithRelationInput
   }) {
-    const { where, include } = params
+    const { where, include, orderBy } = params
     return await this.prismaService.event.findMany({
       where: where ?? { status: $Enums.EventStatus.PUBLISHED, deletedAt: null },
       include: include ?? {
         tickets: true,
         images: true,
       },
+      orderBy,
     })
   }
 

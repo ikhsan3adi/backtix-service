@@ -10,6 +10,7 @@ import {
   UploadedFiles,
   ParseFilePipe,
   Put,
+  Query,
 } from '@nestjs/common'
 import { EventService } from './event.service'
 import { CreateEventDto } from './dto/create-event.dto'
@@ -26,10 +27,8 @@ import { Groups } from '../auth/decorators/groups.decorator'
 import { Group } from '../user/enums/group.enum'
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiConsumes,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from '@nestjs/swagger'
 
@@ -39,7 +38,6 @@ import {
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
-  @ApiBody({ type: CreateEventDto })
   @ApiConsumes('multipart/form-data')
   @Post()
   @UseInterceptors(
@@ -64,26 +62,46 @@ export class EventController {
 
   @ApiOperation({ summary: '[Admin] Approve draft event' })
   @ApiTags('admin')
-  @ApiParam({ name: 'id', type: 'string' })
   @Groups(Group.ADMIN)
   @Put(':id/approve')
   async approve(@Param('id') id: string) {
     return new Event(await this.eventService.approve(id))
   }
 
-  @Get()
-  async findAllPublished() {
-    return (await this.eventService.findPublished()).map((e) => new Event(e))
+  @ApiOperation({ summary: '[Admin] Reject draft event' })
+  @ApiTags('admin')
+  @Groups(Group.ADMIN)
+  @Put(':id/reject')
+  async reject(@Param('id') id: string) {
+    return new Event(await this.eventService.reject(id))
   }
 
-  @ApiParam({ name: 'id', type: 'string' })
+  @ApiOperation({ summary: 'Retry request draft event approval' })
+  @Put(':id/retry')
+  async retryPublish(@Param('id') id: string) {
+    return new Event(await this.eventService.retry(id))
+  }
+
+  @Get()
+  async findAllPublished(
+    @Query('byStartDate') byStartDate: string,
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ) {
+    return (
+      await this.eventService.findPublished(
+        byStartDate ? Boolean(byStartDate) : false,
+        from,
+        to,
+      )
+    ).map((e) => new Event(e))
+  }
+
   @Get(':id')
   async findOnePublished(@Param('id') id: string) {
     return new Event(await this.eventService.findOnePublished(id))
   }
 
-  @ApiParam({ name: 'id', type: 'string' })
-  @ApiBody({ type: UpdateEventDto })
   @ApiConsumes('multipart/form-data')
   @Patch(':id')
   @UseInterceptors(FilesInterceptor('event', 10))
@@ -99,7 +117,6 @@ export class EventController {
     )
   }
 
-  @ApiParam({ name: 'id', type: 'string' })
   @Delete(':id')
   async softDelete(@User() user: UserEntity, @Param('id') id: string) {
     return new Event(await this.eventService.softDelete(user, id))

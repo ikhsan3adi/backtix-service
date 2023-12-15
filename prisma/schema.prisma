@@ -39,6 +39,7 @@ model Event {
   userId      String
   name        String
   date        DateTime
+  endDate     DateTime?
   location    String
   description String
   images      EventImage[]
@@ -57,6 +58,7 @@ enum EventStatus {
   DRAFT
   PUBLISHED
   CANCELLED
+  REJECTED
 }
 
 model EventImage {

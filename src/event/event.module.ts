@@ -10,5 +10,6 @@ import { FileModule } from '../file/file.module'
   imports: [StorageModule, FileModule],
   controllers: [EventController],
   providers: [EventService, EventRepository, PrismaService],
+  exports: [EventService],
 })
 export class EventModule {}

@@ -36,16 +36,14 @@ export class EventService {
     const eventImages = files.event
     const ticketImages = files.ticket
 
+    // generate tickets & images data & filename
     for (
       let index = 0;
       index < createEventDto.imageDescriptions.length;
       index++
     ) {
-      const image = eventImages[index]
-      const filename = await this.storageService.createFile(
-        config.storage.eventImagePath,
-        image.originalname,
-        image.buffer,
+      const filename = await this.storageService.generateRandomFilename(
+        eventImages[index].originalname,
       )
       images.push({
         description: createEventDto.imageDescriptions[index],
@@ -54,14 +52,12 @@ export class EventService {
     }
 
     for (let index = 0; index < createEventDto.tickets.length; index++) {
-      const image = ticketImages[index]
-      const filename = await this.storageService.createFile(
-        config.storage.ticketImagePath,
-        image.originalname,
-        image.buffer,
+      const filename = await this.storageService.generateRandomFilename(
+        ticketImages[index].originalname,
       )
       tickets.push({
         ...createEventDto.tickets[index],
+        currentStock: createEventDto.tickets[index].stock,
         image: filename,
       })
     }
@@ -69,7 +65,7 @@ export class EventService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { imageDescriptions, ...data } = createEventDto
 
-    return this.eventRepository.create({
+    const createdEvent = this.eventRepository.create({
       data: {
         ...data,
         user: { connect: { id: userId } },
@@ -85,6 +81,26 @@ export class EventService {
       },
       include: { images: true, tickets: true },
     })
+    // save images
+    for (
+      let index = 0;
+      index < createEventDto.imageDescriptions.length;
+      index++
+    ) {
+      await this.storageService.createFile(
+        config.storage.eventImagePath,
+        images[index].image,
+        eventImages[index].buffer,
+      )
+    }
+    for (let index = 0; index < createEventDto.tickets.length; index++) {
+      await this.storageService.createFile(
+        config.storage.ticketImagePath,
+        tickets[index].image,
+        ticketImages[index].buffer,
+      )
+    }
+    return createdEvent
   }
 
   async approve(id: string) {
@@ -98,13 +114,42 @@ export class EventService {
     }
   }
 
-  async findPublished() {
+  async reject(id: string) {
+    try {
+      return await this.eventRepository.update({
+        where: { id, deletedAt: null },
+        data: { status: 'REJECTED' },
+      })
+    } catch {
+      throw new NotAcceptableException()
+    }
+  }
+
+  async retry(id: string) {
+    try {
+      return await this.eventRepository.update({
+        where: { id, deletedAt: null },
+        data: { status: 'DRAFT' },
+      })
+    } catch {
+      throw new NotAcceptableException()
+    }
+  }
+
+  async findPublished(byStartDate?: boolean, from?: string, to?: string) {
+    const orderBy: any = byStartDate ? { date: 'desc' } : { createdAt: 'desc' }
+
+    const fromDate = isNaN(Date.parse(from)) ? undefined : new Date(from)
+    const toDate = isNaN(Date.parse(to)) ? undefined : new Date(to)
+
     return await this.eventRepository.findMany({
       where: {
+        date: { gte: fromDate, lte: toDate },
         status: 'PUBLISHED',
         deletedAt: null,
       },
       include: { images: true },
+      orderBy,
     })
   }
 
@@ -115,7 +160,16 @@ export class EventService {
         status: 'PUBLISHED',
         deletedAt: null,
       },
-      include: { images: true, tickets: true },
+      include: {
+        images: true,
+        tickets: {
+          include: {
+            _count: {
+              select: { purchases: { where: { status: 'COMPLETED' } } },
+            },
+          },
+        },
+      },
     })
 
     if (!event) throw new NotFoundException()
@@ -132,13 +186,10 @@ export class EventService {
     await this.verifyEventOwner(user, id)
 
     const images: { id: number; description: string; image: string }[] = []
-    // populate new images
+
     for (let index = 0; index < updateEventDto.images.length; index++) {
-      const image = newEventImages[index]
-      const filename = await this.storageService.createFile(
-        config.storage.eventImagePath,
-        image.originalname,
-        image.buffer,
+      const filename = await this.storageService.generateRandomFilename(
+        newEventImages[index].originalname,
       )
       images.push({
         id: Number(updateEventDto.images[index].id),
@@ -166,7 +217,15 @@ export class EventService {
         updatedImages: images,
         include: { images: true, tickets: false },
       })
-
+      // save new images
+      for (let index = 0; index < updateEventDto.images.length; index++) {
+        const image = newEventImages[index]
+        await this.storageService.createFile(
+          config.storage.eventImagePath,
+          images[index].image,
+          image.buffer,
+        )
+      }
       // delete old image files
       for (const image of oldEventImages) {
         this.storageService.deleteFile(
@@ -201,7 +260,7 @@ export class EventService {
     }
   }
 
-  private async verifyEventOwner(
+  public async verifyEventOwner(
     user: UserEntity,
     eventId: string,
     skipAdmin: boolean = true,
