@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer'
 import { EventImage } from './event-image.entity'
-import { EventTicket } from './event-ticket.entity'
+import { Ticket } from '../../ticket/entities/ticket.entity'
 
 export class Event {
   constructor(partial: Partial<Event>) {
@@ -10,6 +10,7 @@ export class Event {
   id: string
   name: string
   date: Date
+  endDate?: Date
   location: string
   description: string
   status: string
@@ -18,7 +19,7 @@ export class Event {
   deletedAt?: Date
 
   @Type(() => EventImage)
-  images: EventImage[]
-  @Type(() => EventTicket)
-  tickets: EventTicket[]
+  images?: EventImage[]
+  @Type(() => Ticket)
+  tickets?: Ticket[]
 }

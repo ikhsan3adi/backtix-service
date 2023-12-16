@@ -5,15 +5,16 @@ import {
   IsDateString,
   IsNotEmpty,
   IsString,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator'
-import { CreateEventTicketDto } from './create-event-ticket.dto'
 import { Transform } from 'class-transformer'
 import {
   dateTimeTransformer,
   objectStringTransformer,
 } from '../../common/helpers/transformers'
 import { ApiProperty } from '@nestjs/swagger'
+import { CreateTicketDto } from '../../ticket/dto/create-ticket.dto'
 
 export class CreateEventDto {
   @IsString()
@@ -24,6 +25,11 @@ export class CreateEventDto {
   @IsDateString({ strict: true })
   @IsNotEmpty()
   date: string
+
+  @ValidateIf((_, v) => v)
+  @Transform(dateTimeTransformer)
+  @IsDateString({ strict: true })
+  endDate?: string
 
   @IsString()
   @IsNotEmpty()
@@ -41,9 +47,9 @@ export class CreateEventDto {
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(64)
-  @Transform(objectStringTransformer(CreateEventTicketDto))
+  @Transform(objectStringTransformer(CreateTicketDto))
   @ValidateNested()
-  tickets: CreateEventTicketDto[]
+  tickets: CreateTicketDto[]
 
   @ApiProperty({
     description: 'List of event image',

@@ -75,9 +75,10 @@ model Ticket {
   id               String    @id @default(uuid())
   eventId          String
   name             String
-  price            Int
+  price            Float
   stock            Int
-  image            String
+  currentStock     Int
+  image            String?
   salesOpenDate    DateTime?
   purchaseDeadline DateTime?
 

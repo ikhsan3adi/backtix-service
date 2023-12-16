@@ -1,8 +1,9 @@
 import { IsDateString, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 import { dateTimeTransformer } from '../../common/helpers/transformers'
 import { Transform } from 'class-transformer'
+import { ApiProperty } from '@nestjs/swagger'
 
-export class CreateEventTicketDto {
+export class CreateTicketDto {
   @IsString()
   @IsNotEmpty()
   name: string
@@ -15,13 +16,18 @@ export class CreateEventTicketDto {
   @IsNotEmpty()
   stock: number
 
+  @ApiProperty({
+    description: 'New ticket image',
+    type: 'string',
+    format: 'binary',
+  })
+  image?: any
+
   @Transform(dateTimeTransformer)
   @IsDateString()
-  @IsNotEmpty()
   salesOpenDate: string
 
   @Transform(dateTimeTransformer)
   @IsDateString()
-  @IsNotEmpty()
   purchaseDeadline: string
 }

@@ -1,10 +1,11 @@
-import { Exclude, Transform } from 'class-transformer'
+import { Exclude, Transform, Type } from 'class-transformer'
 import { config } from '../../common/config'
 import { getFullFileUrlTransformer } from '../../common/helpers/transformers'
 import { ApiHideProperty } from '@nestjs/swagger'
+import { Event } from '../../event/entities/event.entity'
 
-export class EventTicket {
-  constructor(partial: Partial<EventTicket>) {
+export class Ticket {
+  constructor(partial: Partial<Ticket>) {
     Object.assign(this, partial)
   }
 
@@ -24,4 +25,7 @@ export class EventTicket {
   purchaseDeadline: Date
   createdAt: Date
   updatedAt: Date
+
+  @Type(() => Event)
+  event?: Event
 }

@@ -24,6 +24,7 @@ import { UserModule } from './user/user.module'
 import { EventModule } from './event/event.module'
 import { ActivationGuard } from './auth/guards/activation.guard'
 import { MailModule } from './mail/mail.module'
+import { TicketModule } from './ticket/ticket.module'
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MailModule } from './mail/mail.module'
     EventModule,
     FileModule,
     MailModule,
+    TicketModule,
   ],
   controllers: [AppController],
   providers: [
