@@ -30,7 +30,6 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Sign Up' })
-  @ApiBody({ type: CreateUserDto })
   @Public()
   @Post('register')
   async signUp(@Body() createUserDto: CreateUserDto) {
@@ -58,9 +57,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Refresh Authentication' })
-  @ApiBody({
-    schema: { example: { refreshToken: 'exampleJwtRefreshToken' } },
-  })
+  @ApiBody({ schema: { example: { refreshToken: 'exampleJwtRefreshToken' } } })
   @ApiResponse({
     status: '2XX',
     schema: { example: { accessToken: 'exampleJwtAccessToken' } },

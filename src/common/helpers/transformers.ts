@@ -55,6 +55,7 @@ export const dateTimeTransformer = (options: TransformFnParams) => {
  */
 export const getFullFileUrlTransformer =
   (path?: string) => (options: TransformFnParams) => {
+    if (!options.value) return null
     return path
       ? `${config.fileStream.baseUrl}${path}/${options.value}`
       : `${config.fileStream.baseUrl}${options.value}`
