@@ -20,6 +20,8 @@ model User {
 
   groups UserGroup[] @default([USER])
 
+  balance UserBalance?
+
   Event     Event[]
   purchases Purchase[]
 
@@ -32,6 +34,13 @@ enum UserGroup {
   SUPERADMIN
   ADMIN
   USER
+}
+
+model UserBalance {
+  id      Int    @id @default(autoincrement())
+  userId  String @unique
+  balance Float  @default(0)
+  user    User   @relation(fields: [userId], references: [id])
 }
 
 model Event {

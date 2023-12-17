@@ -2,6 +2,8 @@ import { ConflictException, Injectable } from '@nestjs/common'
 import { User, Prisma } from '@prisma/client'
 import { UserRepository } from './user.repository'
 import { CreateUserDto } from './dto/create-user.dto'
+import { UserEntity } from './entities/user.entity'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UserService {
@@ -9,6 +11,13 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     return await this.userRepository.create(createUserDto)
+  }
+
+  async getUserDetails(id: string) {
+    return await this.userRepository.findUnique({
+      where: { id },
+      include: { balance: true },
+    })
   }
 
   async findUniqueBy(where: Prisma.UserWhereUniqueInput): Promise<User> {
@@ -35,6 +44,22 @@ export class UserService {
     return await this.userRepository.update({
       where: { id },
       data: { activated: true },
+    })
+  }
+
+  async editUser(admin: UserEntity, id: string, updateUserDto: UpdateUserDto) {
+    return await this.userRepository.update({
+      where: { id },
+      data: {
+        ...updateUserDto,
+        balance: {
+          update: {
+            where: { userId: id },
+            data: { balance: updateUserDto.balance },
+          },
+        },
+      },
+      include: { balance: true },
     })
   }
 }

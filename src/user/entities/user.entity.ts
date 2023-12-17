@@ -30,4 +30,6 @@ export class UserEntity {
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date
+
+  balance: { balance: number }
 }

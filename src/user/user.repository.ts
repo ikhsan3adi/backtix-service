@@ -7,7 +7,9 @@ export class UserRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(user: Prisma.UserCreateInput) {
-    return await this.prismaService.user.create({ data: user })
+    return await this.prismaService.user.create({
+      data: { ...user, balance: { create: { balance: 0 } } },
+    })
   }
 
   async findAll(params: {
@@ -31,12 +33,12 @@ export class UserRepository {
 
   async findUnique(params: {
     where: Prisma.UserWhereUniqueInput
-    select?: Prisma.UserSelect
+    include?: Prisma.UserInclude
   }): Promise<User> {
-    const { where, select } = params
+    const { where, include } = params
     return await this.prismaService.user.findUnique({
       where,
-      select,
+      include,
     })
   }
 
