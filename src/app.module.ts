@@ -25,6 +25,8 @@ import { EventModule } from './event/event.module'
 import { ActivationGuard } from './auth/guards/activation.guard'
 import { MailModule } from './mail/mail.module'
 import { TicketModule } from './ticket/ticket.module'
+import { PurchaseModule } from './purchase/purchase.module'
+import { PaymentService } from './payment/payment.service'
 
 @Module({
   imports: [
@@ -45,6 +47,7 @@ import { TicketModule } from './ticket/ticket.module'
     FileModule,
     MailModule,
     TicketModule,
+    PurchaseModule,
   ],
   controllers: [AppController],
   providers: [
@@ -65,6 +68,7 @@ import { TicketModule } from './ticket/ticket.module'
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
     },
+    PaymentService,
   ],
 })
 export class AppModule implements NestModule {

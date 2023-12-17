@@ -40,4 +40,8 @@ export const config = {
     eventImageUrlPath: 'events',
     ticketImageUrlPath: 'tickets',
   },
+  payment: {
+    url: process.env.MIDTRANS_URL,
+    authString: process.env.MIDTRANS_SERVER_KEY,
+  },
 }

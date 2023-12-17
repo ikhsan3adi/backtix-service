@@ -100,11 +100,14 @@ model Ticket {
 }
 
 model Purchase {
-  uid      String         @id @default(uuid())
-  ticketId String
-  userId   String
-  price    Int
-  status   PurchaseStatus @default(PENDING)
+  uid          String                @id @default(uuid())
+  ticketId     String
+  userId       String
+  orderId      String
+  price        Float
+  status       PurchaseStatus        @default(PENDING)
+  refundStatus PurchaseRefundStatus?
+  used         Boolean               @default(false)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -118,4 +121,10 @@ enum PurchaseStatus {
   PENDING
   COMPLETED
   CANCELLED
+}
+
+enum PurchaseRefundStatus {
+  REFUNDING
+  REFUNDED
+  DENIED
 }
