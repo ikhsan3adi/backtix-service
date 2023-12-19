@@ -1,17 +1,20 @@
 import {
-  ConflictException,
+  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
 import { UserService } from '../user/user.service'
-import { RegisterUserDto } from './dto/register-user.dto'
+import { CreateUserDto } from '../user/dto/create-user.dto'
 import { JwtService } from '@nestjs/jwt'
 import { config } from '../common/config'
 import { PasswordService } from './password.service'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
+import { UserEntity } from '../user/entities/user.entity'
+import { MailService } from '../mail/mail.service'
+import { OtpService } from './otp.service'
 
 @Injectable()
 export class AuthService {
@@ -19,43 +22,26 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private passwordService: PasswordService,
+    private mailService: MailService,
+    private otpService: OtpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async registerUser(registerUserDto: RegisterUserDto) {
-    const userAvailable = await this.userService.find({
-      where: {
-        OR: [
-          { email: registerUserDto.email },
-          { username: registerUserDto.username },
-        ],
-      },
-      select: { email: true, username: true },
-    })
-
-    if (userAvailable?.email === registerUserDto.email) {
-      throw new ConflictException(
-        `Email ${registerUserDto.email} already registered`,
-      )
-    } else if (userAvailable?.username === registerUserDto.username) {
-      throw new ConflictException(
-        `Username ${registerUserDto.username} already registered`,
-      )
-    }
+  async registerUser(createUserDto: CreateUserDto) {
+    await this.userService.checkEmailUsername(createUserDto)
 
     const hashedPassword = await this.passwordService.hashPassword(
-      registerUserDto.password,
+      createUserDto.password,
     )
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...user } = await this.userService.create({
-      ...registerUserDto,
+
+    return await this.userService.create({
+      ...createUserDto,
       password: hashedPassword,
     })
-    return user
   }
 
   async validateUser(username: string, password: string) {
-    const user = await this.userService.findUnique({ where: { username } })
+    const user = await this.userService.findUniqueBy({ username })
 
     if (!user) {
       throw new NotFoundException('User not found')
@@ -74,7 +60,7 @@ export class AuthService {
     return result
   }
 
-  async login(user: any) {
+  async login(user: UserEntity) {
     const payload = { sub: user.id, username: user.username, email: user.email }
 
     const refreshToken = this.generateRefreshToken(payload)
@@ -110,28 +96,37 @@ export class AuthService {
       throw new UnauthorizedException('Invalid/Expired token')
     }
 
-    const user = await this.userService.findUnique({
-      where: { id: payload.sub },
-    })
+    const user = await this.userService.findUniqueBy({ id: payload.sub })
     if (!user) {
       throw new NotFoundException('User not found')
     }
     return user
   }
 
-  async refreshAuth(user: any) {
+  async refreshAuth(user: UserEntity) {
     const payload = { sub: user.id, username: user.username, email: user.email }
 
-    return {
-      accessToken: this.jwtService.sign(payload, {
-        secret: config.security.accessTokenKey,
-        expiresIn: config.security.accessTokenExpiration,
-      }),
-    }
+    return { accessToken: this.generateAccessToken(payload) }
   }
 
   async logout(token: string) {
     await this.cacheManager.del(token)
+  }
+
+  async requestActivation(user: UserEntity) {
+    if (user.activated) throw new BadRequestException('ACTIVATED')
+
+    const otp = await this.otpService.createOtp(user.id)
+    // console.log(otp)
+    await this.mailService.sendUserActivation(user, otp)
+
+    return { message: 'Activation code sent' }
+  }
+
+  async activateUser(user: UserEntity, otp: string) {
+    await this.otpService.verifyOtp(user.id, otp)
+
+    return await this.userService.activate(user.id)
   }
 
   private generateAccessToken(payload: any) {

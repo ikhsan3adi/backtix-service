@@ -10,23 +10,27 @@ import {
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { UserEntity } from './entities/user.entity'
+import { User } from './decorators/user.decorator'
 
+@ApiBearerAuth()
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create() {}
+  @Get('my')
+  async myDetails(@User() user: UserEntity) {
+    return new UserEntity(await this.userService.getUserDetails(user.id))
+  }
 
-  @Get()
-  findAll() {}
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {}
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {}
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {}
+  @Patch('/:id')
+  async editUserByAdmin(
+    @User() admin: UserEntity,
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.userService.editUser(admin, id, updateUserDto)
+  }
 }

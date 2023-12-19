@@ -1,53 +1,65 @@
-import { Injectable } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { User, Prisma } from '@prisma/client'
+import { UserRepository } from './user.repository'
+import { CreateUserDto } from './dto/create-user.dto'
+import { UserEntity } from './entities/user.entity'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private userRepository: UserRepository) {}
 
-  async create(user: Prisma.UserCreateInput) {
-    return await this.prismaService.user.create({ data: user })
+  async create(createUserDto: CreateUserDto) {
+    return await this.userRepository.create(createUserDto)
   }
 
-  async findAll(params: {
-    skip?: number
-    take?: number
-    cursor?: Prisma.UserWhereUniqueInput
-    where?: Prisma.UserWhereInput
-    orderBy?: Prisma.UserOrderByWithRelationInput
-    select?: Prisma.UserSelect
-  }): Promise<User[]> {
-    const { skip, take, cursor, where, orderBy, select } = params
-    return this.prismaService.user.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-      select,
+  async getUserDetails(id: string) {
+    return await this.userRepository.findUnique({
+      where: { id },
+      include: { balance: true },
     })
   }
 
-  async findUnique(params: {
-    where: Prisma.UserWhereUniqueInput
-    select?: Prisma.UserSelect
-  }): Promise<User> {
-    const { where, select } = params
-    return await this.prismaService.user.findUnique({
-      where,
-      select,
+  async findUniqueBy(where: Prisma.UserWhereUniqueInput): Promise<User> {
+    return await this.userRepository.findUnique({ where })
+  }
+
+  async checkEmailUsername(params: { username: string; email: string }) {
+    const { username, email } = params
+    const userAvailable = await this.userRepository.find({
+      where: {
+        OR: [{ email: email }, { username: username }],
+      },
+      select: { email: true, username: true },
+    })
+
+    if (userAvailable?.email === email) {
+      throw new ConflictException(`Email ${email} already registered`)
+    } else if (userAvailable?.username === username) {
+      throw new ConflictException(`Username ${username} already registered`)
+    }
+  }
+
+  async activate(id: string) {
+    return await this.userRepository.update({
+      where: { id },
+      data: { activated: true },
     })
   }
 
-  async find(params: {
-    where: Prisma.UserWhereInput
-    select?: Prisma.UserSelect
-  }): Promise<User> {
-    const { where, select } = params
-    return await this.prismaService.user.findFirst({
-      where,
-      select,
+  async editUser(admin: UserEntity, id: string, updateUserDto: UpdateUserDto) {
+    return await this.userRepository.update({
+      where: { id },
+      data: {
+        ...updateUserDto,
+        balance: {
+          update: {
+            where: { userId: id },
+            data: { balance: updateUserDto.balance },
+          },
+        },
+      },
+      include: { balance: true },
     })
   }
 }

@@ -11,18 +11,120 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  username  String      @unique
+  id        String  @id @default(uuid())
+  username  String  @unique
   fullname  String
-  email     String      @unique
+  email     String  @unique
   password  String
-  groups    UserGroup[] @default([USER])
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  activated Boolean @default(false)
+
+  groups UserGroup[] @default([USER])
+
+  balance UserBalance?
+
+  Event     Event[]
+  purchases Purchase[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
 enum UserGroup {
+  SUPERADMIN
   ADMIN
   USER
+}
+
+model UserBalance {
+  id      Int    @id @default(autoincrement())
+  userId  String @unique
+  balance Float  @default(0)
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+model Event {
+  id          String       @id @default(uuid())
+  userId      String
+  name        String
+  date        DateTime
+  endDate     DateTime?
+  location    String
+  description String
+  images      EventImage[]
+  status      EventStatus  @default(DRAFT)
+
+  tickets Ticket[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  REJECTED
+}
+
+model EventImage {
+  id          Int     @id @default(autoincrement())
+  eventId     String
+  image       String
+  description String?
+
+  event Event @relation(fields: [eventId], references: [id])
+}
+
+// Ticket variant e.g Normal with price 2000, VIP with price 5000
+model Ticket {
+  id               String    @id @default(uuid())
+  eventId          String
+  name             String
+  price            Float
+  stock            Int
+  currentStock     Int
+  image            String?
+  salesOpenDate    DateTime?
+  purchaseDeadline DateTime?
+
+  purchases Purchase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id])
+}
+
+model Purchase {
+  uid          String                @id @default(uuid())
+  ticketId     String
+  userId       String
+  orderId      String
+  price        Float
+  status       PurchaseStatus        @default(PENDING)
+  refundStatus PurchaseRefundStatus?
+  used         Boolean               @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum PurchaseRefundStatus {
+  REFUNDING
+  REFUNDED
+  DENIED
 }
