@@ -20,7 +20,13 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document)
 
   app.use(helmet())
-  app.useGlobalPipes(new ValidationPipe({ transform: true }))
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      skipMissingProperties: true,
+    }),
+  )
 
   await app.listen(config.server.port, config.server.host)
 }
