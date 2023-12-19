@@ -17,6 +17,8 @@ model User {
   email     String  @unique
   password  String
   activated Boolean @default(false)
+  image     String?
+  provider  String?
 
   groups UserGroup[] @default([USER])
 

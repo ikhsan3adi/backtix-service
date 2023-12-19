@@ -1,12 +1,4 @@
-import { Group } from '../enums/group.enum'
+import { PartialType } from '@nestjs/swagger'
+import { CreateUserDto } from './create-user.dto'
 
-export class UpdateUserDto {
-  id?: string
-  username: string
-  fullname: string
-  email: string
-  password: string
-  activated?: boolean
-  groups?: Group[]
-  balance?: number
-}
+export class UpdateUserDto extends PartialType(CreateUserDto) {}

@@ -39,11 +39,13 @@ export const config = {
     uploadsPath: 'uploads',
     eventImagePath: 'uploads/events',
     ticketImagePath: 'uploads/tickets',
+    userImagePath: 'uploads/users',
   },
   fileStream: {
     baseUrl: process.env.STORAGE_BASE_URL ?? `${process.env.BASE_URL}file/`,
     eventImageUrlPath: 'events',
     ticketImageUrlPath: 'tickets',
+    userImageUrlPath: 'users',
   },
   payment: {
     url: process.env.MIDTRANS_URL,
