@@ -7,6 +7,4 @@ export class UpdateEventImageDto {
 
   @IsString()
   description: string
-
-  image?: string
 }

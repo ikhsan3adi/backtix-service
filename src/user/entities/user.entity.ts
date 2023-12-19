@@ -1,6 +1,8 @@
-import { Exclude } from 'class-transformer'
+import { Exclude, Transform } from 'class-transformer'
 import { Group } from '../enums/group.enum'
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger'
+import { getFullFileUrlTransformer } from '../../common/helpers/transformers'
+import { config } from '../../common/config'
 
 export class UserEntity {
   constructor(partial: Partial<UserEntity>) {
@@ -11,10 +13,15 @@ export class UserEntity {
   @Exclude()
   password: string
 
+  provider: string
+
   id: string
   username: string
   fullname: string
   email: string
+
+  @Transform(getFullFileUrlTransformer(config.fileStream.userImageUrlPath))
+  image: string
 
   @ApiProperty({
     enum: [

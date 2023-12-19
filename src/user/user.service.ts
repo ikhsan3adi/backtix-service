@@ -1,13 +1,22 @@
-import { ConflictException, Injectable } from '@nestjs/common'
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common'
 import { User, Prisma } from '@prisma/client'
 import { UserRepository } from './user.repository'
 import { CreateUserDto } from './dto/create-user.dto'
-import { UserEntity } from './entities/user.entity'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { StorageService } from '../storage/storage.service'
+import { config } from '../common/config'
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto'
 
 @Injectable()
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private storageService: StorageService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     return await this.userRepository.create(createUserDto)
@@ -33,7 +42,7 @@ export class UserService {
       select: { email: true, username: true },
     })
 
-    if (userAvailable?.email === email) {
+    if (email && userAvailable?.email === email) {
       throw new ConflictException(`Email ${email} already registered`)
     } else if (username && userAvailable?.username === username) {
       throw new ConflictException(`Username ${username} already registered`)
@@ -47,19 +56,52 @@ export class UserService {
     })
   }
 
-  async editUser(admin: UserEntity, id: string, updateUserDto: UpdateUserDto) {
-    return await this.userRepository.update({
-      where: { id },
-      data: {
-        ...updateUserDto,
-        balance: {
-          update: {
-            where: { userId: id },
-            data: { balance: updateUserDto.balance },
-          },
-        },
-      },
-      include: { balance: true },
+  async editUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    image?: Express.Multer.File,
+  ) {
+    await this.checkEmailUsername({
+      email: updateUserDto.email,
+      username: updateUserDto.username,
     })
+
+    const filename = image
+      ? await this.storageService.generateRandomFilename(image.originalname)
+      : undefined
+
+    try {
+      const user = await this.userRepository.update({
+        where: { id },
+        data: {
+          ...updateUserDto,
+          image: filename,
+          balance:
+            updateUserDto instanceof AdminUpdateUserDto
+              ? {
+                  update: {
+                    where: { userId: id },
+                    data: { balance: updateUserDto.balance },
+                  },
+                }
+              : undefined,
+        },
+        include: { balance: true },
+      })
+      if (filename) {
+        await this.storageService.createFile(
+          config.storage.userImagePath,
+          filename,
+          image.buffer,
+        )
+      }
+      return user
+    } catch (e) {
+      console.error(e)
+
+      if (filename)
+        this.storageService.deleteFile(config.storage.userImagePath, filename)
+      throw new InternalServerErrorException(e)
+    }
   }
 }

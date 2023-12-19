@@ -21,14 +21,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, name, displayName, emails, picture } = profile
+    const { provider, id, name, displayName, email, picture } = profile
 
     const user = new UserEntity({
+      provider,
       id,
-      fullname: `${name.givenName} ${name.familyName}`,
-      email: emails[0].value,
       username: `${displayName.split(' ').join('').toLowerCase()}-${id}`,
+      email,
+      fullname: `${name.givenName} ${name.familyName}`,
+      image: picture,
     })
 
     done(null, user)
