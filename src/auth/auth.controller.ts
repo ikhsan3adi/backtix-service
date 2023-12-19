@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Patch,
   Post,
@@ -23,6 +24,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
+import { GoogleOauthGuard } from './guards/google-oauth.guard'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -54,6 +56,18 @@ export class AuthController {
   @Post()
   async signIn(@User() user: UserEntity) {
     return await this.authService.login(user)
+  }
+
+  @Public()
+  @Get('google')
+  @UseGuards(GoogleOauthGuard)
+  async requestGoogleAuth() {}
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthCallback(@User() user: UserEntity) {
+    return await this.authService.googleSignInOrSignUp(user)
   }
 
   @ApiOperation({ summary: 'Refresh Authentication' })

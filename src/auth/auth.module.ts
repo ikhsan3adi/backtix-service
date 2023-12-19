@@ -10,6 +10,7 @@ import { JwtStrategy } from './strategies/jwt.strategy'
 import { PasswordService } from './password.service'
 import { MailModule } from '../mail/mail.module'
 import { OtpService } from './otp.service'
+import { GoogleStrategy } from './strategies/google.strategy'
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { OtpService } from './otp.service'
     PasswordService,
     LocalStrategy,
     JwtStrategy,
+    GoogleStrategy,
     OtpService,
   ],
 })
