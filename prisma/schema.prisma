@@ -22,7 +22,7 @@ model User {
 
   balance UserBalance?
 
-  Event     Event[]
+  events    Event[]
   purchases Purchase[]
 
   createdAt DateTime  @default(now())
