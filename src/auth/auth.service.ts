@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
@@ -26,6 +28,34 @@ export class AuthService {
     private otpService: OtpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
+
+  async googleSignInOrSignUp(user: UserEntity) {
+    try {
+      await this.userService.checkEmailUsername({
+        email: user.email,
+        username: undefined,
+      })
+
+      return {
+        ...(await this.registerUser({ ...user, password: user.id })),
+        new: true,
+      }
+    } catch (e) {
+      if (e instanceof ConflictException) {
+        const _user = await this.userService.findUniqueBy({ email: user.email })
+        return {
+          ...(await this.login({
+            ...user,
+            id: _user.id,
+            username: _user.username,
+          })),
+          new: false,
+        }
+      }
+      console.error(e)
+      throw new InternalServerErrorException()
+    }
+  }
 
   async registerUser(createUserDto: CreateUserDto) {
     await this.userService.checkEmailUsername(createUserDto)

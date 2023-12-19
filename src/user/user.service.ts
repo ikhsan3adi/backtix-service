@@ -35,7 +35,7 @@ export class UserService {
 
     if (userAvailable?.email === email) {
       throw new ConflictException(`Email ${email} already registered`)
-    } else if (userAvailable?.username === username) {
+    } else if (username && userAvailable?.username === username) {
       throw new ConflictException(`Username ${username} already registered`)
     }
   }

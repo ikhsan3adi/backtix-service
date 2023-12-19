@@ -18,6 +18,11 @@ export const config = {
     bcryptSaltOrRound: 10,
     otpTTL: Number(process.env.OTP_TTL ?? 300 * 1000),
     otpPrefix: 'otp-',
+    google: {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: `${process.env.BASE_URL}auth/google/callback`,
+    },
   },
   redis: {
     host: process.env.REDIS_HOST,
