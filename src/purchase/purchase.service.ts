@@ -19,6 +19,7 @@ import { EventService } from '../event/event.service'
 import { nanoid } from 'nanoid'
 import { createHash } from 'crypto'
 import { config } from '../common/config'
+import { exceptions } from '../common/exceptions/exceptions'
 
 @Injectable()
 export class PurchaseService {
@@ -221,7 +222,7 @@ export class PurchaseService {
         ticket: { include: { event: { include: { images: { take: 1 } } } } },
       },
     })
-    if (!purchase) throw new NotFoundException('Purchase not found')
+    if (!purchase) throw new NotFoundException(exceptions.PURCHASE.NOT_FOUND)
     return purchase
   }
 
@@ -370,16 +371,16 @@ export class PurchaseService {
     })
 
     if (!purchase) {
-      throw new NotFoundException('Ticket purchase not found')
+      throw new NotFoundException(exceptions.PURCHASE.NOT_FOUND)
     } else if (purchase.ticket.eventId !== eventId) {
-      throw new NotAcceptableException('Invalid ticket')
+      throw new NotAcceptableException(exceptions.PURCHASE.INVALID)
     } else if (
       purchase.status !== 'COMPLETED' ||
       purchase.refundStatus === 'REFUNDED'
     ) {
-      throw new NotAcceptableException('Invalid ticket')
+      throw new NotAcceptableException(exceptions.PURCHASE.INVALID)
     } else if (purchase.used) {
-      throw new NotAcceptableException('Ticket has been used')
+      throw new NotAcceptableException(exceptions.PURCHASE.TICKET_USED)
     }
 
     return purchase
@@ -432,7 +433,7 @@ export class PurchaseService {
       },
     })
 
-    if (!eventId) throw new NotFoundException('Event not found')
+    if (!eventId) throw new NotFoundException(exceptions.EVENT.NOT_FOUND)
 
     await this.eventService.verifyEventOwner(ownerUser, eventId, false)
   }

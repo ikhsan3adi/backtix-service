@@ -10,6 +10,7 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { StorageService } from '../storage/storage.service'
 import { config } from '../common/config'
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto'
+import { exceptions } from '../common/exceptions/exceptions'
 
 @Injectable()
 export class UserService {
@@ -43,9 +44,13 @@ export class UserService {
     })
 
     if (email && userAvailable?.email === email) {
-      throw new ConflictException(`Email ${email} already registered`)
+      throw new ConflictException(
+        exceptions.USER.EMAIL_ALREADY_REGISTERED(email),
+      )
     } else if (username && userAvailable?.username === username) {
-      throw new ConflictException(`Username ${username} already registered`)
+      throw new ConflictException(
+        exceptions.USER.USERNAME_ALREADY_REGISTERED(username),
+      )
     }
   }
 

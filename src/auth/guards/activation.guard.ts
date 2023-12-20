@@ -8,6 +8,7 @@ import { Reflector } from '@nestjs/core'
 import { UserEntity } from '../../user/entities/user.entity'
 import { ALLOW_UNACTIVATED_KEY } from '../decorators/allow-unactivated.decorator'
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator'
+import { exceptions } from '../../common/exceptions/exceptions'
 
 @Injectable()
 export class ActivationGuard implements CanActivate {
@@ -27,7 +28,9 @@ export class ActivationGuard implements CanActivate {
     if (allowUnactivated) return true
 
     const { user }: { user: UserEntity } = context.switchToHttp().getRequest()
-    if (!user.activated) throw new ForbiddenException('UNACTIVATED')
+    if (!user.activated) {
+      throw new ForbiddenException(exceptions.AUTH.UNACTIVATED)
+    }
 
     return true
   }

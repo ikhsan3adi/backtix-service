@@ -5,6 +5,7 @@ import {
   plainToInstance,
 } from 'class-transformer'
 import { config } from '../config'
+import { exceptions } from '../exceptions/exceptions'
 
 /**
  * Transform string object to instance / plain
@@ -33,7 +34,9 @@ export const objectStringTransformer =
 
       return values
     } catch (e) {
-      throw new BadRequestException(`${options.key} contains invalid JSON`)
+      throw new BadRequestException(
+        exceptions.VALIDATION.CONTAINS_INVALID_JSON(options.key),
+      )
     }
   }
 
@@ -45,7 +48,9 @@ export const dateTimeTransformer = (options: TransformFnParams) => {
   try {
     return new Date(options.value).toISOString()
   } catch (e) {
-    throw new BadRequestException(`${options.key} contains invalid DateTime`)
+    throw new BadRequestException(
+      exceptions.VALIDATION.CONTAINS_INVALID_DATETIME(options.key),
+    )
   }
 }
 

@@ -3,6 +3,7 @@ import { createReadStream } from 'fs'
 import { join } from 'path'
 import { config } from '../common/config'
 import { StorageService } from '../storage/storage.service'
+import { exceptions } from '../common/exceptions/exceptions'
 
 @Injectable()
 export class FileService {
@@ -18,6 +19,6 @@ export class FileService {
   checkFileExists(path: string) {
     const fileExist = this.storageService.checkIfFileOrDirectoryExists(path)
 
-    if (!fileExist) throw new NotFoundException('File was not found')
+    if (!fileExist) throw new NotFoundException(exceptions.FILE.NOT_FOUND)
   }
 }

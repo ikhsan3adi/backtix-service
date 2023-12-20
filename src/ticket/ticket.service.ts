@@ -13,6 +13,7 @@ import { StorageService } from '../storage/storage.service'
 import { EventService } from '../event/event.service'
 import { TicketRepository } from './ticket.repository'
 import { config } from '../common/config'
+import { exceptions } from '../common/exceptions/exceptions'
 
 @Injectable()
 export class TicketService {
@@ -139,10 +140,14 @@ export class TicketService {
     })
     if (!ticket) throw new NotFoundException()
     if (ticket.event.status === 'PUBLISHED') {
-      throw new NotAcceptableException(`Cannot delete published ticket`)
+      throw new NotAcceptableException(
+        exceptions.TICKET.DELETE_PUBLISHED_TICKET,
+      )
     }
     // if (ticket.purchases.length > 0) {
-    //   throw new NotAcceptableException(`Cannot delete purchased ticket`)
+    //   throw new NotAcceptableException(
+    //     exceptions.TICKET.DELETE_PURCHASED_TICKET,
+    //   )
     // }
     await this.eventService.verifyEventOwner(user, ticket.event.id)
 
@@ -156,17 +161,17 @@ export class TicketService {
     })
 
     if (!ticket) {
-      throw new NotFoundException('Ticket not found')
+      throw new NotFoundException(exceptions.TICKET.NOT_FOUND)
     } else if (ticket.currentStock < quantity) {
-      throw new BadRequestException('Insufficient ticket stock')
+      throw new BadRequestException(exceptions.TICKET.INSUFFICIENT_STOCK)
     } else if (new Date() < ticket.salesOpenDate) {
-      throw new BadRequestException('Ticket sales are not yet open')
+      throw new BadRequestException(exceptions.TICKET.SALES_NOT_YET_OPEN)
     } else if (new Date() > ticket.purchaseDeadline) {
-      throw new BadRequestException('Ticket sales have closed')
+      throw new BadRequestException(exceptions.TICKET.SALES_CLOSED)
     } else if (ticket.event.status !== 'PUBLISHED') {
-      throw new BadRequestException('Invalid event')
+      throw new BadRequestException(exceptions.TICKET.INVALID)
     } else if (ticket.event.deletedAt !== null) {
-      throw new ForbiddenException('Invalid event')
+      throw new ForbiddenException(exceptions.TICKET.INVALID)
     }
 
     return ticket
