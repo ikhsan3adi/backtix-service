@@ -1,22 +1,17 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { SwaggerModule } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
 import helmet from 'helmet'
 import { config } from './common/config'
 import metadata from './metadata'
+import { openApiConfig } from './open-api.config'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
-  const openApiConfig = new DocumentBuilder()
-    .setTitle('BackTix API')
-    .setDescription('The BackTix API docs')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build()
   const document = SwaggerModule.createDocument(app, openApiConfig)
-  await SwaggerModule.loadPluginMetadata(metadata)
+  if (metadata) await SwaggerModule.loadPluginMetadata(metadata)
   SwaggerModule.setup('api', app, document)
 
   app.use(helmet())
