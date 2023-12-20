@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import { join } from 'path'
 import { StorageService } from './storage.service'
 import { nanoid } from 'nanoid'
+import { exceptions } from '../common/exceptions/exceptions'
 
 @Injectable()
 export class LocalStorageService extends StorageService {
@@ -36,7 +37,7 @@ export class LocalStorageService extends StorageService {
       fs.writeFileSync(join(process.cwd(), path, filename), data, 'utf8')
     } catch (e) {
       console.error(e)
-      throw new InternalServerErrorException('Failed to upload file')
+      throw new InternalServerErrorException(exceptions.FILE.UPLOAD_FAILED)
     }
   }
 

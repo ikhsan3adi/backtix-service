@@ -17,6 +17,7 @@ import { Cache } from 'cache-manager'
 import { UserEntity } from '../user/entities/user.entity'
 import { MailService } from '../mail/mail.service'
 import { OtpService } from './otp.service'
+import { exceptions } from '../common/exceptions/exceptions'
 
 @Injectable()
 export class AuthService {
@@ -74,7 +75,7 @@ export class AuthService {
     const user = await this.userService.findUniqueBy({ username })
 
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException(exceptions.USER.NOT_FOUND)
     }
 
     const passwordValid = await this.passwordService.validatePassword(
@@ -83,7 +84,7 @@ export class AuthService {
     )
 
     if (!passwordValid) {
-      throw new UnauthorizedException('Wrong password')
+      throw new UnauthorizedException(exceptions.AUTH.WRONG_PASSWORD)
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = user
@@ -110,7 +111,7 @@ export class AuthService {
 
   async validateRefreshToken(token: string) {
     if (!token) {
-      throw new UnauthorizedException('Refresh token cannot be empty')
+      throw new UnauthorizedException(exceptions.AUTH.EMPTY_REFRESH_TOKEN)
     }
 
     let payload: any
@@ -123,12 +124,12 @@ export class AuthService {
       })
       if (payload.sub !== authenticated) throw new Error()
     } catch {
-      throw new UnauthorizedException('Invalid/Expired token')
+      throw new UnauthorizedException(exceptions.AUTH.INVALID_TOKEN)
     }
 
     const user = await this.userService.findUniqueBy({ id: payload.sub })
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException(exceptions.USER.NOT_FOUND)
     }
     return user
   }
@@ -144,7 +145,7 @@ export class AuthService {
   }
 
   async requestActivation(user: UserEntity) {
-    if (user.activated) throw new BadRequestException('ACTIVATED')
+    if (user.activated) throw new BadRequestException(exceptions.AUTH.ACTIVATED)
 
     const otp = await this.otpService.createOtp(user.id)
     // console.log(otp)
