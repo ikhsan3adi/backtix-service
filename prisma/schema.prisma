@@ -24,6 +24,10 @@ model User {
 
   balance UserBalance?
 
+  location  String?
+  latitude  Float?
+  longitude Float?
+
   events    Event[]
   purchases Purchase[]
 
@@ -52,10 +56,14 @@ model Event {
   name        String
   date        DateTime
   endDate     DateTime?
-  location    String
   description String
+  categories  String[]
   images      EventImage[]
   status      EventStatus  @default(DRAFT)
+
+  location  String?
+  latitude  Float?
+  longitude Float?
 
   tickets Ticket[]
 
