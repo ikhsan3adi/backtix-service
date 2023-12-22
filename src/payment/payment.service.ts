@@ -4,6 +4,12 @@ import { Transaction } from './interfaces/transaction.interface'
 
 @Injectable()
 export class PaymentService {
+  constructor() {
+    this.#authString = Buffer.from(config.payment.authString).toString('base64')
+  }
+
+  #authString: string
+
   async createTransaction(transaction: Transaction): Promise<{
     token?: string
     redirect_url?: string
@@ -15,9 +21,7 @@ export class PaymentService {
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
-        authorization: `Basic ${Buffer.from(config.payment.authString).toString(
-          'base64',
-        )}`,
+        authorization: `Basic ${this.#authString}`,
       },
       body: JSON.stringify(transaction),
     }
@@ -34,25 +38,3 @@ export class PaymentService {
     }
   }
 }
-
-// {
-//   transaction_details: {
-//     order_id: 'order-id',
-//     gross_amount: 10000,
-//   },
-//   credit_card: { secure: true },
-//   item_details: [
-//     {
-//       id: 'ticket_id',
-//       price: 10000,
-//       quantity: 1,
-//       name: 'Ticket + Event name',
-//       merchant_name: 'username of event owner',
-//     },
-//   ],
-//   customer_details: {
-//     first_name: 'User name',
-//     last_name: 'User name',
-//     email: 'test@midtrans.com',
-//   },
-// }
