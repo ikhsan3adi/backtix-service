@@ -3,14 +3,14 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common'
-import { User, Prisma } from '@prisma/client'
-import { UserRepository } from './user.repository'
+import { Prisma, User } from '@prisma/client'
+import { config } from '../common/config'
+import { exceptions } from '../common/exceptions/exceptions'
+import { StorageService } from '../storage/storage.service'
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { StorageService } from '../storage/storage.service'
-import { config } from '../common/config'
-import { AdminUpdateUserDto } from './dto/admin-update-user.dto'
-import { exceptions } from '../common/exceptions/exceptions'
+import { UserRepository } from './user.repository'
 
 @Injectable()
 export class UserService {
@@ -86,7 +86,10 @@ export class UserService {
               ? {
                   update: {
                     where: { userId: id },
-                    data: { balance: updateUserDto.balance },
+                    data: {
+                      balance: updateUserDto.balance,
+                      revenue: updateUserDto.revenue,
+                    },
                   },
                 }
               : undefined,
