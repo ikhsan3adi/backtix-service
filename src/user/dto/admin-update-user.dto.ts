@@ -1,7 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
+import { IsBooleanString, IsNumber, IsString } from 'class-validator'
 import { Group } from '../enums/group.enum'
 import { UpdateUserDto } from './update-user.dto'
-import { IsBooleanString, IsNumber, IsString } from 'class-validator'
 
 export class AdminUpdateUserDto extends PartialType(UpdateUserDto) {
   @IsString()
@@ -34,4 +34,7 @@ export class AdminUpdateUserDto extends PartialType(UpdateUserDto) {
 
   @IsNumber()
   balance?: number
+
+  @IsNumber()
+  revenue?: number
 }

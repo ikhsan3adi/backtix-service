@@ -1,8 +1,8 @@
-import { Exclude, Transform } from 'class-transformer'
-import { Group } from '../enums/group.enum'
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger'
-import { getFullFileUrlTransformer } from '../../common/helpers/transformers'
+import { Exclude, Transform } from 'class-transformer'
 import { config } from '../../common/config'
+import { getFullFileUrlTransformer } from '../../common/helpers/transformers'
+import { Group } from '../enums/group.enum'
 
 export class UserEntity {
   constructor(partial: Partial<UserEntity>) {
@@ -38,5 +38,5 @@ export class UserEntity {
   updatedAt: Date
   deletedAt?: Date
 
-  balance: { balance: number }
+  balance: { balance: number; revenue: number }
 }

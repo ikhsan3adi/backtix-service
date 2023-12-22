@@ -1,19 +1,21 @@
+import { ApiProperty } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsDateString,
+  IsLatitude,
+  IsLongitude,
   IsNotEmpty,
   IsString,
   ValidateIf,
   ValidateNested,
 } from 'class-validator'
-import { Transform } from 'class-transformer'
 import {
   dateTimeTransformer,
   objectStringTransformer,
 } from '../../common/helpers/transformers'
-import { ApiProperty } from '@nestjs/swagger'
 import { CreateTicketDto } from '../../ticket/dto/create-ticket.dto'
 
 export class CreateEventDto {
@@ -34,6 +36,14 @@ export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
   location: string
+
+  @IsLatitude()
+  @IsNotEmpty()
+  latitude: number
+
+  @IsLongitude()
+  @IsNotEmpty()
+  longitude: number
 
   @IsString()
   @IsNotEmpty()
