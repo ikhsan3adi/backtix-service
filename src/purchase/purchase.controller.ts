@@ -1,39 +1,44 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
-  HttpCode,
-  Query,
+  Controller,
   Delete,
+  Get,
+  HttpCode,
+  Param,
   ParseBoolPipe,
+  Patch,
+  Post,
+  Query,
   Req,
 } from '@nestjs/common'
-import { PurchaseService } from './purchase.service'
-import { CreatePurchaseDto as CreateTicketOrderDto } from './dto/create-ticket-order.dto'
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Request } from 'express'
+import { Public } from '../auth/decorators/public.decorator'
 import { User } from '../user/decorators/user.decorator'
 import { UserEntity } from '../user/entities/user.entity'
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { CreatePurchaseDto as CreateTicketOrderDto } from './dto/create-ticket-order.dto'
 import { PaymentNotificationDto } from './dto/payment-notification.dto'
-import { Public } from '../auth/decorators/public.decorator'
-import { TicketOrder } from './entities/ticket-order.entity'
-import { Purchase } from './entities/purchase.entity'
 import { ValidateTicketDto } from './dto/validate-ticket.dto'
-import { Request } from 'express'
+import { Purchase } from './entities/purchase.entity'
+import { TicketOrder } from './entities/ticket-order.entity'
+import { PurchaseService } from './purchase.service'
+import { RefundService } from './refund/refund.service'
+import { TicketService } from './ticket/ticket.service'
 
 @ApiTags('purchase')
 @ApiBearerAuth()
 @Controller('purchase')
 export class PurchaseController {
-  constructor(private readonly purchaseService: PurchaseService) {}
+  constructor(
+    private readonly purchaseService: PurchaseService,
+    private readonly ticketService: TicketService,
+    private readonly refundService: RefundService,
+  ) {}
 
   @ApiOperation({ summary: 'Request ticket refund/cancel' })
   @Post(':uid/refund')
   async refundTicketOrder(@User() user: UserEntity, @Param('uid') uid: string) {
-    return new Purchase(await this.purchaseService.refundTicketOrder(user, uid))
+    return new Purchase(await this.refundService.refundTicketOrder(user, uid))
   }
 
   @ApiOperation({ summary: 'Accept ticket refund/cancel by event owner' })
@@ -42,9 +47,7 @@ export class PurchaseController {
     @User() user: UserEntity,
     @Param('uid') uid: string,
   ) {
-    return new Purchase(
-      await this.purchaseService.acceptTicketRefund(user, uid),
-    )
+    return new Purchase(await this.refundService.acceptTicketRefund(user, uid))
   }
 
   @ApiOperation({ summary: 'Reject ticket refund/cancel by event owner' })
@@ -53,9 +56,7 @@ export class PurchaseController {
     @User() user: UserEntity,
     @Param('uid') uid: string,
   ) {
-    return new Purchase(
-      await this.purchaseService.rejectTicketRefund(user, uid),
-    )
+    return new Purchase(await this.refundService.rejectTicketRefund(user, uid))
   }
 
   @ApiOperation({ summary: 'Notify ticket order (used by payment gateway)' })
@@ -74,7 +75,7 @@ export class PurchaseController {
   @ApiOperation({ summary: 'My purchased ticket detail' })
   @Get('ticket/my/:uid')
   async myTicket(@User() user: UserEntity, @Param('uid') uid: string) {
-    return new Purchase(await this.purchaseService.myTicket(user, uid))
+    return new Purchase(await this.ticketService.myTicket(user, uid))
   }
 
   @ApiOperation({ summary: 'My purchased tickets' })
@@ -86,7 +87,7 @@ export class PurchaseController {
     @Query('used', ParseBoolPipe) used: boolean = false,
   ) {
     return (
-      await this.purchaseService.myTickets(user, status, refundStatus, used)
+      await this.ticketService.myTickets(user, status, refundStatus, used)
     ).map((e) => new Purchase(e))
   }
 
@@ -97,7 +98,7 @@ export class PurchaseController {
     @Body() { uid, eventId }: ValidateTicketDto,
   ) {
     return new Purchase(
-      await this.purchaseService.validateTicket(user, uid, eventId),
+      await this.ticketService.validateTicket(user, uid, eventId),
     )
   }
 
@@ -107,9 +108,7 @@ export class PurchaseController {
     @User() user: UserEntity,
     @Body() { uid, eventId }: ValidateTicketDto,
   ) {
-    return new Purchase(
-      await this.purchaseService.useTicket(user, uid, eventId),
-    )
+    return new Purchase(await this.ticketService.useTicket(user, uid, eventId))
   }
 
   @ApiOperation({ summary: 'Buy ticket' })

@@ -4,22 +4,21 @@ import {
   HttpException,
   Injectable,
   InternalServerErrorException,
-  NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common'
-import { CreatePurchaseDto } from './dto/create-ticket-order.dto'
-import { PaymentService } from '../payment/payment.service'
-import { UserEntity } from '../user/entities/user.entity'
-import { PurchaseRepository } from './purchase.repository'
-import { TicketService } from '../ticket/ticket.service'
-import { PaymentNotificationDto } from './dto/payment-notification.dto'
 import { Prisma, PrismaClient } from '@prisma/client'
-import { PaymentMethod } from './enums/payment-method.enum'
-import { EventService } from '../event/event.service'
-import { nanoid } from 'nanoid'
 import { createHash } from 'crypto'
+import { nanoid } from 'nanoid'
 import { config } from '../common/config'
 import { exceptions } from '../common/exceptions/exceptions'
+import { EventService } from '../event/event.service'
+import { PaymentService } from '../payment/payment.service'
+import { TicketService } from '../ticket/ticket.service'
+import { UserEntity } from '../user/entities/user.entity'
+import { CreatePurchaseDto } from './dto/create-ticket-order.dto'
+import { PaymentNotificationDto } from './dto/payment-notification.dto'
+import { PaymentMethod } from './enums/payment-method.enum'
+import { PurchaseRepository } from './purchase.repository'
 
 @Injectable()
 export class PurchaseService {
@@ -33,9 +32,6 @@ export class PurchaseService {
   }
 
   idGenerator: (size: number) => string
-
-  purchaseStatuses = ['PENDING', 'COMPLETED', 'CANCELLED']
-  refundStatuses = ['REFUNDING', 'REFUNDED', 'DENIED']
 
   async notifyTicketOrder(notification: PaymentNotificationDto) {
     if (!notification) throw new BadRequestException()
@@ -53,21 +49,29 @@ export class PurchaseService {
 
     return await this.purchaseRepository.createTransactions(async (tx) => {
       const completeSuccessTicketOrder = async () => {
-        return await this.completeSuccessTicketOrder(
+        const {
+          ticket: {
+            event: { userId: eventOwnerId },
+          },
+          userId,
+        } = await tx.purchase.findFirst({
+          where: { orderId },
+          select: {
+            userId: true,
+            ticket: { select: { event: { select: { userId: true } } } },
+          },
+        })
+
+        return await this.completeSuccessTicketOrder({
           tx,
           orderId,
-          balanceUsed
-            ? {
-                userId: (
-                  await tx.purchase.findFirst({
-                    where: { orderId },
-                    select: { userId: true },
-                  })
-                ).userId,
-                amount: Number(balanceUsed),
-              }
+          eventOwnerId,
+          totalRevenue:
+            Number(grossAmount) + (balanceUsed ? Number(balanceUsed) : 0),
+          balanceDeducted: balanceUsed
+            ? { buyerUserId: userId, amount: Number(balanceUsed) }
             : undefined,
-        )
+        })
       }
 
       if (transactionStatus === 'capture' && fraudStatus === 'accept') {
@@ -135,9 +139,15 @@ export class PurchaseService {
             })
 
           if (userBalance >= TOTAL_PRICE) {
-            await this.completeSuccessTicketOrder(tx, orderId, {
-              userId: user.id,
-              amount: TOTAL_PRICE,
+            await this.completeSuccessTicketOrder({
+              tx,
+              orderId,
+              eventOwnerId: ticket.event.userId,
+              totalRevenue: TOTAL_PRICE,
+              balanceDeducted: {
+                buyerUserId: user.id,
+                amount: TOTAL_PRICE,
+              },
             })
             return { ticket, transaction: { status: 'paid' } }
           }
@@ -190,235 +200,10 @@ export class PurchaseService {
     }
   }
 
-  async myTickets(
-    user: UserEntity,
-    status?: string | any,
-    refundStatus?: string | any,
-    used?: boolean,
-  ) {
-    const s = this.purchaseStatuses.includes(status) ? status : 'COMPLETED'
-    const rs = this.refundStatuses.includes(refundStatus)
-      ? refundStatus
-      : undefined
-
-    return await this.purchaseRepository.findMany({
-      where: { userId: user.id, status: s, refundStatus: rs, used },
-      include: {
-        ticket: {
-          include: {
-            event: {
-              include: { images: { take: 1 } },
-            },
-          },
-        },
-      },
-    })
-  }
-
-  async myTicket(user: UserEntity, uid: string) {
-    const purchase = await this.purchaseRepository.findOne({
-      where: { userId: user.id, uid },
-      include: {
-        ticket: { include: { event: { include: { images: { take: 1 } } } } },
-      },
-    })
-    if (!purchase) throw new NotFoundException(exceptions.PURCHASE.NOT_FOUND)
-    return purchase
-  }
-
-  async refundTicketOrder(user: UserEntity, uid: string) {
-    try {
-      return await this.purchaseRepository.update({
-        where: { uid, userId: user.id, refundStatus: null },
-        data: { refundStatus: 'REFUNDING' },
-        include: { ticket: true },
-      })
-    } catch (e) {
-      console.error(e)
-      throw new InternalServerErrorException(e)
-    }
-  }
-
-  async acceptTicketRefund(user: UserEntity, uid: string) {
-    try {
-      return await this.purchaseRepository.createTransactions(async (tx) => {
-        await this.verifyEventOwnerByTicketPurchase(user, uid)
-
-        const { userId: applicantUserId } = await tx.purchase.findUnique({
-          where: { uid },
-          select: { userId: true },
-        })
-
-        const purchase = await tx.purchase.update({
-          where: {
-            uid,
-            userId: applicantUserId,
-            refundStatus: { not: 'REFUNDED' },
-          },
-          data: { refundStatus: 'REFUNDED', status: 'CANCELLED' },
-          include: { ticket: true },
-        })
-
-        if (!purchase) throw new NotAcceptableException()
-
-        await tx.ticket.update({
-          where: { id: purchase.ticketId },
-          data: { currentStock: { increment: 1 } },
-        })
-
-        await tx.userBalance.update({
-          where: { userId: applicantUserId },
-          data: { balance: { increment: purchase.price } },
-        })
-
-        return purchase
-      })
-    } catch (e) {
-      if (e instanceof HttpException) throw e
-      console.error(e)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  async rejectTicketRefund(user: UserEntity, uid: string) {
-    try {
-      return await this.purchaseRepository.createTransactions(async (tx) => {
-        await this.verifyEventOwnerByTicketPurchase(user, uid)
-
-        const { userId: applicantUserId } = await tx.purchase.findUnique({
-          where: { uid },
-          select: { userId: true },
-        })
-
-        const purchase = await tx.purchase.update({
-          where: { uid, userId: applicantUserId, refundStatus: 'REFUNDING' },
-          data: { refundStatus: 'DENIED' },
-          include: { ticket: true },
-        })
-        if (!purchase) throw new NotAcceptableException()
-        return purchase
-      })
-    } catch (e) {
-      if (e instanceof HttpException) throw e
-      console.error(e)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  async validateTicket(user: UserEntity, uid: string, eventId: string) {
-    try {
-      return await this.purchaseRepository.createTransactions(async (tx) => {
-        await this.verifyEventOwnerByTicketPurchase(user, uid)
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { ticket: _, ...purchase } = await this.checkTicketPurchase(
-          tx,
-          uid,
-          eventId,
-        )
-
-        return purchase
-      })
-    } catch (e) {
-      if (e instanceof HttpException) throw e
-      console.error(e)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  async useTicket(user: UserEntity, uid: string, eventId: string) {
-    try {
-      return await this.purchaseRepository.createTransactions(async (tx) => {
-        await this.verifyEventOwnerByTicketPurchase(user, uid)
-
-        await this.checkTicketPurchase(tx, uid, eventId)
-
-        return await tx.purchase.update({
-          where: { uid },
-          data: { used: true },
-        })
-      })
-    } catch (e) {
-      if (e instanceof HttpException) throw e
-      console.error(e)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  private compareSignatureKey(notification: PaymentNotificationDto) {
-    const signatureKey = createHash('sha512')
-      .update(
-        notification.order_id +
-          notification.status_code +
-          notification.gross_amount +
-          config.payment.authString,
-      )
-      .digest('hex')
-
-    if (signatureKey !== notification.signature_key) {
-      throw new ForbiddenException()
-    }
-  }
-
-  private async checkTicketPurchase(
-    tx: PrismaClient,
-    uid: string,
-    eventId: string,
-  ) {
-    const purchase = await tx.purchase.findUnique({
-      where: { uid },
-      include: { ticket: { select: { eventId: true } } },
-    })
-
-    if (!purchase) {
-      throw new NotFoundException(exceptions.PURCHASE.NOT_FOUND)
-    } else if (purchase.ticket.eventId !== eventId) {
-      throw new NotAcceptableException(exceptions.PURCHASE.INVALID)
-    } else if (
-      purchase.status !== 'COMPLETED' ||
-      purchase.refundStatus === 'REFUNDED'
-    ) {
-      throw new NotAcceptableException(exceptions.PURCHASE.INVALID)
-    } else if (purchase.used) {
-      throw new NotAcceptableException(exceptions.PURCHASE.TICKET_USED)
-    }
-
-    return purchase
-  }
-
-  private async completeSuccessTicketOrder(
-    tx: PrismaClient,
-    orderId: string,
-    balance?: {
-      userId: string
-      amount: number
-    },
-  ) {
-    if (balance) {
-      await tx.userBalance.update({
-        where: { userId: balance.userId },
-        data: { balance: { decrement: balance.amount } },
-      })
-    }
-
-    const [purchase, { ticketId }] = await Promise.all([
-      tx.purchase.updateMany({
-        where: { orderId },
-        data: { status: 'COMPLETED' },
-      }),
-      tx.purchase.findFirst({
-        where: { orderId },
-        select: { ticketId: true },
-      }),
-    ])
-
-    await tx.ticket.update({
-      where: { id: ticketId },
-      data: { currentStock: { decrement: purchase.count } },
-    })
-  }
-
-  private async verifyEventOwnerByTicketPurchase(
+  /**
+   * Used in `purchase ticket service` & `refund service`
+   */
+  public async verifyEventOwnerByTicketPurchase(
     ownerUser: UserEntity,
     uid: string,
   ) {
@@ -436,5 +221,61 @@ export class PurchaseService {
     if (!eventId) throw new NotFoundException(exceptions.EVENT.NOT_FOUND)
 
     await this.eventService.verifyEventOwner(ownerUser, eventId, false)
+  }
+
+  async completeSuccessTicketOrder(params: {
+    tx: PrismaClient
+    orderId: string
+    eventOwnerId: string
+    totalRevenue: number
+    balanceDeducted?: {
+      buyerUserId: string
+      amount: number
+    }
+  }) {
+    const { tx, orderId, eventOwnerId, totalRevenue, balanceDeducted } = params
+    // user balance deduction (if any)
+    if (balanceDeducted) {
+      await tx.userBalance.update({
+        where: { userId: balanceDeducted.buyerUserId },
+        data: { balance: { decrement: balanceDeducted.amount } },
+      })
+    }
+    // change purchase status to completed
+    const [purchase, { ticketId }] = await Promise.all([
+      tx.purchase.updateMany({
+        where: { orderId },
+        data: { status: 'COMPLETED' },
+      }),
+      tx.purchase.findFirst({
+        where: { orderId },
+        select: { ticketId: true },
+      }),
+    ])
+    // reduce current ticket stock
+    await tx.ticket.update({
+      where: { id: ticketId },
+      data: { currentStock: { decrement: purchase.count } },
+    })
+    // event owner earns revenue
+    await tx.userBalance.update({
+      where: { userId: eventOwnerId },
+      data: { revenue: { increment: totalRevenue } },
+    })
+  }
+
+  compareSignatureKey(notification: PaymentNotificationDto) {
+    const signatureKey = createHash('sha512')
+      .update(
+        notification.order_id +
+          notification.status_code +
+          notification.gross_amount +
+          config.payment.authString,
+      )
+      .digest('hex')
+
+    if (signatureKey !== notification.signature_key) {
+      throw new ForbiddenException()
+    }
   }
 }

@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common'
-import { PurchaseService } from './purchase.service'
-import { PurchaseController } from './purchase.controller'
-import { PaymentService } from '../payment/payment.service'
-import { PurchaseRepository } from './purchase.repository'
-import { TicketModule } from '../ticket/ticket.module'
-import { PrismaService } from '../prisma/prisma.service'
 import { EventModule } from '../event/event.module'
+import { PaymentService } from '../payment/payment.service'
+import { PrismaService } from '../prisma/prisma.service'
+import { TicketModule } from '../ticket/ticket.module'
+import { PurchaseController } from './purchase.controller'
+import { PurchaseRepository } from './purchase.repository'
+import { PurchaseService } from './purchase.service'
+import { RefundService } from './refund/refund.service'
+import { TicketService } from './ticket/ticket.service'
 
 @Module({
   imports: [TicketModule, EventModule],
@@ -15,6 +17,8 @@ import { EventModule } from '../event/event.module'
     PrismaService,
     PurchaseRepository,
     PaymentService,
+    RefundService,
+    TicketService,
   ],
 })
 export class PurchaseModule {}
