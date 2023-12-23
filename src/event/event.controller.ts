@@ -1,36 +1,36 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseInterceptors,
-  UploadedFiles,
+  Get,
+  Param,
   ParseFilePipe,
+  Patch,
+  Post,
   Put,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common'
-import { EventService } from './event.service'
-import { CreateEventDto } from './dto/create-event.dto'
-import { UpdateEventDto } from './dto/update-event.dto'
 import {
   FileFieldsInterceptor,
   FilesInterceptor,
 } from '@nestjs/platform-express'
-import { imageValidators } from '../common/files/file-validators'
-import { Event } from './entities/event.entity'
-import { UserEntity } from '../user/entities/user.entity'
-import { User } from '../user/decorators/user.decorator'
-import { Groups } from '../auth/decorators/groups.decorator'
-import { Group } from '../user/enums/group.enum'
 import {
   ApiBearerAuth,
   ApiConsumes,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger'
+import { Groups } from '../auth/decorators/groups.decorator'
+import { imageValidators } from '../common/files/file-validators'
+import { User } from '../user/decorators/user.decorator'
+import { UserEntity } from '../user/entities/user.entity'
+import { Group } from '../user/enums/group.enum'
+import { CreateEventDto } from './dto/create-event.dto'
+import { UpdateEventDto } from './dto/update-event.dto'
+import { Event } from './entities/event.entity'
+import { EventService } from './event.service'
 
 @ApiBearerAuth()
 @ApiTags('event')
@@ -84,6 +84,7 @@ export class EventController {
 
   @Get()
   async findAllPublished(
+    @Query('page') page: number,
     @Query('byStartDate') byStartDate: string,
     @Query('from') from: string,
     @Query('to') to: string,
@@ -93,13 +94,34 @@ export class EventController {
         byStartDate ? Boolean(byStartDate) : false,
         from,
         to,
+        page,
       )
     ).map((e) => new Event(e))
   }
 
+  @Get('my')
+  async myEvents(
+    @User() user: UserEntity,
+    @Query('status') status?: string,
+    @Query('page') page?: number,
+  ) {
+    return (await this.eventService.myEvents(user, status as any, page)).map(
+      (e) => new Event(e),
+    )
+  }
+
+  @Get('my/:id')
+  async myEventDetail(
+    @User() user: UserEntity,
+    @Param('id') id: string,
+    @Query('status') status?: string,
+  ) {
+    return new Event(await this.eventService.findOne(id, status as any, user))
+  }
+
   @Get(':id')
   async findOnePublished(@Param('id') id: string) {
-    return new Event(await this.eventService.findOnePublished(id))
+    return new Event(await this.eventService.findOne(id))
   }
 
   @ApiConsumes('multipart/form-data')

@@ -18,7 +18,11 @@ export class EventService {
   constructor(
     private eventRepository: EventRepository,
     private storageService: StorageService,
-  ) {}
+  ) {
+    this.perPage = config.pagination.eventPerPage
+  }
+
+  perPage: number
 
   async create(
     userId: string,
@@ -137,7 +141,12 @@ export class EventService {
     }
   }
 
-  async findPublished(byStartDate?: boolean, from?: string, to?: string) {
+  async findPublished(
+    byStartDate?: boolean,
+    from?: string,
+    to?: string,
+    page: number = 0,
+  ) {
     const orderBy: any = byStartDate ? { date: 'desc' } : { createdAt: 'desc' }
 
     const fromDate = isNaN(Date.parse(from)) ? undefined : new Date(from)
@@ -151,15 +160,22 @@ export class EventService {
       },
       include: { images: true },
       orderBy,
+      skip: page * this.perPage,
+      take: this.perPage,
     })
   }
 
-  async findOnePublished(id: string) {
+  async findOne(
+    id: string,
+    status: 'PUBLISHED' | 'DRAFT' | 'CANCELLED' = 'PUBLISHED',
+    user?: UserEntity,
+  ) {
     const event = await this.eventRepository.findOne({
       where: {
         id,
-        status: 'PUBLISHED',
+        status,
         deletedAt: null,
+        userId: user ? user.id : undefined,
       },
       include: {
         images: true,
@@ -176,6 +192,23 @@ export class EventService {
     if (!event) throw new NotFoundException()
 
     return event
+  }
+
+  async myEvents(
+    user: UserEntity,
+    status: 'PUBLISHED' | 'DRAFT' | 'CANCELLED' = 'PUBLISHED',
+    page: number = 0,
+  ) {
+    return await this.eventRepository.findMany({
+      where: {
+        userId: user.id,
+        status,
+        deletedAt: null,
+      },
+      include: { images: true },
+      skip: page * this.perPage,
+      take: this.perPage,
+    })
   }
 
   async update(

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
 import { $Enums, Prisma } from '@prisma/client'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class EventRepository {
@@ -18,8 +18,10 @@ export class EventRepository {
     where?: Prisma.EventWhereInput
     include?: Prisma.EventInclude
     orderBy?: Prisma.EventOrderByWithRelationInput
+    skip?: number
+    take?: number
   }) {
-    const { where, include, orderBy } = params
+    const { where, include, orderBy, skip, take } = params
     return await this.prismaService.event.findMany({
       where: where ?? { status: $Enums.EventStatus.PUBLISHED, deletedAt: null },
       include: include ?? {
@@ -27,6 +29,8 @@ export class EventRepository {
         images: true,
       },
       orderBy,
+      skip,
+      take,
     })
   }
 
