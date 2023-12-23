@@ -1,4 +1,4 @@
-import { config } from './common/config'
+import { CacheModule } from '@nestjs/cache-manager'
 import {
   ClassSerializerInterceptor,
   MiddlewareConsumer,
@@ -6,27 +6,28 @@ import {
   NestModule,
 } from '@nestjs/common'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
-import { CacheModule } from '@nestjs/cache-manager'
 import { MulterModule } from '@nestjs/platform-express'
-import type { RedisClientOptions } from 'redis'
 import { redisStore } from 'cache-manager-redis-yet'
+import type { RedisClientOptions } from 'redis'
+import { config } from './common/config'
 import { LoggerMiddleware } from './common/utils/logger'
 
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { GroupsGuard } from './auth/guards/groups.guard'
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 
-import { FileModule } from './file/file.module'
 import { AuthModule } from './auth/auth.module'
-import { UserModule } from './user/user.module'
-import { EventModule } from './event/event.module'
 import { ActivationGuard } from './auth/guards/activation.guard'
+import { BalanceModule } from './balance/balance.module'
+import { EventModule } from './event/event.module'
+import { FileModule } from './file/file.module'
 import { MailModule } from './mail/mail.module'
-import { TicketModule } from './ticket/ticket.module'
-import { PurchaseModule } from './purchase/purchase.module'
 import { PaymentService } from './payment/payment.service'
+import { PurchaseModule } from './purchase/purchase.module'
+import { TicketModule } from './ticket/ticket.module'
+import { UserModule } from './user/user.module'
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { PaymentService } from './payment/payment.service'
     MailModule,
     TicketModule,
     PurchaseModule,
+    BalanceModule,
   ],
   controllers: [AppController],
   providers: [

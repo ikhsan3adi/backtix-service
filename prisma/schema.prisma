@@ -28,8 +28,9 @@ model User {
   latitude  Float?
   longitude Float?
 
-  events    Event[]
-  purchases Purchase[]
+  events           Event[]
+  purchases        Purchase[]
+  withdrawRequests WithdrawRequest[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -138,4 +139,23 @@ enum PurchaseRefundStatus {
   REFUNDING
   REFUNDED
   DENIED
+}
+
+model WithdrawRequest {
+  id        String                @id @default(uuid())
+  userId    String
+  amount    Float
+  method    String
+  details   String
+  status    WithdrawRequestStatus @default(PENDING)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum WithdrawRequestStatus {
+  PENDING
+  COMPLETED
+  REJECTED
 }

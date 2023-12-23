@@ -42,4 +42,7 @@ export const exceptions = {
     NOT_FOUND: 'File was not found',
     UPLOAD_FAILED: 'Failed to upload file',
   },
+  WITHDRAW: {
+    INSUFFICIENT_BALANCE: 'Insufficient balance',
+  },
 }

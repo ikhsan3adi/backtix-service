@@ -50,6 +50,7 @@ export const config = {
   payment: {
     url: process.env.MIDTRANS_URL,
     authString: process.env.MIDTRANS_SERVER_KEY,
+    withdrawalFees: 2500,
   },
   pagination: {
     eventPerPage: 20,
