@@ -1,9 +1,10 @@
 import { OmitType } from '@nestjs/swagger'
-import { CreateTicketDto } from './create-ticket.dto'
 import { IsNumber } from 'class-validator'
+import { CreateTicketDto } from './create-ticket.dto'
 
 export class UpdateTicketDto extends OmitType(CreateTicketDto, [
   'stock',
+  'hasImage',
 ] as const) {
   @IsNumber()
   additionalStock?: number = 0
