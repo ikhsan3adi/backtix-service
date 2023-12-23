@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
 import { Prisma, PrismaClient } from '@prisma/client'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class PurchaseRepository {
@@ -17,11 +17,15 @@ export class PurchaseRepository {
   async findMany(params: {
     where?: Prisma.PurchaseWhereInput
     include?: Prisma.PurchaseInclude
+    skip?: number
+    take?: number
   }) {
-    const { where, include } = params
+    const { where, include, skip, take } = params
     return await this.prismaService.purchase.findMany({
       where: where,
       include: include,
+      skip,
+      take,
     })
   }
 

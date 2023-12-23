@@ -51,4 +51,7 @@ export const config = {
     url: process.env.MIDTRANS_URL,
     authString: process.env.MIDTRANS_SERVER_KEY,
   },
+  pagination: {
+    ticketPerPage: 20,
+  },
 }

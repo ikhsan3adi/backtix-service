@@ -6,14 +6,14 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common'
-import { CreateTicketDto } from './dto/create-ticket.dto'
-import { UpdateTicketDto } from './dto/update-ticket.dto'
-import { UserEntity } from '../user/entities/user.entity'
-import { StorageService } from '../storage/storage.service'
-import { EventService } from '../event/event.service'
-import { TicketRepository } from './ticket.repository'
 import { config } from '../common/config'
 import { exceptions } from '../common/exceptions/exceptions'
+import { EventService } from '../event/event.service'
+import { StorageService } from '../storage/storage.service'
+import { UserEntity } from '../user/entities/user.entity'
+import { CreateTicketDto } from './dto/create-ticket.dto'
+import { UpdateTicketDto } from './dto/update-ticket.dto'
+import { TicketRepository } from './ticket.repository'
 
 @Injectable()
 export class TicketService {
@@ -57,7 +57,7 @@ export class TicketService {
 
   async findOne(user: UserEntity, eventId: string, id: string) {
     try {
-      await this.eventService.findOnePublished(eventId)
+      await this.eventService.findOne(eventId)
     } catch {
       await this.eventService.verifyEventOwner(user, eventId)
     }

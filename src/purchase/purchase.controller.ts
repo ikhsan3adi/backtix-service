@@ -82,12 +82,13 @@ export class PurchaseController {
   @Get('ticket/my')
   async myTickets(
     @User() user: UserEntity,
+    @Query('page') page: number,
     @Query('status') status?: string,
     @Query('refundStatus') refundStatus?: string,
     @Query('used', ParseBoolPipe) used: boolean = false,
   ) {
     return (
-      await this.ticketService.myTickets(user, status, refundStatus, used)
+      await this.ticketService.myTickets(user, page, status, refundStatus, used)
     ).map((e) => new Purchase(e))
   }
 

@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
+import { config } from '../../common/config'
 import { exceptions } from '../../common/exceptions/exceptions'
 import { UserEntity } from '../../user/entities/user.entity'
 import { PurchaseRepository } from '../purchase.repository'
@@ -16,13 +17,17 @@ export class TicketService {
   constructor(
     private purchaseRepository: PurchaseRepository,
     private purchaseService: PurchaseService,
-  ) {}
+  ) {
+    this.perPage = config.pagination.ticketPerPage
+  }
 
   purchaseStatuses = ['PENDING', 'COMPLETED', 'CANCELLED']
   refundStatuses = ['REFUNDING', 'REFUNDED', 'DENIED']
+  perPage: number
 
   async myTickets(
     user: UserEntity,
+    page: number = 0,
     status?: string | any,
     refundStatus?: string | any,
     used?: boolean,
@@ -43,6 +48,8 @@ export class TicketService {
           },
         },
       },
+      skip: page * this.perPage,
+      take: this.perPage,
     })
   }
 
