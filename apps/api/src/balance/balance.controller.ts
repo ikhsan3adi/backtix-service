@@ -34,7 +34,7 @@ export class BalanceController {
   }
 
   @Groups(Group.ADMIN)
-  @Get('withdraws')
+  @Get('withdraw')
   async withdrawRequests(@Query('status') status: string) {
     return (await this.balanceService.withdrawRequests(status)).map(
       (e) => new WithdrawRequest(e),
