@@ -5,13 +5,13 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common'
-import { EventRepository } from './event.repository'
-import { CreateEventDto } from './dto/create-event.dto'
-import { UpdateEventDto } from './dto/update-event.dto'
-import { StorageService } from '../storage/storage.service'
 import { config } from '../common/config'
+import { StorageService } from '../storage/storage.service'
 import { UserEntity } from '../user/entities/user.entity'
 import { Group } from '../user/enums/group.enum'
+import { CreateEventDto } from './dto/create-event.dto'
+import { UpdateEventDto } from './dto/update-event.dto'
+import { EventRepository } from './event.repository'
 
 @Injectable()
 export class EventService {
@@ -30,34 +30,33 @@ export class EventService {
   ) {
     // insert db object
     const tickets = []
-    const images = []
+    const eventImages = []
 
     // file
-    const eventImages = files.event
-    const ticketImages = files.ticket
+    const eventImageFiles = files.event.slice()
+    const ticketImageFiles = files.ticket.slice()
 
-    // generate tickets & images data & filename
-    for (
-      let index = 0;
-      index < createEventDto.imageDescriptions.length;
-      index++
-    ) {
+    // generate event images data & filename
+    for (const imageDescription of createEventDto.imageDescriptions) {
       const filename = await this.storageService.generateRandomFilename(
-        eventImages[index].originalname,
+        eventImageFiles.shift().originalname,
       )
-      images.push({
-        description: createEventDto.imageDescriptions[index],
+      eventImages.push({
+        description: imageDescription,
         image: filename,
       })
     }
 
-    for (let index = 0; index < createEventDto.tickets.length; index++) {
-      const filename = await this.storageService.generateRandomFilename(
-        ticketImages[index].originalname,
-      )
+    // generate tickets images data & filename
+    for (const { hasImage, ...ticket } of createEventDto.tickets) {
+      const filename = hasImage
+        ? await this.storageService.generateRandomFilename(
+            ticketImageFiles.shift().originalname,
+          )
+        : undefined
       tickets.push({
-        ...createEventDto.tickets[index],
-        currentStock: createEventDto.tickets[index].stock,
+        ...ticket,
+        currentStock: ticket.stock,
         image: filename,
       })
     }
@@ -65,14 +64,14 @@ export class EventService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { imageDescriptions, ...data } = createEventDto
 
-    const createdEvent = this.eventRepository.create({
+    const createdEvent = await this.eventRepository.create({
       data: {
         ...data,
         user: { connect: { id: userId } },
         tickets: { createMany: { data: [...tickets] } },
         images: {
           createMany: {
-            data: images.map((e) => ({
+            data: eventImages.map((e) => ({
               image: e.image,
               description: e.description,
             })),
@@ -81,23 +80,25 @@ export class EventService {
       },
       include: { images: true, tickets: true },
     })
+
     // save images
-    for (
-      let index = 0;
-      index < createEventDto.imageDescriptions.length;
-      index++
-    ) {
+    const eventImageFilesCopy = files.event.slice()
+    const ticketImageFilesCopy = files.ticket.slice()
+
+    for (const { image } of eventImages) {
       await this.storageService.createFile(
         config.storage.eventImagePath,
-        images[index].image,
-        eventImages[index].buffer,
+        image,
+        eventImageFilesCopy.shift().buffer,
       )
     }
-    for (let index = 0; index < createEventDto.tickets.length; index++) {
+    for (const { image } of tickets) {
+      if (!image) continue
+
       await this.storageService.createFile(
         config.storage.ticketImagePath,
-        tickets[index].image,
-        ticketImages[index].buffer,
+        image,
+        ticketImageFilesCopy.shift().buffer,
       )
     }
     return createdEvent

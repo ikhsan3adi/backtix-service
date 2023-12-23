@@ -1,7 +1,13 @@
-import { IsDateString, IsNotEmpty, IsNumber, IsString } from 'class-validator'
-import { dateTimeTransformer } from '../../common/helpers/transformers'
-import { Transform } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
+import {
+  IsBoolean,
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator'
+import { dateTimeTransformer } from '../../common/helpers/transformers'
 
 export class CreateTicketDto {
   @IsString()
@@ -22,6 +28,9 @@ export class CreateTicketDto {
     format: 'binary',
   })
   image?: any
+
+  @IsBoolean()
+  hasImage?: boolean = false
 
   @Transform(dateTimeTransformer)
   @IsDateString()
