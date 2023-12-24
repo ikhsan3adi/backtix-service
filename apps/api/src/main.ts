@@ -1,8 +1,8 @@
-import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app.module'
-import { SwaggerModule } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
+import { NestFactory } from '@nestjs/core'
+import { SwaggerModule } from '@nestjs/swagger'
 import helmet from 'helmet'
+import { AppModule } from './app.module'
 import { config } from './common/config'
 import metadata from './metadata'
 import { openApiConfig } from './open-api.config'
@@ -14,6 +14,7 @@ async function bootstrap() {
   if (metadata) await SwaggerModule.loadPluginMetadata(metadata)
   SwaggerModule.setup('api', app, document)
 
+  app.setGlobalPrefix('api')
   app.use(helmet())
   app.useGlobalPipes(
     new ValidationPipe({
