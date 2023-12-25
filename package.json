@@ -17,7 +17,8 @@
   "license": "ISC",
   "workspaces": [
     "apps/admin-panel",
-    "apps/api"
+    "apps/api",
+    "packages/config"
   ],
   "dependencies": {
     "@prisma/client": "^5.7.1"

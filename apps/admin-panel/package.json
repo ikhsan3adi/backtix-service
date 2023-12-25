@@ -16,9 +16,10 @@
 		"test:unit": "vitest"
 	},
 	"dependencies": {
-		"dotenv": "^16.3.1"
+		"dotenv": "^16.3.1",
 	},
 	"devDependencies": {
+		"@backtix-service/config": "^1.0.0",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/adapter-node": "^2.0.2",
