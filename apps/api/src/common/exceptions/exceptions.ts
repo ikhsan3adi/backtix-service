@@ -45,4 +45,7 @@ export const exceptions = {
   WITHDRAW: {
     INSUFFICIENT_BALANCE: 'Insufficient balance',
   },
+  MAIL: {
+    SENDING_FAILED: 'Failed to send email',
+  },
 }

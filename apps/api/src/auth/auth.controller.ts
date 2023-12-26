@@ -9,14 +9,6 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common'
-import { AuthService } from './auth.service'
-import { CreateUserDto } from '../user/dto/create-user.dto'
-import { LocalAuthGuard } from './guards/local-auth.guard'
-import { Public } from './decorators/public.decorator'
-import { RefreshAuthGuard } from './guards/refresh-auth.guard'
-import { User } from '../user/decorators/user.decorator'
-import { UserEntity } from '../user/entities/user.entity'
-import { AllowUnactivated } from './decorators/allow-unactivated.decorator'
 import {
   ApiBearerAuth,
   ApiBody,
@@ -24,7 +16,15 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
+import { User } from '../user/decorators/user.decorator'
+import { CreateUserDto } from '../user/dto/create-user.dto'
+import { UserEntity } from '../user/entities/user.entity'
+import { AuthService } from './auth.service'
+import { AllowUnactivated } from './decorators/allow-unactivated.decorator'
+import { Public } from './decorators/public.decorator'
 import { GoogleOauthGuard } from './guards/google-oauth.guard'
+import { LocalAuthGuard } from './guards/local-auth.guard'
+import { RefreshAuthGuard } from './guards/refresh-auth.guard'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -108,5 +108,19 @@ export class AuthController {
   @Patch('activate')
   async activateUser(@User() user: UserEntity, @Body('otp') otp: string) {
     return new UserEntity(await this.authService.activateUser(user, otp))
+  }
+
+  @Public()
+  @ApiOperation({ summary: '[ADMIN] Request Sign In OTP via email' })
+  @Post('admin/login')
+  async requestAdminEmailSignIn(@Body('email') email: string) {
+    return await this.authService.requestAdminEmailSignIn(email)
+  }
+
+  @Public()
+  @ApiOperation({ summary: '[ADMIN] Sign In using OTP' })
+  @Patch('admin/login')
+  async adminOtpSignIn(@Body('otp') otp: string) {
+    return await this.authService.adminOtpSignIn(otp)
   }
 }

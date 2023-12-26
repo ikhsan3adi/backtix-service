@@ -1,23 +1,25 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
-import { UserService } from '../user/user.service'
-import { CreateUserDto } from '../user/dto/create-user.dto'
 import { JwtService } from '@nestjs/jwt'
-import { config } from '../common/config'
-import { PasswordService } from './password.service'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
-import { UserEntity } from '../user/entities/user.entity'
-import { MailService } from '../mail/mail.service'
-import { OtpService } from './otp.service'
+import { config } from '../common/config'
 import { exceptions } from '../common/exceptions/exceptions'
+import { MailService } from '../mail/mail.service'
+import { CreateUserDto } from '../user/dto/create-user.dto'
+import { UserEntity } from '../user/entities/user.entity'
+import { Group } from '../user/enums/group.enum'
+import { UserService } from '../user/user.service'
+import { OtpService } from './otp.service'
+import { PasswordService } from './password.service'
 
 @Injectable()
 export class AuthService {
@@ -148,16 +150,51 @@ export class AuthService {
     if (user.activated) throw new BadRequestException(exceptions.AUTH.ACTIVATED)
 
     const otp = await this.otpService.createOtp(user.id)
-    // console.log(otp)
-    await this.mailService.sendUserActivation(user, otp)
 
-    return { message: 'Activation code sent' }
+    try {
+      await this.mailService.sendUserActivation(user, otp)
+    } catch (e) {
+      console.error(e)
+      throw new InternalServerErrorException(exceptions.MAIL.SENDING_FAILED)
+    } finally {
+      return { message: 'Activation code sent' }
+    }
   }
 
   async activateUser(user: UserEntity, otp: string) {
     await this.otpService.verifyOtp(user.id, otp)
 
     return await this.userService.activate(user.id)
+  }
+
+  async requestAdminEmailSignIn(email: string) {
+    if (!email) throw new BadRequestException()
+    const user = await this.userService.findUniqueBy({ email })
+
+    if (!user) throw new NotFoundException(exceptions.USER.NOT_FOUND)
+
+    if (!user.groups.some((v) => v.includes(Group.ADMIN))) {
+      throw new ForbiddenException()
+    }
+
+    const otp = await this.otpService.createOtpWithPayload(user)
+    console.log(otp)
+
+    try {
+      await this.mailService.sendAdminSignInCode(new UserEntity(user), otp)
+    } catch (e) {
+      console.error(e)
+      throw new InternalServerErrorException(exceptions.MAIL.SENDING_FAILED)
+    } finally {
+      return { message: 'OTP code sent' }
+    }
+  }
+
+  async adminOtpSignIn(otp: string) {
+    if (!otp) throw new BadRequestException()
+    const user = new UserEntity(await this.otpService.getPayloadFromOtp(otp))
+
+    return await this.login(user)
   }
 
   private generateAccessToken(payload: any) {

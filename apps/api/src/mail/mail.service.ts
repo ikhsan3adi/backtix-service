@@ -18,4 +18,17 @@ export class MailService {
       },
     })
   }
+
+  async sendAdminSignInCode(user: UserEntity, otp: string) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'SignIn OTP Code',
+      template: './admin-signin',
+      context: {
+        name: user.fullname,
+        email: user.email,
+        otp,
+      },
+    })
+  }
 }
