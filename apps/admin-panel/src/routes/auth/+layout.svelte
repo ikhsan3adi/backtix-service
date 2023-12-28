@@ -1,10 +1,5 @@
 <script lang="ts">
-	export let site = {
-		name: 'BackTix',
-		img: 'https://flowbite-admin-dashboard.vercel.app/images/logo.svg',
-		link: '',
-		imgAlt: 'BackTix Logo'
-	}
+	import { site } from '$lib/site'
 
 	export let mainClass = 'bg-gray-50 dark:bg-gray-900'
 	export let mainDivClass =
@@ -19,7 +14,7 @@
 
 <main class={mainClass}>
 	<div class={mainDivClass}>
-		<a href={site.link} class={siteLinkClass}>
+		<a href={site.href} class={siteLinkClass}>
 			<img src={site.img} class={siteImgClass} alt={site.imgAlt} />
 			<span>{site.name}</span>
 		</a>
