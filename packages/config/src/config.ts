@@ -12,6 +12,7 @@ export const config = {
   server: {
     host: process.env.HOST,
     port: Number(process.env.PORT),
+    baseUrl: process.env.BASE_URL,
   },
   security: {
     accessTokenKey: process.env.ACCESS_TOKEN_KEY,
