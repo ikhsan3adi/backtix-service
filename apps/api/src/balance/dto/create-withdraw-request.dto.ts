@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsCurrency, IsNotEmpty, IsString } from 'class-validator'
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 export class CreateWithdrawRequestDto {
-  @IsCurrency()
+  @IsNumber()
   @IsNotEmpty()
   amount: number
 
@@ -14,7 +14,7 @@ export class CreateWithdrawRequestDto {
   @IsNotEmpty()
   details: string
 
-  @ApiProperty({ enum: ['balance', 'revenue'] })
+  @ApiProperty({ enum: ['BALANCE', 'REVENUE'] })
   @IsString()
-  from: 'balance' | 'revenue'
+  from: 'BALANCE' | 'REVENUE'
 }

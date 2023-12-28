@@ -39,9 +39,9 @@ export class BalanceService {
       })
 
       if (
-        (from === 'balance' &&
+        (from === 'BALANCE' &&
           userBalance.balance < withdraw.amount + this.withdrawalFees) ||
-        (from === 'revenue' &&
+        (from === 'REVENUE' &&
           userBalance.revenue < withdraw.amount + this.withdrawalFees)
       ) {
         throw new BadRequestException(exceptions.WITHDRAW.INSUFFICIENT_BALANCE)
@@ -51,18 +51,22 @@ export class BalanceService {
         where: { userId: user.id },
         data: {
           balance:
-            from === 'balance'
+            from === 'BALANCE'
               ? { decrement: withdraw.amount + this.withdrawalFees }
               : undefined,
           revenue:
-            from === 'revenue'
+            from === 'REVENUE'
               ? { decrement: withdraw.amount + this.withdrawalFees }
               : undefined,
         },
       })
 
       return await tx.withdrawRequest.create({
-        data: { ...withdraw, userId: user.id },
+        data: {
+          ...withdraw,
+          from,
+          userId: user.id,
+        },
         include: { user: true },
       })
     })
