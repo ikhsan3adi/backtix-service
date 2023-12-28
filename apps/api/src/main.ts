@@ -8,14 +8,19 @@ import metadata from './metadata'
 import { openApiConfig } from './open-api.config'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, { cors: true })
+  app.use(
+    helmet({
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  )
 
   const document = SwaggerModule.createDocument(app, openApiConfig)
   if (metadata) await SwaggerModule.loadPluginMetadata(metadata)
-  SwaggerModule.setup('api', app, document)
+  SwaggerModule.setup('api/docs', app, document)
 
-  app.setGlobalPrefix('api')
-  app.use(helmet())
+  app.setGlobalPrefix('api', { exclude: ['file/(.*)'] })
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
