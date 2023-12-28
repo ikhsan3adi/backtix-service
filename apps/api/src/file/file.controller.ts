@@ -1,11 +1,12 @@
 import { Controller, Get, Param, StreamableFile } from '@nestjs/common'
-import { FileService } from './file.service'
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiProduces,
   ApiTags,
 } from '@nestjs/swagger'
+import { Public } from '../auth/decorators/public.decorator'
+import { FileService } from './file.service'
 
 @ApiBearerAuth()
 @ApiTags('file')
@@ -13,6 +14,7 @@ import {
 export class FileController {
   constructor(private fileService: FileService) {}
 
+  @Public()
   @ApiOperation({
     summary: 'Stream uploaded file',
   })

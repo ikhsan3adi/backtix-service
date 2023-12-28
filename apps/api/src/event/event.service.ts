@@ -270,6 +270,8 @@ export class EventService {
 
       return updatedEvent
     } catch (e) {
+      console.error(e)
+
       // delete new image files if error
       for (const image of images) {
         this.storageService.deleteFile(

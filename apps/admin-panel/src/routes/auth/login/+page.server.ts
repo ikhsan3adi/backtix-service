@@ -1,9 +1,9 @@
 import { config } from '$lib/config'
 import { redisClient } from '$lib/server/database/redis'
+import { Group } from '$lib/server/entities/users/group.enum'
 import { fail, redirect } from '@sveltejs/kit'
 import { compare } from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { Group } from '../../../lib/server/entities/users/group.enum'
 import type { Actions, PageServerLoad, RequestEvent } from './$types'
 
 export const load = (async () => {
@@ -32,7 +32,7 @@ export const actions: Actions = {
 
 		const refreshToken = jwt.sign(
 			{ sub: user.id, username: user.username, email: user.email },
-			config.security.refreshTokenExpiration!,
+			config.security.refreshTokenKey!,
 			{ expiresIn: config.security.refreshTokenExpiration }
 		)
 		const accessToken = jwt.sign(
@@ -53,7 +53,9 @@ export const actions: Actions = {
 			path: '/'
 		})
 		// Save refresh token to cache
-		await redisClient.set(refreshToken, user.id, { EX: config.security.refreshTokenTTL })
+		await redisClient.set(refreshToken, JSON.stringify({ id: user.id }), {
+			EX: config.security.refreshTokenTTL
+		})
 
 		return redirect(303, '/admin')
 	}

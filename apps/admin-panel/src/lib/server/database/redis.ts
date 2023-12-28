@@ -1,4 +1,4 @@
-import { config } from '@backtix-service/config'
+import { config } from '$lib/config'
 import { createClient } from 'redis'
 
 export const redisClient = createClient({
