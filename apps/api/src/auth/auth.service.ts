@@ -93,17 +93,19 @@ export class AuthService {
     return result
   }
 
-  async login(user: UserEntity) {
+  async login(user: UserEntity, cacheToken: boolean = true) {
     const payload = { sub: user.id, username: user.username, email: user.email }
 
     const refreshToken = this.generateRefreshToken(payload)
 
     // Save refresh token to cache
-    await this.cacheManager.set(
-      refreshToken,
-      user.id,
-      config.security.refreshTokenTTL,
-    )
+    if (cacheToken) {
+      await this.cacheManager.set(
+        refreshToken,
+        user.id,
+        config.security.refreshTokenTTL,
+      )
+    }
 
     return {
       accessToken: this.generateAccessToken(payload),
@@ -194,7 +196,7 @@ export class AuthService {
     if (!otp) throw new BadRequestException()
     const user = new UserEntity(await this.otpService.getPayloadFromOtp(otp))
 
-    return await this.login(user)
+    return await this.login(user, false)
   }
 
   private generateAccessToken(payload: any) {
