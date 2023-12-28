@@ -1,10 +1,10 @@
+import { config } from '$lib/config'
 import { prisma } from '$lib/server/database/prisma'
 import { redisClient } from '$lib/server/database/redis'
+import { Group } from '$lib/server/entities/users/group.enum'
 import { redirect, type MaybePromise, type RequestEvent, type ResolveOptions } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
 import jwt from 'jsonwebtoken'
-import { config } from './lib/config'
-import { Group } from './lib/server/entities/users/group.enum'
 
 async function checkAccessToken({
 	event,
@@ -71,11 +71,13 @@ async function checkRefreshToken({
 				? jwt.verify(refreshToken!, config.security.refreshTokenKey!)
 				: undefined
 
-			const userId = await redisClient.get(refreshToken ?? '')
+			const savedAuth = await redisClient.get(refreshToken ?? '')
 
-			if (refreshToken && claims && userId) {
+			if (refreshToken && claims && savedAuth) {
+				const { id } = JSON.parse(savedAuth) as { id: string }
+
 				const user = await prisma.user.findUnique({
-					where: { id: userId }
+					where: { id }
 				})
 
 				if (!user) return await resolve(event)
@@ -86,7 +88,7 @@ async function checkRefreshToken({
 				const accessToken = jwt.sign(
 					{ sub: user.id, username: user.username, email: user.email },
 					config.security.accessTokenKey!,
-					{ expiresIn: config.security.accessTokenExpiration }
+					{ expiresIn: '15s' ?? config.security.accessTokenExpiration }
 				)
 				event.cookies.set('accessToken', accessToken, {
 					httpOnly: true,
@@ -97,7 +99,9 @@ async function checkRefreshToken({
 			}
 		}
 		return await resolve(event)
-	} catch {
+	} catch (e) {
+		console.error(e)
+
 		return await resolve(event)
 	}
 }
