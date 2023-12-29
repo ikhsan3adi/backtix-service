@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { site } from '$lib/site'
 	import {
+		Avatar,
+		Button,
 		CloseButton,
 		DarkMode,
 		Drawer,
@@ -9,6 +11,7 @@
 		NavLi,
 		NavUl,
 		Navbar,
+		Popover,
 		Sidebar,
 		SidebarDropdownWrapper,
 		SidebarGroup,
@@ -26,6 +29,7 @@
 		FileSolid,
 		GlobeSolid,
 		TrashBinSolid,
+		UserSettingsSolid,
 		UserSolid
 	} from 'flowbite-svelte-icons'
 	import { onMount } from 'svelte'
@@ -89,16 +93,36 @@
 				</NavLi>
 			</NavUl>
 			<DarkMode class="inline-block hover:text-gray-900 dark:hover:text-white" />
+			<div class="ml-3">
+				<Avatar href="" src={data.user.image} alt={data.user.username} id="profile"></Avatar>
+			</div>
 		</div>
 		<NavHamburger on:click={toggle} btnClass="lg:hidden" />
 	</Navbar>
+
+	<Popover
+		triggeredBy="#profile"
+		class="z-30 w-64 bg-white text-sm font-light text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
+	>
+		<div class="p-3">
+			<div
+				class="flex items-center justify-between text-base font-semibold leading-none text-gray-900 dark:text-white"
+			>
+				<div class="mt-2 flex flex-col">
+					<span>{data.user.fullname}</span>
+					<span class="text-sm font-normal">@{data.user.username}</span>
+				</div>
+				<Button href="/admin/logout" size="xs" color="red">Logout</Button>
+			</div>
+		</div>
+	</Popover>
 
 	<Drawer
 		transitionType="fly"
 		{backdrop}
 		bind:hidden={drawerHidden}
 		bind:activateClickOutside
-		class="z-0 border-r pb-16 pt-20"
+		class="z-10 border-r pb-16 pt-20"
 		width="100"
 		id="sidebar"
 	>
@@ -217,18 +241,35 @@
 							</svelte:fragment>
 						</SidebarItem>
 					</SidebarDropdownWrapper>
-					<SidebarItem
-						label="Admin Management"
-						href={activeUrl === '/admin/user' ? null : '/admin/user'}
-						on:click={toggleSide}
-						active={activeUrl === '/admin/user'}
-					>
+					<SidebarDropdownWrapper isOpen={activeUrl === '/admin/user'} label="User Management">
 						<svelte:fragment slot="icon">
 							<UserSolid
-								class="h-5 w-5  text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+								class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 							/>
 						</svelte:fragment>
-					</SidebarItem>
+						<SidebarItem
+							label="Admins"
+							href={'/admin/user?group=ADMIN&deleted=false'}
+							on:click={toggleSide}
+						>
+							<svelte:fragment slot="icon">
+								<UserSettingsSolid
+									class="ml-3 h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+								/>
+							</svelte:fragment>
+						</SidebarItem>
+						<SidebarItem
+							label="Users"
+							href={'/admin/user?group=USER&deleted=false'}
+							on:click={toggleSide}
+						>
+							<svelte:fragment slot="icon">
+								<UserSolid
+									class="ml-3 h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+								/>
+							</svelte:fragment>
+						</SidebarItem>
+					</SidebarDropdownWrapper>
 				</SidebarGroup>
 			</SidebarWrapper>
 		</Sidebar>
