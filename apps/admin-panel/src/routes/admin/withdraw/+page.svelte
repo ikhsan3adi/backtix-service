@@ -47,17 +47,20 @@
 	}
 </script>
 
-{#if form?.success}
-	<Toast color="green" position="bottom-right">
-		<CheckSolid slot="icon" class="h-5 w-5" />
-		{form?.message}
-	</Toast>
-{:else if form && !form?.success}
-	<Toast color="red" position="bottom-right">
-		<CloseSolid slot="icon" class="h-5 w-5" />
-		{form?.message}
-	</Toast>
-{/if}
+<div class="fixed bottom-0 right-0 w-screen">
+	{#if form?.success}
+		<Toast color="green" position="bottom-right">
+			<CheckSolid slot="icon" class="h-5 w-5" />
+			{form?.message}
+		</Toast>
+	{:else if form && !form?.success}
+		<Toast color="red" position="bottom-right">
+			<CloseSolid slot="icon" class="h-5 w-5" />
+			{form?.message}
+		</Toast>
+	{/if}
+</div>
+
 <div class="p-4">
 	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
 		<BreadcrumbItem home>
