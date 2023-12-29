@@ -1,5 +1,3 @@
-import { Group } from './group.enum'
-
 export class UserEntity {
 	constructor(partial: Partial<UserEntity>) {
 		Object.assign(this, partial)
@@ -11,10 +9,11 @@ export class UserEntity {
 	username: string
 	fullname: string
 	email: string
+	location: string
 
 	image: string
 
-	groups: Group[] | string[]
+	groups: ('USER' | 'ADMIN' | 'SUPERADMIN')[]
 
 	activated: boolean
 	createdAt: Date
