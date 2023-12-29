@@ -20,9 +20,9 @@
 		Toast
 	} from 'flowbite-svelte'
 	import {
-		CalendarMonthSolid,
 		CheckSolid,
 		CloseSolid,
+		DollarSolid,
 		ExclamationCircleOutline
 	} from 'flowbite-svelte-icons'
 	import type { ActionData, PageServerData } from './$types'
@@ -62,9 +62,9 @@
 	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
 		<BreadcrumbItem home>
 			<svelte:fragment slot="icon">
-				<CalendarMonthSolid class="me-2 h-4 w-4" />
+				<DollarSolid class="me-2 h-4 w-4" />
 			</svelte:fragment>
-			Event
+			Withdraw
 		</BreadcrumbItem>
 	</Breadcrumb>
 	<Heading tag="h2" class="mb-3">Withdraw requests</Heading>
@@ -199,13 +199,16 @@
 	</div>
 {/if}
 
-<Modal title="Confirmation" bind:open={actionModal} outsideclose>
-	<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">{actionMsg}</p>
-	<svelte:fragment slot="footer">
-		<form action="?/{actionCtx}" method="post">
-			<input type="hidden" name="id" value={actionWithdrawId} />
-			<Button type="submit">Confirm</Button>
-		</form>
-		<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
-	</svelte:fragment>
+<Modal title="Confirmation" size="xs" bind:open={actionModal} outsideclose>
+	<div class="text-center">
+		<ExclamationCircleOutline class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200" />
+		<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">{actionMsg}</h3>
+		<div class="flex justify-center gap-2">
+			<form action="?/{actionCtx}" method="post" class="inline">
+				<input type="hidden" name="id" value={actionWithdrawId} />
+				<Button type="submit" color="red">Confirm</Button>
+			</form>
+			<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
+		</div>
+	</div>
 </Modal>

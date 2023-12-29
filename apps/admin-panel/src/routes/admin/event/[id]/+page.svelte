@@ -17,7 +17,7 @@
 		P,
 		Thumbnails
 	} from 'flowbite-svelte'
-	import { CalendarMonthSolid } from 'flowbite-svelte-icons'
+	import { CalendarMonthSolid, ExclamationCircleOutline } from 'flowbite-svelte-icons'
 	import type { PageServerData } from './$types'
 
 	export let data: PageServerData
@@ -82,15 +82,18 @@
 		{/if}
 	</div>
 
-	<Modal title="Confirmation" bind:open={actionModal} outsideclose>
-		<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">Are you sure?</p>
-		<svelte:fragment slot="footer">
-			<form action="?/{actionCtx}" method="post">
-				<input type="hidden" name="id" value={event.id} />
-				<Button type="submit">Confirm</Button>
-			</form>
-			<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
-		</svelte:fragment>
+	<Modal title="Confirmation" size="xs" bind:open={actionModal} outsideclose>
+		<div class="text-center">
+			<ExclamationCircleOutline class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200" />
+			<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Are you sure?</h3>
+			<div class="flex justify-center gap-2">
+				<form action="?/{actionCtx}" method="post" class="inline">
+					<input type="hidden" name="id" value={event.id} />
+					<Button type="submit" color="red">Confirm</Button>
+				</form>
+				<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
+			</div>
+		</div>
 	</Modal>
 </div>
 
