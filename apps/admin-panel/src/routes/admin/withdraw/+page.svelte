@@ -47,7 +47,7 @@
 	}
 </script>
 
-<div class="fixed bottom-0 right-0 w-screen">
+<div class="fixed bottom-0 right-0 z-10 w-screen">
 	{#if form?.success}
 		<Toast color="green" position="bottom-right">
 			<CheckSolid slot="icon" class="h-5 w-5" />
