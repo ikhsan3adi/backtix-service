@@ -1,3 +1,5 @@
 const defaultCurrencyFormatter = new Intl.NumberFormat('id', { style: 'currency', currency: 'IDR' })
 
-export { defaultCurrencyFormatter }
+const currencyPrefix = 'Rp'
+
+export { currencyPrefix, defaultCurrencyFormatter }

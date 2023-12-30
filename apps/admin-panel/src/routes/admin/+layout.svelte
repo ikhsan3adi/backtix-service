@@ -28,6 +28,7 @@
 		CloseSolid,
 		DollarSolid,
 		FileSolid,
+		GearSolid,
 		GlobeSolid,
 		TrashBinSolid,
 		UserSettingsSolid,
@@ -279,6 +280,18 @@
 							</svelte:fragment>
 						</SidebarItem>
 					</SidebarDropdownWrapper>
+					<SidebarItem
+						label="Settings"
+						href={activeUrl === '/admin/setting' ? null : '/admin/setting'}
+						on:click={toggleSide}
+						active={activeUrl === '/admin/setting'}
+					>
+						<svelte:fragment slot="icon">
+							<GearSolid
+								class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+							/>
+						</svelte:fragment>
+					</SidebarItem>
 				</SidebarGroup>
 			</SidebarWrapper>
 		</Sidebar>
