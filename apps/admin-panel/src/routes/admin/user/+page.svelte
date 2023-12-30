@@ -10,9 +10,11 @@
 		Breadcrumb,
 		BreadcrumbItem,
 		Button,
+		ButtonGroup,
 		Checkbox,
 		Heading,
 		Input,
+		InputAddon,
 		Label,
 		Modal,
 		P,
@@ -184,7 +186,7 @@
 					<TableBodyCell>{dateTimeFormatterWithoutSeconds.format(user.createdAt)}</TableBodyCell>
 					<TableBodyCell>
 						<div class="flex gap-2">
-							{#if user.username !== 'superadmin' && user.deletedAt === null}
+							{#if data.my.groups.includes('SUPERADMIN') || !user.groups.some((v) => v === 'ADMIN' || v === 'SUPERADMIN')}
 								<Button
 									on:click={() => {
 										formModal = true
@@ -196,18 +198,20 @@
 									size="sm"
 									color="blue">Edit</Button
 								>
-								<Button
-									on:click={() => {
-										actionModal = true
-										actionCtx = 'delete'
-										actionUserId = user.id
-										actionMsg = 'Are you sure?'
-									}}
-									pill
-									size="sm"
-									color="red"
-									outline>Delete</Button
-								>
+								{#if user.deletedAt === null}
+									<Button
+										on:click={() => {
+											actionModal = true
+											actionCtx = 'delete'
+											actionUserId = user.id
+											actionMsg = 'Are you sure?'
+										}}
+										pill
+										size="sm"
+										color="red"
+										outline>Delete</Button
+									>
+								{/if}
 							{/if}
 							{#if user.deletedAt !== null}
 								<Button
@@ -219,7 +223,8 @@
 									}}
 									pill
 									size="sm"
-									color="blue">Restore</Button
+									color="yellow"
+									outline>Restore</Button
 								>
 								<!-- <Button
 									on:click={() => {
@@ -274,7 +279,16 @@
 		<input type="hidden" name="id" value={formUser.id} />
 		<Label class="space-y-2">
 			<span>Username</span>
-			<Input type="text" name="username" placeholder="name123" value={formUser.username} required />
+			<ButtonGroup class="w-full">
+				<InputAddon>@</InputAddon>
+				<Input
+					type="text"
+					name="username"
+					placeholder="name123"
+					value={formUser.username}
+					required
+				/>
+			</ButtonGroup>
 		</Label>
 		<Label class="space-y-2">
 			<span>Email</span>
@@ -303,20 +317,26 @@
 		<Label class="space-y-2">
 			<span>Groups</span>
 			<div class="flex items-start gap-4">
-				<Checkbox bind:group checked={formUser.groups.includes('USER')} value={'USER'}>
-					USER
-				</Checkbox>
-				<Checkbox bind:group checked={formUser.groups.includes('ADMIN')} value={'ADMIN'}>
-					ADMIN
-				</Checkbox>
-				<Checkbox
-					bind:group
-					checked={formUser.groups.includes('SUPERADMIN')}
-					color="red"
-					value={'SUPERADMIN'}
-				>
-					SUPERADMIN
-				</Checkbox>
+				{#if data.my?.groups.includes('SUPERADMIN')}
+					<Checkbox bind:group checked={formUser.groups.includes('USER')} value={'USER'}>
+						USER
+					</Checkbox>
+					<Checkbox bind:group checked={formUser.groups.includes('ADMIN')} value={'ADMIN'}>
+						ADMIN
+					</Checkbox>
+					<Checkbox
+						bind:group
+						checked={formUser.groups.includes('SUPERADMIN')}
+						color="red"
+						value={'SUPERADMIN'}
+					>
+						SUPERADMIN
+					</Checkbox>
+				{:else}
+					<Checkbox bind:group checked={formUser.groups.includes('USER')} disabled value={'USER'}>
+						USER
+					</Checkbox>
+				{/if}
 				<input type="hidden" name="group" value={group} />
 			</div>
 		</Label>

@@ -4,15 +4,19 @@
 		Breadcrumb,
 		BreadcrumbItem,
 		Button,
+		ButtonGroup,
 		Checkbox,
 		Heading,
 		Input,
+		InputAddon,
 		Label,
+		P,
 		Toggle
 	} from 'flowbite-svelte'
 	import { UserSolid } from 'flowbite-svelte-icons'
-	import type { ActionData } from './$types'
+	import type { ActionData, PageServerLoad } from './$types'
 
+	export let data: PageServerLoad
 	export let form: ActionData
 
 	let group = []
@@ -66,14 +70,17 @@
 		<div>
 			<div class="mb-4">
 				<Label for="username" class="mb-2">Username</Label>
-				<Input
-					type="text"
-					id="username"
-					name="username"
-					placeholder="johndoe123"
-					value={form?.username}
-					required
-				/>
+				<ButtonGroup class="w-full">
+					<InputAddon>@</InputAddon>
+					<Input
+						type="text"
+						id="username"
+						name="username"
+						placeholder="johndoe123"
+						value={form?.username}
+						required
+					/>
+				</ButtonGroup>
 			</div>
 		</div>
 		<div>
@@ -92,14 +99,7 @@
 		<div>
 			<div class="mb-4">
 				<Label for="password" class="mb-2">Password</Label>
-				<Input
-					type="password"
-					id="password"
-					name="password"
-					placeholder="•••••••••"
-					value={form?.password}
-					required
-				/>
+				<Input type="password" id="password" name="password" placeholder="•••••••••" required />
 			</div>
 		</div>
 		<div>
@@ -110,13 +110,14 @@
 					id="confirm_password"
 					name="confirm_password"
 					placeholder="•••••••••"
-					value={form?.confirm_password}
 					required
 				/>
 			</div>
 		</div>
-		<div>
-			<Label class="mb-4">Assign groups</Label>
+	</div>
+	<div class="mb-4">
+		<Label class="mb-4">Assign groups</Label>
+		{#if data.my?.groups.includes('SUPERADMIN')}
 			<div class="flex gap-4">
 				<Checkbox class="mb-4 space-x-1 rtl:space-x-reverse" value={'ADMIN'} bind:group>
 					ADMIN
@@ -132,10 +133,25 @@
 				<Checkbox class="mb-4 space-x-1 rtl:space-x-reverse" value={'USER'} bind:group>
 					USER
 				</Checkbox>
-
 				<input type="hidden" name="group" value={group} />
 			</div>
-		</div>
+		{:else}
+			<div class="flex justify-between gap-4">
+				<Checkbox
+					class="mb-4 space-x-1 rtl:space-x-reverse"
+					value={'USER'}
+					disabled
+					checked
+					bind:group
+				>
+					USER
+				</Checkbox>
+				<P size="sm">
+					*Only superadmin can assign <code>admin</code> & <code>superadmin</code> group
+				</P>
+				<input type="hidden" name="group" value={group} />
+			</div>
+		{/if}
 	</div>
 
 	<Toggle class="mb-6 mr-3 rtl:space-x-reverse" bind:group={a}>ACTIVATE</Toggle>

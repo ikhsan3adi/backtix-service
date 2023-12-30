@@ -6,10 +6,10 @@ import { hash } from 'bcrypt'
 import type { Actions, PageServerLoad } from './$types'
 
 export const load = (async ({ locals }) => {
-	if (!locals.user.groups.includes('SUPERADMIN')) {
+	if (!locals.user.groups.some((v) => v === 'SUPERADMIN' || v === 'ADMIN')) {
 		throw error(403, 'Forbidden')
 	}
-	return {}
+	return { my: locals.user }
 }) satisfies PageServerLoad
 
 export const actions: Actions = {

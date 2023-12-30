@@ -6,7 +6,7 @@ import type { Actions, PageServerLoad } from './$types'
 
 const perPage = 20
 
-export const load = (async ({ url }) => {
+export const load = (async ({ url, locals }) => {
 	const group = url.searchParams.get('group') as $Enums.UserGroup
 	const deleted = url.searchParams.get('deleted')
 	const page = Number(url.searchParams.get('page'))
@@ -22,7 +22,7 @@ export const load = (async ({ url }) => {
 		})
 	).map((e) => ({ ...e, image: e.image ? userImageUrl.concat(e.image) : undefined }))
 
-	return { users, group, deleted, page }
+	return { users, group, deleted, page, my: locals.user }
 }) satisfies PageServerLoad
 
 export const actions: Actions = {
