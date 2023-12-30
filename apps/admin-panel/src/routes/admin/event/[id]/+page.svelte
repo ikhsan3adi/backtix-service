@@ -164,8 +164,8 @@
 						alt={ticket.name}
 					/>
 				{:else}
-					<div class="bg-primary-400 flex h-full w-full items-center rounded-lg md:w-48">
-						<span class="text-primary-800 m-auto">No image</span>
+					<div class="flex h-full w-full items-center rounded-lg bg-primary-400 md:w-48">
+						<span class="m-auto text-primary-800">No image</span>
 					</div>
 				{/if}
 			</div>
@@ -173,7 +173,7 @@
 				<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 					{ticket.name}
 				</h5>
-				<p class="text-primary-700 dark:text-primary-100 mb-3 text-xl font-bold leading-tight">
+				<p class="mb-3 text-xl font-bold leading-tight text-primary-700 dark:text-primary-100">
 					{defaultCurrencyFormatter.format(ticket.price)}
 				</p>
 				<ul class="text-sm text-gray-700 dark:text-gray-400">

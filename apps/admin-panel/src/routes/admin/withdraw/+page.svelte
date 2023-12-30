@@ -108,7 +108,7 @@
 	</div>
 </div>
 
-<Table striped divClass="-z-10">
+<Table striped>
 	<TableHead>
 		<TableHeadCell>Date Submitted</TableHeadCell>
 		<TableHeadCell>Applicant</TableHeadCell>

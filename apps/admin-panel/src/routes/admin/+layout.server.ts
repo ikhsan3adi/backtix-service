@@ -5,7 +5,7 @@ export const load = (async ({ url, locals }) => {
 	return {
 		links: { openApi: `${config.server.baseUrl}api/docs` },
 		activeUrl: url.pathname,
-		user: {
+		my: {
 			...locals.user,
 			image: locals.user.image ? userImageUrl.concat(locals.user.image) : undefined
 		}

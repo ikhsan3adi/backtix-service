@@ -2,6 +2,7 @@
 	import { site } from '$lib/site'
 	import {
 		Avatar,
+		Badge,
 		Button,
 		CloseButton,
 		DarkMode,
@@ -66,10 +67,6 @@
 	}
 
 	// let spanClass = 'flex-1 ms-3 whitespace-nowrap'
-
-	let divClass = 'w-full ml-auto lg:block lg:w-auto order-1 lg:order-none'
-	let ulClass =
-		'flex flex-col py-3 my-4 lg:flex-row lg:my-0 text-sm font-medium gap-4 dark:lg:bg-transparent lg:bg-white lg:border-0'
 </script>
 
 <svelte:window bind:innerWidth={width} />
@@ -94,7 +91,7 @@
 			</NavUl>
 			<DarkMode class="inline-block hover:text-gray-900 dark:hover:text-white" />
 			<div class="ml-3">
-				<Avatar href="" src={data.user.image} alt={data.user.username} id="profile"></Avatar>
+				<Avatar href="" src={data.my.image} alt={data.my.username} id="profile"></Avatar>
 			</div>
 		</div>
 		<NavHamburger on:click={toggle} btnClass="lg:hidden" />
@@ -106,13 +103,25 @@
 	>
 		<div class="p-3">
 			<div
-				class="flex items-center justify-between text-base font-semibold leading-none text-gray-900 dark:text-white"
+				class="flex flex-col justify-between text-base font-semibold leading-none text-gray-900 dark:text-white"
 			>
-				<div class="mt-2 flex flex-col">
-					<span>{data.user.fullname}</span>
-					<span class="text-sm font-normal">@{data.user.username}</span>
+				<div class="my-2 flex flex-col">
+					<span>{data.my.fullname}</span>
+					<span class="text-sm font-normal">@{data.my.username}</span>
 				</div>
-				<Button href="/admin/logout" size="xs" color="red">Logout</Button>
+				<div class="mb-3 flex gap-1">
+					{#each data.my.groups as g}
+						<Badge rounded border color="purple">{g}</Badge>
+					{/each}
+				</div>
+				<div class="flex w-full gap-2">
+					<Button href="/admin/setting#updateMyProfile" size="xs" color="blue" pill outline>
+						Edit profile
+					</Button>
+					<Button href="/admin/logout" size="xs" pill color="red">
+						<span class="mx-2 font-semibold">Logout</span>
+					</Button>
+				</div>
 			</div>
 		</div>
 	</Popover>

@@ -51,12 +51,12 @@
 
 	const previous = () => {
 		if (data.page > 0) {
-			goto(`?status=${data.status}&deleted=${data.deleted}&page=${--data.page}`)
+			goto(`?group=${data.group}&deleted=${data.deleted}&page=${--data.page}`)
 		}
 	}
 	const next = () => {
 		if (data.users.length >= 20) {
-			goto(`?status=${data.status}&deleted=${data.deleted}&page=${++data.page}`)
+			goto(`?group=${data.group}&deleted=${data.deleted}&page=${++data.page}`)
 		}
 	}
 </script>
@@ -135,7 +135,7 @@
 	</div>
 </div>
 
-<Table striped divClass="-z-10">
+<Table striped>
 	<TableHead>
 		<TableHeadCell padding="px-4"></TableHeadCell>
 		<TableHeadCell padding="px-2">Username</TableHeadCell>

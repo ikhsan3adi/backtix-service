@@ -85,7 +85,7 @@
 	</div>
 </div>
 
-<Table striped divClass="-z-10">
+<Table striped>
 	<TableHead>
 		<TableHeadCell>Event Name</TableHeadCell>
 		<TableHeadCell>Location</TableHeadCell>
