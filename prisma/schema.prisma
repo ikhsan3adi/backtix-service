@@ -165,3 +165,8 @@ enum WithdrawRequestStatus {
   COMPLETED
   REJECTED
 }
+
+model WithdrawFee {
+  id     Int   @id @default(0)
+  amount Float @default(0)
+}

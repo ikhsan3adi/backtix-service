@@ -3,6 +3,9 @@ import { hash } from 'bcrypt'
 
 const prisma = new PrismaClient()
 
+/**
+ * Create initial superadmin & withdrawal fee
+ */
 async function main() {
   const data: Prisma.UserCreateInput = {
     username: 'superadmin',
@@ -24,6 +27,10 @@ async function main() {
         hashedPassword: superadmin.password,
       })
     })
+
+  await prisma.withdrawFee
+    .create({ data: { id: 0, amount: 2500 } })
+    .then((fee) => console.info(fee))
 }
 
 main()

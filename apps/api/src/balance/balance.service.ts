@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { config } from '../common/config'
 import { exceptions } from '../common/exceptions/exceptions'
 import { PrismaService } from '../prisma/prisma.service'
 import { UserEntity } from '../user/entities/user.entity'
@@ -7,11 +6,7 @@ import { CreateWithdrawRequestDto } from './dto/create-withdraw-request.dto'
 
 @Injectable()
 export class BalanceService {
-  constructor(private prismaService: PrismaService) {
-    this.withdrawalFees = config.payment.withdrawalFees
-  }
-
-  private withdrawalFees: number
+  constructor(private prismaService: PrismaService) {}
 
   private withdrawalStatuses = ['PENDING', 'COMPLETED', 'REJECTED']
 
@@ -33,6 +28,9 @@ export class BalanceService {
     const { from, ...withdraw } = createWithdrawRequestDto
 
     return await this.prismaService.$transaction(async (tx) => {
+      const withdrawalFees =
+        (await tx.withdrawFee.findFirst({ where: { id: 0 } })).amount ?? 0
+
       const userBalance = await tx.userBalance.findUnique({
         where: { userId: user.id },
         select: { balance: true, revenue: true },
@@ -40,9 +38,9 @@ export class BalanceService {
 
       if (
         (from === 'BALANCE' &&
-          userBalance.balance < withdraw.amount + this.withdrawalFees) ||
+          userBalance.balance < withdraw.amount + withdrawalFees) ||
         (from === 'REVENUE' &&
-          userBalance.revenue < withdraw.amount + this.withdrawalFees)
+          userBalance.revenue < withdraw.amount + withdrawalFees)
       ) {
         throw new BadRequestException(exceptions.WITHDRAW.INSUFFICIENT_BALANCE)
       }
@@ -52,11 +50,11 @@ export class BalanceService {
         data: {
           balance:
             from === 'BALANCE'
-              ? { decrement: withdraw.amount + this.withdrawalFees }
+              ? { decrement: withdraw.amount + withdrawalFees }
               : undefined,
           revenue:
             from === 'REVENUE'
-              ? { decrement: withdraw.amount + this.withdrawalFees }
+              ? { decrement: withdraw.amount + withdrawalFees }
               : undefined,
         },
       })
