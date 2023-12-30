@@ -1,4 +1,3 @@
-import { config } from '$lib/config'
 import type { $Enums } from '@prisma/client'
 import { fail } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
@@ -16,7 +15,9 @@ export const load = (async ({ url }) => {
 		take: perPage
 	})
 
-	return { withdraws, status, page, adminFee: config.payment.withdrawalFees }
+	const withdrawalFee = (await prisma.withdrawFee.findFirst({ where: { id: 0 } })).amount ?? 0
+
+	return { withdraws, status, page, withdrawalFee }
 }) satisfies PageServerLoad
 
 export const actions: Actions = {
@@ -45,6 +46,8 @@ export const actions: Actions = {
 			}
 
 			await prisma.$transaction(async (tx) => {
+				const withdrawalFee = (await tx.withdrawFee.findFirst({ where: { id: 0 } })).amount ?? 0
+
 				const { userId, from, amount } = await tx.withdrawRequest.update({
 					where: { id },
 					data: { status: 'REJECTED' }
@@ -54,8 +57,8 @@ export const actions: Actions = {
 					where: { userId },
 					data:
 						from === 'BALANCE'
-							? { balance: { increment: amount + config.payment.withdrawalFees } }
-							: { revenue: { increment: amount + config.payment.withdrawalFees } }
+							? { balance: { increment: amount + withdrawalFee } }
+							: { revenue: { increment: amount + withdrawalFee } }
 				})
 			})
 
@@ -73,6 +76,8 @@ export const actions: Actions = {
 			}
 
 			await prisma.$transaction(async (tx) => {
+				const withdrawalFee = (await prisma.withdrawFee.findFirst({ where: { id: 0 } })).amount ?? 0
+
 				const { status } = await tx.withdrawRequest.findUniqueOrThrow({
 					where: { id },
 					select: { status: true }
@@ -87,7 +92,7 @@ export const actions: Actions = {
 						where: { userId },
 						select: { balance: true, revenue: true }
 					})
-					const totalAmount = amount + config.payment.withdrawalFees
+					const totalAmount = amount + withdrawalFee
 					if (from === 'BALANCE') {
 						await tx.userBalance.update({
 							where: { userId },

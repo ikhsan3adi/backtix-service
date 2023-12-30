@@ -76,7 +76,7 @@
 		<div>
 			<span> The amount has been deducted by admin fee. </span>
 			<br />
-			<span>Admin fee: <strong>{defaultCurrencyFormatter.format(data.adminFee)}</strong></span>
+			<span>Admin fee: <strong>{defaultCurrencyFormatter.format(data.withdrawalFee)}</strong></span>
 		</div>
 	</div>
 	<div class="flex gap-2">

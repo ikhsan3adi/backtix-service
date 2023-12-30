@@ -1,11 +1,11 @@
-import * as dotenv from "dotenv";
-import { join } from "path";
+import * as dotenv from 'dotenv'
+import { join } from 'path'
 
-const envpath = join(process.cwd(), "../../.env");
+const envpath = join(process.cwd(), '../../.env')
 
-dotenv.config({ path: envpath });
+dotenv.config({ path: envpath })
 
-console.log("Load .env from" + envpath);
+console.log('Load .env from' + envpath)
 
 export const config = {
   // REST API ONLY
@@ -20,11 +20,11 @@ export const config = {
     accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION,
     refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION,
     refreshTokenTTL: Number(
-      process.env.REFRESH_TOKEN_TTL ?? 60 * 60 * 24 * 30 * 1000
+      process.env.REFRESH_TOKEN_TTL ?? 60 * 60 * 24 * 30 * 1000,
     ),
     bcryptSaltOrRound: 10,
     otpTTL: Number(process.env.OTP_TTL ?? 300 * 1000),
-    otpPrefix: "otp-",
+    otpPrefix: 'otp-',
     google: {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -43,24 +43,23 @@ export const config = {
     from: process.env.MAIL_FROM,
   },
   storage: {
-    uploadsPath: "uploads",
-    eventImagePath: "uploads/events",
-    ticketImagePath: "uploads/tickets",
-    userImagePath: "uploads/users",
+    uploadsPath: 'uploads',
+    eventImagePath: 'uploads/events',
+    ticketImagePath: 'uploads/tickets',
+    userImagePath: 'uploads/users',
   },
   fileStream: {
     baseUrl: process.env.STORAGE_BASE_URL ?? `${process.env.BASE_URL}file/`,
-    eventImageUrlPath: "events",
-    ticketImageUrlPath: "tickets",
-    userImageUrlPath: "users",
+    eventImageUrlPath: 'events',
+    ticketImageUrlPath: 'tickets',
+    userImageUrlPath: 'users',
   },
   payment: {
     url: process.env.MIDTRANS_URL,
     authString: process.env.MIDTRANS_SERVER_KEY,
-    withdrawalFees: 2500,
   },
   pagination: {
     eventPerPage: 20,
     ticketPerPage: 20,
   },
-};
+}
