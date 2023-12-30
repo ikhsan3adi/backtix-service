@@ -10,7 +10,8 @@
     "admin:dev": "npm run dev --workspace=@backtix-service/admin-panel",
     "admin:build": "npm run build --workspace=@backtix-service/admin-panel",
     "admin:preview": "npm run preview --workspace=@backtix-service/admin-panel",
-    "admin:start": "npm run start --workspace=@backtix-service/admin-panel"
+    "admin:start": "npm run start --workspace=@backtix-service/admin-panel",
+    "db:seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
