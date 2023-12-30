@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { site } from '$lib/site'
+	import { site } from '$lib/client/site'
+	import { DarkMode } from 'flowbite-svelte'
 
 	export let mainClass = 'bg-gray-50 dark:bg-gray-900'
 	export let mainDivClass =
@@ -13,6 +14,9 @@
 </script>
 
 <main class={mainClass}>
+	<div class="absolute p-4">
+		<DarkMode />
+	</div>
 	<div class={mainDivClass}>
 		<a href={site.href} class={siteLinkClass}>
 			<img src={site.img} class={siteImgClass} alt={site.imgAlt} />
