@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { site } from '$lib/site'
+	import { site } from '$lib/client/site'
 	import { Button, DarkMode } from 'flowbite-svelte'
 
 	export let mainClass = 'bg-gray-50 dark:bg-gray-900'

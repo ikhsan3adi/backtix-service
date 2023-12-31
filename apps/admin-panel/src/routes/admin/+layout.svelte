@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { site } from '$lib/site'
+	import { site } from '$lib/client/site'
 	import {
 		Avatar,
 		Badge,
