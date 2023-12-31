@@ -115,6 +115,7 @@
 		<TableHeadCell>Status</TableHeadCell>
 		<TableHeadCell>Payment Method</TableHeadCell>
 		<TableHeadCell>Amount</TableHeadCell>
+		<TableHeadCell>Fee</TableHeadCell>
 		<TableHeadCell>Details</TableHeadCell>
 		<TableHeadCell>Action</TableHeadCell>
 	</TableHead>
@@ -136,7 +137,12 @@
 						{/if}
 					</TableBodyCell>
 					<TableBodyCell>{withdraw.method}</TableBodyCell>
-					<TableBodyCell>{defaultCurrencyFormatter.format(withdraw.amount)}</TableBodyCell>
+					<TableBodyCell>
+						{defaultCurrencyFormatter.format(withdraw.amount)}
+					</TableBodyCell>
+					<TableBodyCell>
+						{defaultCurrencyFormatter.format(withdraw.fee)}
+					</TableBodyCell>
 					<TableBodyCell>{withdraw.details}</TableBodyCell>
 					<TableBodyCell>
 						{#if withdraw.status === 'PENDING'}
