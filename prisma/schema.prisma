@@ -145,6 +145,7 @@ model WithdrawRequest {
   id        String                @id @default(uuid())
   userId    String
   amount    Float
+  fee       Float?
   method    String
   details   String
   from      WithdrawFrom          @default(BALANCE)

@@ -62,6 +62,7 @@ export class BalanceService {
       return await tx.withdrawRequest.create({
         data: {
           ...withdraw,
+          fee: withdrawalFees,
           from,
           userId: user.id,
         },
