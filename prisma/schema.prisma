@@ -145,8 +145,10 @@ model WithdrawRequest {
   id        String                @id @default(uuid())
   userId    String
   amount    Float
+  fee       Float?
   method    String
   details   String
+  from      WithdrawFrom          @default(BALANCE)
   status    WithdrawRequestStatus @default(PENDING)
   createdAt DateTime              @default(now())
   updatedAt DateTime              @updatedAt
@@ -154,8 +156,18 @@ model WithdrawRequest {
   user User @relation(fields: [userId], references: [id])
 }
 
+enum WithdrawFrom {
+  BALANCE
+  REVENUE
+}
+
 enum WithdrawRequestStatus {
   PENDING
   COMPLETED
   REJECTED
+}
+
+model WithdrawFee {
+  id     Int   @id @default(0)
+  amount Float @default(0)
 }
