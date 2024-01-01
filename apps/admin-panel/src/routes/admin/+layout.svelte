@@ -1,14 +1,17 @@
 <script lang="ts">
 	import { site } from '$lib/client/site'
 	import {
+		A,
 		Avatar,
 		Badge,
 		Button,
 		CloseButton,
 		DarkMode,
 		Drawer,
+		Footer,
+		FooterCopyright,
+		FooterIcon,
 		NavBrand,
-		NavHamburger,
 		NavLi,
 		NavUl,
 		Navbar,
@@ -20,6 +23,7 @@
 		SidebarWrapper
 	} from 'flowbite-svelte'
 	import {
+		BarsSolid,
 		CalendarMonthSolid,
 		ChartPieSolid,
 		CheckSolid,
@@ -29,6 +33,7 @@
 		DollarSolid,
 		FileSolid,
 		GearSolid,
+		GithubSolid,
 		GlobeSolid,
 		TrashBinSolid,
 		UserSettingsSolid,
@@ -67,36 +72,85 @@
 		if (width < breakPoint) drawerHidden = !drawerHidden
 	}
 
+	const navLinks = [
+		{
+			href: 'https://github.com/ikhsan3adi',
+			name: 'GitHub'
+		},
+		{
+			href: data?.links.openApi,
+			name: 'OpenAPI Docs'
+		}
+	]
+
 	// let spanClass = 'flex-1 ms-3 whitespace-nowrap'
 </script>
 
 <svelte:window bind:innerWidth={width} />
 <div class="relative min-h-screen">
 	<Navbar
-		let:toggle
 		class="fixed start-0 top-0 z-20 w-full border-b bg-white px-2 py-2.5 sm:px-4 dark:bg-slate-950"
 	>
-		<NavHamburger on:click={() => (drawerHidden = false)} btnClass=" lg:hidden" />
-		<NavBrand href="#" class="ml-4 md:ml-0">
-			<img src={site.img} class="me-3 h-6 sm:h-9" alt={site.imgAlt} />
-			<span class="self-center whitespace-nowrap pl-4 text-xl font-semibold dark:text-white">
-				{site.name}
-			</span>
-		</NavBrand>
+		<div class="flex items-center">
+			<Button
+				color="alternative"
+				on:click={() => (drawerHidden = false)}
+				class="mx-2 p-2 hover:text-gray-900 md:hidden dark:hover:text-white"
+			>
+				<BarsSolid />
+			</Button>
+			<NavBrand href="#" class="ml-4 md:ml-0">
+				<img src={site.img} class="me-3 h-6 sm:h-9" alt={site.imgAlt} />
+				<span
+					class="hidden self-center whitespace-nowrap pl-4 text-xl font-semibold sm:block dark:text-white"
+				>
+					{site.name}
+				</span>
+			</NavBrand>
+		</div>
 		<div class="flex items-center">
 			<NavUl>
-				<!-- <NavLi class="lg:mb-0 lg:px-2" href="https://github.com/ikhsan3adi">GitHub</NavLi> -->
-				<NavLi class="hover:underline lg:mb-0 lg:px-2" href={data?.links.openApi}>
-					OpenAPI Docs
-				</NavLi>
+				{#each navLinks as nav}
+					<NavLi class="hover:underline md:mb-0 md:px-2 hover:dark:text-white" href={nav.href}>
+						{nav.name}
+					</NavLi>
+				{/each}
 			</NavUl>
-			<DarkMode class="inline-block hover:text-gray-900 dark:hover:text-white" />
-			<div class="ml-3">
-				<Avatar href="" src={data.my.image} alt={data.my.username} id="profile"></Avatar>
+			<Button
+				color="alternative"
+				id="navMenu"
+				class="mx-2 p-2 hover:text-gray-900 md:hidden dark:hover:text-white"
+			>
+				<BarsSolid />
+			</Button>
+			<DarkMode class="inline-block px-4 hover:text-gray-900 dark:hover:text-white" />
+			<div class="ml-3 mr-2 cursor-pointer">
+				<Avatar size="sm" src={data.my.image} alt={data.my.username} id="profile"></Avatar>
 			</div>
 		</div>
-		<NavHamburger on:click={toggle} btnClass="lg:hidden" />
 	</Navbar>
+
+	<Popover triggeredBy="#navMenu" class="z-30 w-64 bg-white  dark:border-gray-600 dark:bg-gray-800">
+		<div class="p-3">
+			<div class="flex flex-col justify-between">
+				<div class="my-2 flex flex-col">
+					<ul class="flex flex-col gap-4 text-sm">
+						{#each navLinks as nav}
+							<li class="md:mb-0 md:px-2">
+								<A
+									color="dark:text-primary-300 hover:dark:text-white"
+									aClass="hover:underline"
+									href={nav.href}
+								>
+									{nav.name}
+								</A>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</Popover>
 
 	<Popover
 		triggeredBy="#profile"
@@ -137,7 +191,7 @@
 		id="sidebar"
 	>
 		<div class="flex items-center">
-			<CloseButton on:click={() => (drawerHidden = true)} class="mb-4 lg:hidden dark:text-white" />
+			<CloseButton on:click={() => (drawerHidden = true)} class="mb-4 md:hidden dark:text-white" />
 		</div>
 		<Sidebar {activeUrl}>
 			<SidebarWrapper divClass="py-4 px-3 rounded dark:bg-gray-800">
@@ -297,9 +351,25 @@
 		</Sidebar>
 	</Drawer>
 
-	<div class="mx-auto flex w-full pl-1 pt-20">
+	<div class="mx-auto flex min-h-screen w-full pl-1 pt-20">
 		<main class="mx-auto w-full lg:ml-72">
-			<slot />
+			<div class="flex h-full flex-col justify-between">
+				<div>
+					<slot />
+				</div>
+				<Footer footerType="socialmedia">
+					<div class="sm:flex sm:items-center sm:justify-between">
+						<FooterCopyright href="/" by="" />
+						<div class="mt-4 flex space-x-6 sm:mt-0 sm:justify-center rtl:space-x-reverse">
+							<FooterIcon href="https://github.com/ikhsan3adi">
+								<GithubSolid
+									class="h-4 w-4 text-gray-500 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white"
+								/>
+							</FooterIcon>
+						</div>
+					</div>
+				</Footer>
+			</div>
 		</main>
 	</div>
 </div>
