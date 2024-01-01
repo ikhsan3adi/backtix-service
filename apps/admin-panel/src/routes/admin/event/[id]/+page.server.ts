@@ -5,7 +5,19 @@ import type { Actions, PageServerLoad } from './$types'
 export const load = (async ({ params }) => {
 	const event = await prisma.event.findUnique({
 		where: { id: params.id },
-		include: { images: true, user: true, tickets: true }
+		include: {
+			images: true,
+			user: true,
+			tickets: {
+				include: {
+					_count: {
+						select: {
+							purchases: { where: { status: 'COMPLETED' } }
+						}
+					}
+				}
+			}
+		}
 	})
 
 	const images = event?.images.map((e) => ({
@@ -19,9 +31,17 @@ export const load = (async ({ params }) => {
 		src: ticketImageUrl.concat(e.image)
 	}))
 
+	const ticketPurchases = await prisma.purchase.findMany({
+		where: { ticket: { eventId: params.id } },
+		include: {
+			user: { select: { username: true } },
+			ticket: { select: { name: true } }
+		}
+	})
+
 	const userImage = event?.user.image ? userImageUrl.concat(event?.user.image) : undefined
 
-	return { event, images, tickets, userImage }
+	return { event, images, tickets, userImage, ticketPurchases }
 }) satisfies PageServerLoad
 
 export const actions: Actions = {

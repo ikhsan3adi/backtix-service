@@ -15,9 +15,15 @@
 		Heading,
 		Modal,
 		P,
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		TableHead,
+		TableHeadCell,
 		Thumbnails
 	} from 'flowbite-svelte'
-	import { CalendarMonthSolid, ExclamationCircleOutline } from 'flowbite-svelte-icons'
+	import { CalendarMonthSolid, ExclamationCircleOutline, ImageSolid } from 'flowbite-svelte-icons'
 	import type { PageServerData } from './$types'
 
 	export let data: PageServerData
@@ -134,6 +140,17 @@
 			<li>
 				Date end: {dateTimeFormatterWithoutSeconds.format(event.endDate ?? event.date)}
 			</li>
+			<li>
+				Total initial tickets stock: {event.tickets.map((e) => e.stock).reduce((p, c) => p + c)}
+			</li>
+			<li>
+				Total tickets sold: {event.tickets.map((e) => e._count.purchases).reduce((p, c) => p + c)}
+			</li>
+			<li>
+				Total current tickets stock: {event.tickets
+					.map((e) => e.currentStock)
+					.reduce((p, c) => p + c)}
+			</li>
 		</ul>
 
 		<Heading tag="h4" class="my-2">Categories</Heading>
@@ -164,8 +181,12 @@
 						alt={ticket.name}
 					/>
 				{:else}
-					<div class="flex h-full w-full items-center rounded-lg bg-primary-400 md:w-48">
-						<span class="m-auto text-primary-800">No image</span>
+					<div
+						class="bg-primary-300 dark:bg-primary-700 flex h-full w-full items-center rounded-lg md:w-48"
+					>
+						<span class="text-primary-400 dark:text-primary-600 m-auto">
+							<ImageSolid size="lg" />
+						</span>
 					</div>
 				{/if}
 			</div>
@@ -173,7 +194,7 @@
 				<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 					{ticket.name}
 				</h5>
-				<p class="mb-3 text-xl font-bold leading-tight text-primary-700 dark:text-primary-100">
+				<p class="text-primary-700 dark:text-primary-100 mb-3 text-xl font-bold leading-tight">
 					{defaultCurrencyFormatter.format(ticket.price)}
 				</p>
 				<ul class="text-sm text-gray-700 dark:text-gray-400">
@@ -181,8 +202,77 @@
 					<li>
 						Purchase deadline: {defaultDateTimeFormatter.format(ticket.purchaseDeadline)}
 					</li>
+					<li>
+						Initial Stock: {ticket.stock}
+					</li>
+					<li>
+						Current Stock: {ticket.currentStock}
+					</li>
+					<li>
+						Sold: {ticket._count.purchases}
+					</li>
 				</ul>
 			</div>
 		</Card>
 	{/each}
+</div>
+
+<Heading tag="h3" class="my-4 px-4">Ticket Purchases</Heading>
+<div class="px-4">
+	<Table striped>
+		<TableHead>
+			<TableHeadCell>User</TableHeadCell>
+			<TableHeadCell>Ticket</TableHeadCell>
+			<TableHeadCell>Price</TableHeadCell>
+			<TableHeadCell>Date</TableHeadCell>
+			<TableHeadCell>Status</TableHeadCell>
+		</TableHead>
+		<TableBody>
+			{#if data.ticketPurchases.length}
+				{#each data.ticketPurchases as purchase}
+					<TableBodyRow
+						color={purchase.status === 'CANCELLED' || purchase.refundStatus === 'REFUNDED'
+							? 'custom'
+							: 'default'}
+						class="bg-red-200 dark:bg-rose-800"
+					>
+						<TableBodyCell>{purchase.user.username}</TableBodyCell>
+						<TableBodyCell>{purchase.ticket.name}</TableBodyCell>
+						<TableBodyCell>{defaultCurrencyFormatter.format(purchase.price)}</TableBodyCell>
+						<TableBodyCell>
+							{dateTimeFormatterWithoutSeconds.format(purchase.createdAt)}
+						</TableBodyCell>
+						<TableBodyCell>
+							<div class="flex gap-1">
+								{#if purchase.status === 'COMPLETED'}
+									<Badge rounded border color="green">{purchase.status}</Badge>
+								{:else if purchase.status === 'PENDING'}
+									<Badge rounded border color="yellow">{purchase.status}</Badge>
+								{:else if purchase.status === 'CANCELLED'}
+									<Badge rounded border color="red">{purchase.status}</Badge>
+								{:else}
+									<Badge rounded border color="none">{purchase.status}</Badge>
+								{/if}
+								{#if purchase.refundStatus === 'REFUNDED'}
+									<Badge rounded border color="blue">{purchase.refundStatus}</Badge>
+								{:else if purchase.refundStatus === 'REFUNDING'}
+									<Badge rounded border color="yellow">{purchase.refundStatus}</Badge>
+								{:else if purchase.refundStatus === 'DENIED'}
+									<Badge rounded border color="purple">{purchase.refundStatus}</Badge>
+								{/if}
+							</div>
+						</TableBodyCell>
+					</TableBodyRow>
+				{/each}
+			{:else}
+				<TableBodyRow>
+					<td colspan="7">
+						<div class="flex h-64">
+							<span class="m-auto text-center text-xl font-bold">Not available</span>
+						</div>
+					</td>
+				</TableBodyRow>
+			{/if}
+		</TableBody>
+	</Table>
 </div>
