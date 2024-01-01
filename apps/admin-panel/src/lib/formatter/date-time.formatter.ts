@@ -20,4 +20,10 @@ const dateTimeFormatterWithoutSeconds = new Intl.DateTimeFormat('id', {
 	hour12: false
 })
 
-export { dateTimeFormatterWithoutSeconds, defaultDateTimeFormatter }
+const shortDateTimeFormatter = new Intl.DateTimeFormat('id', {
+	day: 'numeric',
+	month: 'short',
+	timeZone: 'Asia/Jakarta'
+})
+
+export { dateTimeFormatterWithoutSeconds, defaultDateTimeFormatter, shortDateTimeFormatter }
