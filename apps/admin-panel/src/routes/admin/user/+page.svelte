@@ -152,16 +152,20 @@
 	<TableBody>
 		{#if data.users.length}
 			{#each data.users as user}
-				<TableBodyRow>
+				<TableBodyRow
+					color={user.username === data.my.username ? 'custom' : 'default'}
+					class="bg-sky-300 dark:bg-blue-900"
+				>
 					<TableBodyCell tdClass="px-4">
 						<Avatar size="sm" alt={user.username} src={user.image} />
 					</TableBodyCell>
 					<TableBodyCell tdClass="px-2">{user.username}</TableBodyCell>
 					<TableBodyCell>{user.fullname}</TableBodyCell>
-					<TableBodyCell
-						><A href="mailto:{user.email}" aClass="underline" color="blue">{user.email}</A
-						></TableBodyCell
-					>
+					<TableBodyCell>
+						<A href="mailto:{user.email}" aClass="underline" color="blue">
+							{user.email}
+						</A>
+					</TableBodyCell>
 					<TableBodyCell tdClass="px-0">{user.activated ? 'Yes' : 'No'}</TableBodyCell>
 					<TableBodyCell>
 						<div class="flex flex-col gap-1">
