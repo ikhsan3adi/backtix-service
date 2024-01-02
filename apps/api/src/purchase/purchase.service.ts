@@ -33,6 +33,9 @@ export class PurchaseService {
 
   idGenerator: (size: number) => string
 
+  /**
+   * Used by payment gateway
+   */
   async notifyTicketOrder(notification: PaymentNotificationDto) {
     if (!notification) throw new BadRequestException()
     this.compareSignatureKey(notification)
