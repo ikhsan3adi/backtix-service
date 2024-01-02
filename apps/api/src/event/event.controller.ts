@@ -4,6 +4,8 @@ import {
   Delete,
   Get,
   Param,
+  ParseBoolPipe,
+  ParseEnumPipe,
   ParseFilePipe,
   Patch,
   Post,
@@ -22,8 +24,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger'
+import { $Enums } from '@prisma/client'
 import { Groups } from '../auth/decorators/groups.decorator'
 import { imageValidators } from '../common/files/file-validators'
+import { Purchase } from '../purchase/entities/purchase.entity'
+import { PurchaseEventService } from '../purchase/event/event.service'
 import { User } from '../user/decorators/user.decorator'
 import { UserEntity } from '../user/entities/user.entity'
 import { Group } from '../user/enums/group.enum'
@@ -36,7 +41,10 @@ import { EventService } from './event.service'
 @ApiTags('event')
 @Controller('event')
 export class EventController {
-  constructor(private readonly eventService: EventService) {}
+  constructor(
+    private readonly eventService: EventService,
+    private readonly purchaseEventService: PurchaseEventService,
+  ) {}
 
   @ApiConsumes('multipart/form-data')
   @Post()
@@ -142,5 +150,31 @@ export class EventController {
   @Delete(':id')
   async softDelete(@User() user: UserEntity, @Param('id') id: string) {
     return new Event(await this.eventService.softDelete(user, id))
+  }
+
+  @Get(':id/purchase')
+  async purchasesByEvent(
+    @Param('id') id: string,
+    @Query(
+      'status',
+      new ParseEnumPipe($Enums.PurchaseStatus, { optional: true }),
+    )
+    status?: $Enums.PurchaseStatus,
+    @Query(
+      'refundStatus',
+      new ParseEnumPipe($Enums.PurchaseRefundStatus, { optional: true }),
+    )
+    refundStatus?: $Enums.PurchaseRefundStatus,
+    @Query('used', new ParseBoolPipe({ optional: true }))
+    used?: boolean,
+  ) {
+    return (
+      await this.purchaseEventService.purchasesByEvent(
+        id,
+        status,
+        refundStatus,
+        used,
+      )
+    ).map((e) => new Purchase(e))
   }
 }

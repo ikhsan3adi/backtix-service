@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common'
-import { EventController } from './event.controller'
-import { EventService } from './event.service'
-import { PrismaService } from '../prisma/prisma.service'
-import { EventRepository } from './event.repository'
-import { StorageModule } from '../storage/storage.module'
+import { Module, forwardRef } from '@nestjs/common'
 import { FileModule } from '../file/file.module'
+import { PrismaService } from '../prisma/prisma.service'
+import { PurchaseModule } from '../purchase/purchase.module'
+import { StorageModule } from '../storage/storage.module'
+import { EventController } from './event.controller'
+import { EventRepository } from './event.repository'
+import { EventService } from './event.service'
 
 @Module({
-  imports: [StorageModule, FileModule],
+  imports: [forwardRef(() => PurchaseModule), StorageModule, FileModule],
   controllers: [EventController],
   providers: [EventService, EventRepository, PrismaService],
   exports: [EventService],
