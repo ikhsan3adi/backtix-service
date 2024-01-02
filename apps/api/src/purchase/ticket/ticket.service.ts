@@ -13,7 +13,7 @@ import { PurchaseRepository } from '../purchase.repository'
 import { PurchaseService } from '../purchase.service'
 
 @Injectable()
-export class TicketService {
+export class PurchaseTicketService {
   constructor(
     private purchaseRepository: PurchaseRepository,
     private purchaseService: PurchaseService,

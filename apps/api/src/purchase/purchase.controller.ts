@@ -22,8 +22,8 @@ import { ValidateTicketDto } from './dto/validate-ticket.dto'
 import { Purchase } from './entities/purchase.entity'
 import { TicketOrder } from './entities/ticket-order.entity'
 import { PurchaseService } from './purchase.service'
-import { RefundService } from './refund/refund.service'
-import { TicketService } from './ticket/ticket.service'
+import { PurchaseRefundService } from './refund/refund.service'
+import { PurchaseTicketService } from './ticket/ticket.service'
 
 @ApiTags('purchase')
 @ApiBearerAuth()
@@ -31,8 +31,8 @@ import { TicketService } from './ticket/ticket.service'
 export class PurchaseController {
   constructor(
     private readonly purchaseService: PurchaseService,
-    private readonly ticketService: TicketService,
-    private readonly refundService: RefundService,
+    private readonly ticketService: PurchaseTicketService,
+    private readonly refundService: PurchaseRefundService,
   ) {}
 
   @ApiOperation({ summary: 'Request ticket refund/cancel' })

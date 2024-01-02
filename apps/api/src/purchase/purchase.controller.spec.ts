@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PurchaseController } from './purchase.controller'
 import { PurchaseService } from './purchase.service'
-import { RefundService } from './refund/refund.service'
-import { TicketService } from './ticket/ticket.service'
+import { PurchaseRefundService } from './refund/refund.service'
+import { PurchaseTicketService } from './ticket/ticket.service'
 
 describe('PurchaseController', () => {
   let controller: PurchaseController
@@ -12,8 +12,8 @@ describe('PurchaseController', () => {
       controllers: [PurchaseController],
       providers: [
         { provide: PurchaseService, useValue: {} },
-        { provide: RefundService, useValue: {} },
-        { provide: TicketService, useValue: {} },
+        { provide: PurchaseRefundService, useValue: {} },
+        { provide: PurchaseTicketService, useValue: {} },
       ],
     }).compile()
 

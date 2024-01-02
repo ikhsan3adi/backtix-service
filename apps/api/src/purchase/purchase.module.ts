@@ -6,8 +6,8 @@ import { TicketModule } from '../ticket/ticket.module'
 import { PurchaseController } from './purchase.controller'
 import { PurchaseRepository } from './purchase.repository'
 import { PurchaseService } from './purchase.service'
-import { RefundService } from './refund/refund.service'
-import { TicketService } from './ticket/ticket.service'
+import { PurchaseRefundService } from './refund/refund.service'
+import { PurchaseTicketService } from './ticket/ticket.service'
 
 @Module({
   imports: [TicketModule, EventModule],
@@ -17,8 +17,8 @@ import { TicketService } from './ticket/ticket.service'
     PrismaService,
     PurchaseRepository,
     PaymentService,
-    RefundService,
-    TicketService,
+    PurchaseRefundService,
+    PurchaseTicketService,
   ],
 })
 export class PurchaseModule {}
