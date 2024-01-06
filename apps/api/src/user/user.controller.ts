@@ -1,23 +1,24 @@
 import {
+  Body,
   Controller,
   Get,
-  Body,
-  Patch,
   Param,
-  UseInterceptors,
   ParseFilePipe,
+  Patch,
   UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common'
-import { UserService } from './user.service'
-import { UpdateUserDto } from './dto/update-user.dto'
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger'
-import { UserEntity } from './entities/user.entity'
-import { User } from './decorators/user.decorator'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { imageValidators } from '../common/files/file-validators'
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger'
+import { AllowUnactivated } from '../auth/decorators/allow-unactivated.decorator'
 import { Groups } from '../auth/decorators/groups.decorator'
-import { Group } from './enums/group.enum'
+import { imageValidators } from '../common/files/file-validators'
+import { User } from './decorators/user.decorator'
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
+import { UserEntity } from './entities/user.entity'
+import { Group } from './enums/group.enum'
+import { UserService } from './user.service'
 
 @ApiBearerAuth()
 @ApiTags('user')

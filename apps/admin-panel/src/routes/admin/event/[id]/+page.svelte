@@ -182,9 +182,9 @@
 					/>
 				{:else}
 					<div
-						class="bg-primary-300 dark:bg-primary-700 flex h-full w-full items-center rounded-lg md:w-48"
+						class="flex h-full w-full items-center rounded-lg bg-primary-300 md:w-48 dark:bg-primary-700"
 					>
-						<span class="text-primary-400 dark:text-primary-600 m-auto">
+						<span class="m-auto text-primary-400 dark:text-primary-600">
 							<ImageSolid size="lg" />
 						</span>
 					</div>
@@ -194,7 +194,7 @@
 				<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 					{ticket.name}
 				</h5>
-				<p class="text-primary-700 dark:text-primary-100 mb-3 text-xl font-bold leading-tight">
+				<p class="mb-3 text-xl font-bold leading-tight text-primary-700 dark:text-primary-100">
 					{defaultCurrencyFormatter.format(ticket.price)}
 				</p>
 				<ul class="text-sm text-gray-700 dark:text-gray-400">
