@@ -26,6 +26,7 @@ import { UserService } from './user.service'
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @AllowUnactivated()
   @Get('my')
   async myDetails(@User() user: UserEntity) {
     return new UserEntity(await this.userService.getUserDetails(user.id))
