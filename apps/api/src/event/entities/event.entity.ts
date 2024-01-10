@@ -1,6 +1,8 @@
+import { ApiProperty } from '@nestjs/swagger'
+import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
-import { EventImage } from './event-image.entity'
 import { Ticket } from '../../ticket/entities/ticket.entity'
+import { EventImage } from './event-image.entity'
 
 export class Event {
   constructor(partial: Partial<Event>) {
@@ -12,7 +14,13 @@ export class Event {
   date: Date
   endDate?: Date
   location: string
+  latitude: number
+  longitude: number
   description: string
+  @ApiProperty({
+    enum: $Enums.EventStatus,
+    isArray: true,
+  })
   status: string
   createdAt: Date
   updatedAt: Date
