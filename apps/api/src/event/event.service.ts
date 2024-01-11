@@ -160,7 +160,7 @@ export class EventService {
       },
       include: { images: true },
       orderBy,
-      skip: page * this.perPage,
+      skip: isNaN(page) ? page * this.perPage : 0,
       take: this.perPage,
     })
   }
