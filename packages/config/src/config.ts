@@ -26,9 +26,11 @@ export const config = {
     otpTTL: Number(process.env.OTP_TTL ?? 300 * 1000),
     otpPrefix: 'otp-',
     google: {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${process.env.BASE_URL}auth/google/callback`,
+      clientID: process.env.SERVER_GOOGLE_CLIENT_ID,
+      clientSecret: process.env.SERVER_GOOGLE_CLIENT_SECRET,
+      webClientID: process.env.WEB_APP_GOOGLE_CLIENT_ID,
+      webClientSecret: process.env.WEB_APP_GOOGLE_CLIENT_SECRET,
+      callbackURL: `${process.env.BASE_URL}api/auth/google/callback`,
     },
   },
   redis: {

@@ -8,8 +8,8 @@ import { UserEntity } from '../../user/entities/user.entity'
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
     super({
-      clientID: config.security.google.clientID,
-      clientSecret: config.security.google.clientSecret,
+      clientID: config.security.google.webClientID,
+      clientSecret: config.security.google.webClientSecret,
       callbackURL: config.security.google.callbackURL,
       scope: ['profile', 'email'],
     })
