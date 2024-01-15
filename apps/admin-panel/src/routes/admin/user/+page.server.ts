@@ -64,7 +64,10 @@ export const actions: Actions = {
 
 			await prisma.user.update({
 				where: { id },
-				data: { deletedAt: { set: new Date().toISOString() } }
+				data: {
+					id: `${id}_|_DELETED`,
+					deletedAt: { set: new Date().toISOString() }
+				}
 			})
 
 			return { success: true, message: 'User delete success.' }
@@ -82,7 +85,10 @@ export const actions: Actions = {
 
 			await prisma.user.update({
 				where: { id },
-				data: { deletedAt: null }
+				data: {
+					id: id.split('_|_')[0],
+					deletedAt: null
+				}
 			})
 
 			return { success: true, message: 'User restore success.' }
