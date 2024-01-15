@@ -34,7 +34,7 @@ export class UserService {
     return await this.userRepository.findUnique({ where })
   }
 
-  async checkEmailUsername(params: { username: string; email: string }) {
+  async checkEmailUsername(params: { username?: string; email: string }) {
     const { username, email } = params
     const userAvailable = await this.userRepository.find({
       where: {

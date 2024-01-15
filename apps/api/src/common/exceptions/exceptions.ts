@@ -10,6 +10,7 @@ export const exceptions = {
   },
   USER: {
     NOT_FOUND: 'User not found',
+    DELETED: 'User has been deleted',
     EMAIL_ALREADY_REGISTERED: (email: string) => {
       return `Email ${email} already registered`
     },

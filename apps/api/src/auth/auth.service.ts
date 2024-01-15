@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -34,41 +35,41 @@ export class AuthService {
 
   async googleSignInOrSignUp(user: UserEntity) {
     try {
-      await this.userService.checkEmailUsername({
-        email: user.email,
-        username: undefined,
-      })
+      const newUser = await this.registerUser({ ...user, password: user.id })
 
-      return {
-        ...(await this.registerUser({ ...user, password: user.id })),
-        new: true,
-      }
+      return { ...newUser, isNewUser: true }
     } catch (e) {
       if (e instanceof ConflictException) {
         const _user = await this.userService.findUniqueBy({ email: user.email })
-        return {
-          ...(await this.login({
-            ...user,
-            id: _user.id,
-            username: _user.username,
-          })),
-          new: false,
-        }
-      }
+        const auth = await this.login({
+          ...user,
+          id: _user.id,
+          username: _user.username,
+        })
+
+        return { ...auth, isNewUser: false }
+      } else if (e instanceof HttpException) throw e
+
       console.error(e)
       throw new InternalServerErrorException()
     }
   }
 
   async registerUser(createUserDto: CreateUserDto) {
-    await this.userService.checkEmailUsername(createUserDto)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...newUser } = createUserDto as UserEntity
+
+    await this.userService.checkEmailUsername({
+      email: newUser.email,
+      username: newUser.provider ? undefined : newUser.username,
+    })
 
     const hashedPassword = await this.passwordService.hashPassword(
-      createUserDto.password,
+      newUser.password,
     )
 
     return await this.userService.create({
-      ...createUserDto,
+      ...newUser,
       password: hashedPassword,
     })
   }
@@ -78,6 +79,8 @@ export class AuthService {
 
     if (!user) {
       throw new NotFoundException(exceptions.USER.NOT_FOUND)
+    } else if (user.deletedAt) {
+      throw new NotFoundException(exceptions.USER.DELETED)
     }
 
     const passwordValid = await this.passwordService.validatePassword(
