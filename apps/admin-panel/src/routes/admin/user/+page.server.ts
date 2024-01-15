@@ -20,7 +20,7 @@ export const load = (async ({ url, locals }) => {
 			skip: page * perPage,
 			take: perPage
 		})
-	).map((e) => ({ ...e, image: e.image ? userImageUrl.concat(e.image) : undefined }))
+	).map((e) => ({ ...e, image: e.image ? userImageUrl(e.image) : undefined }))
 
 	return { users, group, deleted, page, my: locals.user }
 }) satisfies PageServerLoad
