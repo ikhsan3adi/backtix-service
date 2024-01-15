@@ -22,6 +22,7 @@ import { UserEntity } from '../user/entities/user.entity'
 import { AuthService } from './auth.service'
 import { AllowUnactivated } from './decorators/allow-unactivated.decorator'
 import { Public } from './decorators/public.decorator'
+import { AuthGoogleService } from './google/auth-google.service'
 import { GoogleOauthGuard } from './guards/google-oauth.guard'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { RefreshAuthGuard } from './guards/refresh-auth.guard'
@@ -29,7 +30,10 @@ import { RefreshAuthGuard } from './guards/refresh-auth.guard'
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly authGoogleService: AuthGoogleService,
+  ) {}
 
   @ApiOperation({ summary: 'Sign Up' })
   @Public()
@@ -58,15 +62,29 @@ export class AuthController {
     return await this.authService.login(user)
   }
 
+  /**
+   * Web only
+   */
   @Public()
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  async requestGoogleAuth() {}
+  async requestWebGoogleAuth() {}
 
+  /**
+   * Web only
+   */
   @Public()
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@User() user: UserEntity) {
+    return await this.authService.googleSignInOrSignUp(user)
+  }
+
+  @ApiBody({ schema: { example: { idToken: 'idToken' } } })
+  @Public()
+  @Post('google')
+  async requestGoogleAuth(@Body('idToken') idToken: string) {
+    const user = await this.authGoogleService.getUserByIdToken(idToken)
     return await this.authService.googleSignInOrSignUp(user)
   }
 

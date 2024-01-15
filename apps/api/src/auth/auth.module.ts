@@ -1,16 +1,17 @@
 import { Module } from '@nestjs/common'
-import { AuthService } from './auth.service'
-import { AuthController } from './auth.controller'
-import { UserModule } from '../user/user.module'
-import { PassportModule } from '@nestjs/passport'
-import { LocalStrategy } from './strategies/local.strategy'
 import { JwtModule } from '@nestjs/jwt'
+import { PassportModule } from '@nestjs/passport'
 import { config } from '../common/config'
-import { JwtStrategy } from './strategies/jwt.strategy'
-import { PasswordService } from './password.service'
 import { MailModule } from '../mail/mail.module'
+import { UserModule } from '../user/user.module'
+import { AuthController } from './auth.controller'
+import { AuthService } from './auth.service'
+import { AuthGoogleService } from './google/auth-google.service'
 import { OtpService } from './otp.service'
+import { PasswordService } from './password.service'
 import { GoogleStrategy } from './strategies/google.strategy'
+import { JwtStrategy } from './strategies/jwt.strategy'
+import { LocalStrategy } from './strategies/local.strategy'
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { GoogleStrategy } from './strategies/google.strategy'
     JwtStrategy,
     GoogleStrategy,
     OtpService,
+    AuthGoogleService,
   ],
 })
 export class AuthModule {}
