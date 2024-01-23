@@ -39,7 +39,7 @@ export const load = (async ({ params }) => {
 		}
 	})
 
-	const userImage = event?.user.image ? userImageUrl.concat(event?.user.image) : undefined
+	const userImage = event?.user.image ? userImageUrl(event?.user.image) : undefined
 
 	return { event, images, tickets, userImage, ticketPurchases }
 }) satisfies PageServerLoad

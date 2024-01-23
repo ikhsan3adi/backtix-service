@@ -7,7 +7,7 @@ export const load = (async ({ url, locals }) => {
 		activeUrl: url.pathname,
 		my: {
 			...locals.user,
-			image: locals.user.image ? userImageUrl.concat(locals.user.image) : undefined
+			image: locals.user.image ? userImageUrl(locals.user.image) : undefined
 		}
 	}
 }) satisfies LayoutServerLoad

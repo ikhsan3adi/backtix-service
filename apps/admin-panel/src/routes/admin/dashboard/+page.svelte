@@ -27,19 +27,19 @@
 	const sum = (p: number, c: number) => p + c
 
 	const profit = defaultCurrencyFormatter.format(
-		data.successfulWithdraw.map((e) => e.fee).reduce(sum)
+		data.successfulWithdraw.map((e) => e.fee).reduce(sum, 0)
 	)
 
 	const totalWithdrawn = defaultCurrencyFormatter.format(
-		data.successfulWithdraw.map((e) => e.amount).reduce(sum)
+		data.successfulWithdraw.map((e) => e.amount).reduce(sum, 0)
 	)
 
 	const totalPurchasesOccured = defaultCurrencyFormatter.format(
-		data.purchases.map((e) => e.price).reduce(sum)
+		data.purchases.map((e) => e.price).reduce(sum, 0)
 	)
 
 	const totalPurchasesRefunded = defaultCurrencyFormatter.format(
-		data.refundedPurchases.map((e) => e.price).reduce(sum)
+		data.refundedPurchases.map((e) => e.price).reduce(sum, 0)
 	)
 
 	let chartOptions: ApexOptions = {
@@ -148,9 +148,9 @@
 							<p class="text-2xl font-bold leading-none text-gray-900 dark:text-white">
 								{isNominal
 									? defaultCurrencyFormatter.format(
-											data.chartData.map((e) => e.purchases).reduce(sum)
+											data.chartData.map((e) => e.purchases).reduce(sum, 0)
 										)
-									: data.chartData.map((e) => e.purchases).reduce(sum)}
+									: data.chartData.map((e) => e.purchases).reduce(sum, 0)}
 							</p>
 						</div>
 						<div>
@@ -160,9 +160,9 @@
 							<p class="text-2xl font-bold leading-none text-gray-900 dark:text-white">
 								{isNominal
 									? defaultCurrencyFormatter.format(
-											data.chartData.map((e) => e.withdraws).reduce(sum)
+											data.chartData.map((e) => e.withdraws).reduce(sum, 0)
 										)
-									: data.chartData.map((e) => e.withdraws).reduce(sum)}
+									: data.chartData.map((e) => e.withdraws).reduce(sum, 0)}
 							</p>
 						</div>
 						{#if isNominal}
@@ -172,7 +172,7 @@
 								</Heading>
 								<p class="text-2xl font-bold leading-none text-gray-900 dark:text-white">
 									{defaultCurrencyFormatter.format(
-										data.chartData.map((e) => e.profits).reduce(sum)
+										data.chartData.map((e) => e.profits).reduce(sum, 0)
 									)}
 								</p>
 							</div>
