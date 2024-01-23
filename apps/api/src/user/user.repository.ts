@@ -7,8 +7,23 @@ export class UserRepository {
   constructor(private prismaService: PrismaService) {}
 
   async create(user: Prisma.UserCreateInput) {
-    return await this.prismaService.user.create({
-      data: { ...user, balance: { create: { balance: 0 } } },
+    return await this.prismaService.$transaction(async (tx) => {
+      const createdUser = await this.prismaService.user.create({
+        data: { ...user, balance: { create: { balance: 0 } } },
+      })
+
+      if (user.latitude && user.longitude) {
+        await this.updateLocationGeography(
+          createdUser.id,
+          {
+            lat: Number(user.latitude),
+            long: Number(user.longitude),
+          },
+          tx as PrismaClient,
+        )
+      }
+
+      return createdUser
     })
   }
 
@@ -60,10 +75,36 @@ export class UserRepository {
   }) {
     const { where, data, include } = params
 
-    return await this.prismaService.user.update({
-      where,
-      data,
-      include,
+    return await this.prismaService.$transaction(async (tx) => {
+      if (where.id && data.latitude && data.longitude) {
+        const u = await this.updateLocationGeography(
+          where.id,
+          {
+            lat: Number(data.latitude),
+            long: Number(data.longitude),
+          },
+          tx as PrismaClient,
+        )
+
+        console.log(u)
+      }
+
+      return await tx.user.update({
+        where,
+        data,
+        include,
+      })
     })
+  }
+
+  async updateLocationGeography(
+    id: string,
+    params: { lat: number; long: number },
+    tx?: PrismaClient,
+  ) {
+    const { long, lat } = params
+    const client = tx ?? this.prismaService
+
+    return await client.$queryRaw`UPDATE "User" SET "locationGeography" = "public"."st_point"(${long}, ${lat}) WHERE id = ${id}`
   }
 }

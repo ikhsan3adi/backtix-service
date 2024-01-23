@@ -109,6 +109,21 @@ export class EventController {
     ).map((e) => new Event(e))
   }
 
+  @ApiOperation({
+    summary: 'Find events near to the user location',
+    description: 'distance in KM',
+  })
+  @Get('nearby')
+  async findNearestPublishedEvents(
+    @User() user: UserEntity,
+    @Query('count') count: number,
+    @Query('distance') distance: number,
+  ) {
+    return (
+      await this.eventService.findNearestPublishedEvents(user, count, distance)
+    ).map((e) => new Event(e))
+  }
+
   @Get('my')
   async myEvents(
     @User() user: UserEntity,

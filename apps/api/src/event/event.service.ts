@@ -177,6 +177,21 @@ export class EventService {
     })
   }
 
+  /**
+   * @param distance in kilometers
+   */
+  async findNearestPublishedEvents(
+    user: UserEntity,
+    count: number = 5,
+    distance: number = 5,
+  ) {
+    return await this.eventRepository.findNearbyByUserLocation(user.id, {
+      distance,
+      count,
+      status: 'PUBLISHED',
+    })
+  }
+
   async findOne(
     id: string,
     status: 'PUBLISHED' | 'DRAFT' | 'CANCELLED' = 'PUBLISHED',

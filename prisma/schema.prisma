@@ -7,8 +7,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
 }
 
 model User {
@@ -25,9 +26,10 @@ model User {
 
   balance UserBalance?
 
-  location  String?
-  latitude  Float?
-  longitude Float?
+  location          String?
+  latitude          Float?
+  longitude         Float?
+  locationGeography Unsupported("\"public\".geography")?
 
   events           Event[]
   purchases        Purchase[]
@@ -63,9 +65,10 @@ model Event {
   images      EventImage[]
   status      EventStatus  @default(DRAFT)
 
-  location  String?
-  latitude  Float?
-  longitude Float?
+  location          String?
+  latitude          Float?
+  longitude         Float?
+  locationGeography Unsupported("\"public\".geography")?
 
   tickets Ticket[]
 

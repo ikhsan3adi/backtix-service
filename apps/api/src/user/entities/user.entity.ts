@@ -23,6 +23,7 @@ export class UserEntity {
   location: string
   latitude: number
   longitude: number
+  locationGeography: any
 
   @Transform(getFullFileUrlTransformer(config.fileStream.userImageUrlPath))
   image: string
