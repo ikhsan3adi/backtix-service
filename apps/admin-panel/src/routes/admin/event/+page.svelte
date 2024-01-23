@@ -7,7 +7,9 @@
 		Breadcrumb,
 		BreadcrumbItem,
 		Button,
+		Checkbox,
 		Heading,
+		Modal,
 		P,
 		Pagination,
 		Table,
@@ -17,7 +19,7 @@
 		TableHead,
 		TableHeadCell
 	} from 'flowbite-svelte'
-	import { CalendarMonthSolid, CheckSolid } from 'flowbite-svelte-icons'
+	import { CalendarMonthSolid, CheckSolid, ExclamationCircleOutline } from 'flowbite-svelte-icons'
 	import type { PageServerData } from './$types'
 
 	export let data: PageServerData
@@ -32,6 +34,25 @@
 			goto(`?status=${data.status}&deleted=${data.deleted}&page=${++data.page}`)
 		}
 	}
+
+	let selected = []
+	let selectAll = []
+
+	$: canUpdateMany = selected.length > 0
+	$: selectedAll = selectAll.length === 1
+
+	let previousSelectedAll = false
+
+	$: if (!previousSelectedAll && selectedAll) {
+		selected = data.events.map((e) => e.id)
+		previousSelectedAll = true
+	} else if (previousSelectedAll && !selectedAll) {
+		selected = []
+		previousSelectedAll = false
+	}
+
+	let actionModal = false
+	let actionCtx: 'approve' | 'reject'
 </script>
 
 <div class="p-4">
@@ -44,51 +65,109 @@
 		</BreadcrumbItem>
 	</Breadcrumb>
 
-	<Heading tag="h2" class="mb-3">Event management</Heading>
-	<div class="flex gap-2">
-		<P>Filter:</P>
-		<Badge href="/admin/event" rounded border color="purple" large>
-			{#if !data.status && !data.deleted}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
-			{/if}
-			ALL
-		</Badge>
-		<Badge href="/admin/event?status=DRAFT&deleted=false" rounded border color="yellow" large>
-			{#if data.status === 'DRAFT'}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
-			{/if}
-			DRAFT
-		</Badge>
-		<Badge href="/admin/event?status=PUBLISHED&deleted=false" rounded border color="green" large>
-			{#if data.status === 'PUBLISHED'}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
-			{/if}
-			PUBLISHED
-		</Badge>
-		<Badge href="/admin/event?status=CANCELLED&deleted=false" rounded border color="primary" large>
-			{#if data.status === 'CANCELLED'}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
-			{/if}
-			CANCELLED
-		</Badge>
-		<Badge href="/admin/event?status=REJECTED&deleted=false" rounded border color="red" large>
-			{#if data.status === 'REJECTED'}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
-			{/if}
-			REJECTED
-		</Badge>
-		<Badge href="/admin/event?deleted=true" rounded border color="dark" large>
-			{#if data.deleted === 'true'}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
-			{/if}
-			DELETED
-		</Badge>
+	<div class="items-center justify-between lg:flex">
+		<div class="mb-3 lg:mb-0">
+			<Heading tag="h2" class="mb-3">Event management</Heading>
+			<div class="flex gap-2">
+				<P>Filter:</P>
+				<Badge href="/admin/event" rounded border color="purple" large>
+					{#if !data.status && !data.deleted}
+						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+					{/if}
+					ALL
+				</Badge>
+				<Badge href="/admin/event?status=DRAFT&deleted=false" rounded border color="yellow" large>
+					{#if data.status === 'DRAFT'}
+						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+					{/if}
+					DRAFT
+				</Badge>
+				<Badge
+					href="/admin/event?status=PUBLISHED&deleted=false"
+					rounded
+					border
+					color="green"
+					large
+				>
+					{#if data.status === 'PUBLISHED'}
+						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+					{/if}
+					PUBLISHED
+				</Badge>
+				<Badge
+					href="/admin/event?status=CANCELLED&deleted=false"
+					rounded
+					border
+					color="primary"
+					large
+				>
+					{#if data.status === 'CANCELLED'}
+						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+					{/if}
+					CANCELLED
+				</Badge>
+				<Badge href="/admin/event?status=REJECTED&deleted=false" rounded border color="red" large>
+					{#if data.status === 'REJECTED'}
+						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+					{/if}
+					REJECTED
+				</Badge>
+				<Badge href="/admin/event?deleted=true" rounded border color="dark" large>
+					{#if data.deleted === 'true'}
+						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+					{/if}
+					DELETED
+				</Badge>
+			</div>
+		</div>
+		<div class="flex gap-2">
+			<Button
+				on:click={() => {
+					actionModal = true
+					actionCtx = 'approve'
+				}}
+				pill
+				color={canUpdateMany ? 'green' : 'alternative'}
+				disabled={!canUpdateMany || data.status === 'PUBLISHED'}
+			>
+				Approve
+			</Button>
+			<Button
+				on:click={() => {
+					actionModal = true
+					actionCtx = 'reject'
+				}}
+				pill
+				color={canUpdateMany ? 'red' : 'alternative'}
+				outline={canUpdateMany}
+				disabled={!canUpdateMany || data.status === 'REJECTED'}
+			>
+				Reject
+			</Button>
+		</div>
 	</div>
+
+	<Modal title="Confirmation" size="xs" bind:open={actionModal} outsideclose>
+		<div class="text-center">
+			<ExclamationCircleOutline class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200" />
+			<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Are you sure?</h3>
+			<div class="flex justify-center gap-2">
+				<form action="?/{actionCtx}" method="post" class="inline">
+					<input type="hidden" name="selectedIds" value={selected} />
+					<Button type="submit" color="red">Confirm</Button>
+				</form>
+				<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
+			</div>
+		</div>
+	</Modal>
 </div>
 
 <Table striped>
 	<TableHead>
-		<TableHeadCell>Event Name</TableHeadCell>
+		<TableHeadCell padding="pr-2 pl-4">
+			<Checkbox bind:group={selectAll}></Checkbox>
+		</TableHeadCell>
+		<TableHeadCell padding="pl-0">Event Name</TableHeadCell>
 		<TableHeadCell>Location</TableHeadCell>
 		<TableHeadCell>Owner</TableHeadCell>
 		<TableHeadCell>Event Date</TableHeadCell>
@@ -100,7 +179,10 @@
 		{#if data.events.length}
 			{#each data.events as event}
 				<TableBodyRow>
-					<TableBodyCell>{event.name}</TableBodyCell>
+					<TableBodyCell tdClass="pr-2 pl-4">
+						<Checkbox value={event.id} bind:group={selected}></Checkbox>
+					</TableBodyCell>
+					<TableBodyCell tdClass="pl-0">{event.name}</TableBodyCell>
 					<TableBodyCell>
 						{#if event.location}
 							<A

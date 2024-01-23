@@ -1,5 +1,6 @@
 import type { $Enums } from '@prisma/client'
-import type { PageServerLoad } from './$types'
+import { redirect } from '@sveltejs/kit'
+import type { Actions, PageServerLoad } from './$types'
 
 const perPage = 20
 
@@ -20,3 +21,35 @@ export const load = (async ({ url }) => {
 
 	return { events, status, deleted, page }
 }) satisfies PageServerLoad
+
+export const actions: Actions = {
+	approve: async ({ request }) => {
+		const { selectedIds } = Object.fromEntries(await request.formData()) as {
+			selectedIds: string
+		}
+
+		const eventIds = selectedIds ? selectedIds.split(',') : []
+
+		await prisma.event.updateMany({
+			where: { id: { in: eventIds } },
+			data: { status: 'PUBLISHED' }
+		})
+
+		redirect(303, '/admin/event?status=PUBLISHED')
+	},
+
+	reject: async ({ request }) => {
+		const { selectedIds } = Object.fromEntries(await request.formData()) as {
+			selectedIds: string
+		}
+
+		const eventIds = selectedIds ? selectedIds.split(',') : []
+
+		await prisma.event.updateMany({
+			where: { id: { in: eventIds } },
+			data: { status: 'REJECTED' }
+		})
+
+		redirect(303, '/admin/event?status=REJECTED')
+	}
+}
