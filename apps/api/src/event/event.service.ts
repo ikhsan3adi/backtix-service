@@ -142,10 +142,11 @@ export class EventService {
   }
 
   async findPublished(
+    page: number = 0,
     byStartDate?: boolean,
     from?: string,
     to?: string,
-    page: number = 0,
+    search?: string,
   ) {
     const orderBy: any = byStartDate ? { date: 'desc' } : { createdAt: 'desc' }
 
@@ -154,13 +155,24 @@ export class EventService {
 
     return await this.eventRepository.findMany({
       where: {
+        name: { search },
+        description: { search },
+        location: { search },
         date: { gte: fromDate, lte: toDate },
         status: 'PUBLISHED',
         deletedAt: null,
       },
       include: { images: true },
-      orderBy,
-      skip: isNaN(page) ? page * this.perPage : 0,
+      orderBy: search
+        ? {
+            _relevance: {
+              fields: ['name', 'description', 'location'],
+              search,
+              sort: 'asc',
+            },
+          }
+        : orderBy,
+      skip: isNaN(page) ? 0 : page * this.perPage,
       take: this.perPage,
     })
   }

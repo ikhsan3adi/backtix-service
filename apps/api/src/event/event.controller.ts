@@ -96,13 +96,15 @@ export class EventController {
     @Query('byStartDate') byStartDate: string,
     @Query('from') from: string,
     @Query('to') to: string,
+    @Query('search') search: string,
   ) {
     return (
       await this.eventService.findPublished(
+        page,
         byStartDate ? Boolean(byStartDate) : false,
         from,
         to,
-        page,
+        search ? search : undefined,
       )
     ).map((e) => new Event(e))
   }

@@ -17,7 +17,7 @@ export class EventRepository {
   async findMany(params: {
     where?: Prisma.EventWhereInput
     include?: Prisma.EventInclude
-    orderBy?: Prisma.EventOrderByWithRelationInput
+    orderBy?: Prisma.EventOrderByWithRelationAndSearchRelevanceInput
     skip?: number
     take?: number
   }) {
@@ -28,7 +28,7 @@ export class EventRepository {
         tickets: true,
         images: true,
       },
-      orderBy,
+      orderBy: [orderBy],
       skip,
       take,
     })

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, User } from '@prisma/client'
+import { Prisma, PrismaClient, User } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
@@ -17,7 +17,7 @@ export class UserRepository {
     take?: number
     cursor?: Prisma.UserWhereUniqueInput
     where?: Prisma.UserWhereInput
-    orderBy?: Prisma.UserOrderByWithRelationInput
+    orderBy?: Prisma.UserOrderByWithRelationAndSearchRelevanceInput
     select?: Prisma.UserSelect
   }): Promise<User[]> {
     const { skip, take, cursor, where, orderBy, select } = params
