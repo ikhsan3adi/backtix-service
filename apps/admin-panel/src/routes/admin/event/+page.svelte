@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation'
 	import { dateTimeFormatterWithoutSeconds } from '$lib/formatter/date-time.formatter'
 	import {
+		A,
 		Badge,
 		Breadcrumb,
 		BreadcrumbItem,
@@ -100,7 +101,19 @@
 			{#each data.events as event}
 				<TableBodyRow>
 					<TableBodyCell>{event.name}</TableBodyCell>
-					<TableBodyCell>{event.location}</TableBodyCell>
+					<TableBodyCell>
+						{#if event.location}
+							<A
+								href={`https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}`}
+								aClass="underline"
+								color="blue"
+							>
+								{event.location}
+							</A>
+						{:else}
+							{'unset'}
+						{/if}
+					</TableBodyCell>
 					<TableBodyCell>
 						<strong>{event.user.username}</strong><br />{event.user.email}
 					</TableBodyCell>
