@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Transform } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -38,11 +38,11 @@ export class CreateEventDto {
   location: string
 
   @IsLatitude()
-  @IsNotEmpty()
+  @Type(() => Number)
   latitude: number
 
   @IsLongitude()
-  @IsNotEmpty()
+  @Type(() => Number)
   longitude: number
 
   @IsString()

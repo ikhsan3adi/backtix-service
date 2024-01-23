@@ -20,6 +20,10 @@ export class UserEntity {
   fullname: string
   email: string
 
+  location: string
+  latitude: number
+  longitude: number
+
   @Transform(getFullFileUrlTransformer(config.fileStream.userImageUrlPath))
   image: string
 
