@@ -25,6 +25,7 @@
     "@prisma/client": "^5.7.1"
   },
   "devDependencies": {
+    "@ts-safeql/eslint-plugin": "^2.0.3",
     "prisma": "^5.7.1"
   },
   "prisma": {

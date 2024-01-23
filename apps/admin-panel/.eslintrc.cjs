@@ -8,7 +8,7 @@ module.exports = {
 		'prettier'
 	],
 	parser: '@typescript-eslint/parser',
-	plugins: ['@typescript-eslint'],
+	plugins: ['@typescript-eslint', '@ts-safeql/eslint-plugin'],
 	parserOptions: {
 		sourceType: 'module',
 		ecmaVersion: 2020,
@@ -27,5 +27,26 @@ module.exports = {
 				parser: '@typescript-eslint/parser'
 			}
 		}
-	]
+	],
+	rules: {
+		'@ts-safeql/check-sql': [
+			'error',
+			{
+				connections: [
+					{
+						connectionUrl: process.env.DATABASE_URL,
+						// The migrations path:
+						migrationsDir: '../../prisma/migrations',
+						targets: [
+							// This makes `prisma.$queryRaw` and `prisma.$executeRaw` commands linted
+							{ tag: 'prisma.+($queryRaw|$executeRaw)', transform: '{type}[]' },
+							{ tag: 'prismaService.+($queryRaw|$executeRaw)', transform: '{type}[]' },
+							{ tag: 'tx.+($queryRaw|$executeRaw)', transform: '{type}[]' },
+							{ tag: 'client.+($queryRaw|$executeRaw)', transform: '{type}[]' },
+						],
+					},
+				],
+			},
+		],
+	}
 }

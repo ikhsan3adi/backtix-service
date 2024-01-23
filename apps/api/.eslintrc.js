@@ -5,7 +5,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: ['@typescript-eslint/eslint-plugin', '@ts-safeql/eslint-plugin'],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
@@ -21,5 +21,24 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@ts-safeql/check-sql': [
+      'error',
+      {
+        connections: [
+          {
+            connectionUrl: process.env.DATABASE_URL,
+            // The migrations path:
+            migrationsDir: '../../prisma/migrations',
+            targets: [
+              // This makes `prisma.$queryRaw` and `prisma.$executeRaw` commands linted
+              { tag: 'prisma.+($queryRaw|$executeRaw)', transform: '{type}[]' },
+              { tag: 'prismaService.+($queryRaw|$executeRaw)', transform: '{type}[]' },
+              { tag: 'tx.+($queryRaw|$executeRaw)', transform: '{type}[]' },
+              { tag: 'client.+($queryRaw|$executeRaw)', transform: '{type}[]' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 };
