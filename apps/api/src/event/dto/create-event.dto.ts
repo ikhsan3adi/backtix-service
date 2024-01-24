@@ -50,6 +50,9 @@ export class CreateEventDto {
   description: string
 
   @IsArray()
+  categories: string[]
+
+  @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(64)
   imageDescriptions: string[]

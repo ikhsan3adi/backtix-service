@@ -147,6 +147,8 @@ export class EventService {
     from?: string,
     to?: string,
     search?: string,
+    location?: string,
+    categories?: string[],
   ) {
     const orderBy: any = byStartDate ? { date: 'desc' } : { createdAt: 'desc' }
 
@@ -157,7 +159,11 @@ export class EventService {
       where: {
         name: { search },
         description: { search },
-        location: { search },
+        location: { search: location !== '' ? location : search },
+        categories:
+          categories && categories[0] !== ''
+            ? { hasSome: categories }
+            : undefined,
         date: { gte: fromDate, lte: toDate },
         status: 'PUBLISHED',
         deletedAt: null,

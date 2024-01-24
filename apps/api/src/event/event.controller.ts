@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   ParseBoolPipe,
   ParseEnumPipe,
   ParseFilePipe,
@@ -97,6 +98,9 @@ export class EventController {
     @Query('from') from: string,
     @Query('to') to: string,
     @Query('search') search: string,
+    @Query('location') location: string,
+    @Query('categories', new ParseArrayPipe({ optional: true }))
+    categories: string[],
   ) {
     return (
       await this.eventService.findPublished(
@@ -105,6 +109,8 @@ export class EventController {
         from,
         to,
         search ? search : undefined,
+        location,
+        categories,
       )
     ).map((e) => new Event(e))
   }
