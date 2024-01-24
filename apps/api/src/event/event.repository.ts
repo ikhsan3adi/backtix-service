@@ -90,19 +90,41 @@ export class EventRepository {
     where: Prisma.EventWhereUniqueInput
     data?: Prisma.EventUpdateInput
     include?: Prisma.EventInclude
-    updatedImages?: Prisma.EventImageUncheckedUpdateWithoutEventInput[]
+    updatedImages?:
+      | Prisma.EventImageUncheckedUpdateWithoutEventInput[]
+      | Prisma.EventImageCreateInput[]
+    deletedImages?: { id: number }[]
   }) {
-    const { where, data, include, updatedImages } = params
+    const { where, data, include, updatedImages, deletedImages } = params
 
     return await this.prismaService.$transaction(async (tx) => {
+      // Create or update event images
       if (updatedImages) {
         await Promise.all(
-          updatedImages.map((e) =>
-            tx.eventImage.update({
-              data: { ...e, id: undefined },
-              where: { id: e.id as number },
-            }),
-          ),
+          updatedImages
+            .filter((e: any) => e.id !== undefined || e.image !== undefined)
+            .map((e: any) =>
+              tx.eventImage.upsert({
+                create: {
+                  ...e,
+                  eventId: where.id,
+                  id: undefined,
+                  image: e.image ?? '',
+                },
+                update: { ...e, id: undefined },
+                where: { id: e.id ?? -1 },
+              }),
+            ),
+        )
+      }
+      // Delete event images
+      if (deletedImages) {
+        await Promise.all(
+          updatedImages
+            .filter((e: { id: number }) => e.id !== undefined)
+            .map((e: { id: number }) =>
+              tx.eventImage.delete({ where: { id: e.id } }),
+            ),
         )
       }
 

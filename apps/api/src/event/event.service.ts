@@ -252,26 +252,46 @@ export class EventService {
   ) {
     await this.verifyEventOwner(user, id)
 
-    const images: { id: number; description: string; image: string }[] = []
+    const images: {
+      id: number
+      description: string
+      image: string
+      delete: boolean
+    }[] = []
+
+    const newEventImagesCopy = newEventImages.slice()
 
     for (let index = 0; index < updateEventDto.images.length; index++) {
-      const filename = await this.storageService.generateRandomFilename(
-        newEventImages[index].originalname,
-      )
+      let filename: string = undefined
+
+      if (updateEventDto.images[index].withImage) {
+        filename = await this.storageService.generateRandomFilename(
+          newEventImagesCopy.shift().originalname,
+        )
+      }
+
       images.push({
-        id: Number(updateEventDto.images[index].id),
+        id: updateEventDto.images[index].id,
         description: updateEventDto.images[index].description,
         image: filename,
+        delete: updateEventDto.images[index].delete,
       })
     }
     // get old images
-    const oldEventImages = await this.eventRepository.findEventImages({
-      where: {
-        id: {
-          in: [...updateEventDto.images.map((e) => Number(e.id))],
+    const oldAndDeletedEventImages = await this.eventRepository.findEventImages(
+      {
+        where: {
+          eventId: id,
+          id: {
+            in: [
+              ...updateEventDto.images
+                .filter((e) => (e.id && e.withImage) || (e.id && e.delete))
+                .map((e) => e.id),
+            ],
+          },
         },
       },
-    })
+    )
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { images: _, ...event } = updateEventDto
@@ -281,24 +301,29 @@ export class EventService {
       const updatedEvent = await this.eventRepository.update({
         where: { id, deletedAt: null },
         data: event,
-        updatedImages: images,
+        updatedImages: images.filter((e) => !e.delete),
+        deletedImages: images.filter((e) => e.delete),
         include: { images: true, tickets: false },
       })
       // save new images
-      for (let index = 0; index < updateEventDto.images.length; index++) {
-        const image = newEventImages[index]
-        await this.storageService.createFile(
-          config.storage.eventImagePath,
-          images[index].image,
-          image.buffer,
-        )
+      for (const image of images) {
+        if (image.image && !image.delete) {
+          const imageFile = newEventImages.shift()
+          await this.storageService.createFile(
+            config.storage.eventImagePath,
+            image.image,
+            imageFile.buffer,
+          )
+        }
       }
-      // delete old image files
-      for (const image of oldEventImages) {
-        this.storageService.deleteFile(
-          config.storage.eventImagePath,
-          image.image,
-        )
+      // delete old & deleted image files
+      for (const image of oldAndDeletedEventImages) {
+        if (image) {
+          this.storageService.deleteFile(
+            config.storage.eventImagePath,
+            image.image,
+          )
+        }
       }
 
       return updatedEvent
@@ -307,10 +332,12 @@ export class EventService {
 
       // delete new image files if error
       for (const image of images) {
-        this.storageService.deleteFile(
-          config.storage.eventImagePath,
-          image.image,
-        )
+        if (image.image && !image.delete) {
+          this.storageService.deleteFile(
+            config.storage.eventImagePath,
+            image.image,
+          )
+        }
       }
       throw new InternalServerErrorException(e)
     }

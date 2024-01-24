@@ -162,7 +162,9 @@ export class EventController {
     @User() user: UserEntity,
     @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
-    @UploadedFiles(new ParseFilePipe({ validators: imageValidators }))
+    @UploadedFiles(
+      new ParseFilePipe({ validators: imageValidators, fileIsRequired: false }),
+    )
     event?: Express.Multer.File[],
   ) {
     return new Event(

@@ -1,9 +1,9 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
+import { ArrayMaxSize, IsArray, ValidateNested } from 'class-validator'
+import { objectStringTransformer } from '../../common/helpers/transformers'
 import { CreateEventDto } from './create-event.dto'
 import { UpdateEventImageDto } from './update-event-image.dto'
-import { ArrayMaxSize, IsArray, ValidateNested } from 'class-validator'
-import { Transform } from 'class-transformer'
-import { objectStringTransformer } from '../../common/helpers/transformers'
 
 export class UpdateEventDto extends OmitType(CreateEventDto, [
   'tickets',
@@ -13,7 +13,7 @@ export class UpdateEventDto extends OmitType(CreateEventDto, [
   @ArrayMaxSize(64)
   @Transform(objectStringTransformer(UpdateEventImageDto))
   @ValidateNested()
-  images: UpdateEventImageDto[]
+  images: UpdateEventImageDto[] = []
 
   @ApiProperty({
     description: 'List of event image',
