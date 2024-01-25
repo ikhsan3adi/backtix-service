@@ -22,6 +22,7 @@ export class Event {
     isArray: true,
   })
   status: string
+  ticketAvailable?: boolean
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date

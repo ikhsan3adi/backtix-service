@@ -155,7 +155,7 @@ export class EventService {
     const fromDate = isNaN(Date.parse(from)) ? undefined : new Date(from)
     const toDate = isNaN(Date.parse(to)) ? undefined : new Date(to)
 
-    return await this.eventRepository.findMany({
+    const events = await this.eventRepository.findMany({
       where: {
         name: { search },
         description: { search },
@@ -181,6 +181,19 @@ export class EventService {
       skip: isNaN(page) ? 0 : page * this.perPage,
       take: this.perPage,
     })
+
+    const eventWithAvailableTicket = await this.eventRepository.findMany({
+      where: {
+        id: { in: [...events.map((e) => e.id)] },
+        tickets: { some: { currentStock: { gt: 0 } } },
+      },
+      select: { id: true },
+    })
+
+    return events.map((event) => ({
+      ...event,
+      ticketAvailable: eventWithAvailableTicket.some((t) => t.id === event.id),
+    }))
   }
 
   /**
@@ -191,11 +204,36 @@ export class EventService {
     count: number = 5,
     distance: number = 5,
   ) {
-    return await this.eventRepository.findNearbyByUserLocation(user.id, {
-      distance,
-      count,
-      status: 'PUBLISHED',
+    const events = await this.eventRepository.findNearbyByUserLocation(
+      user.id,
+      {
+        distance,
+        count,
+        status: 'PUBLISHED',
+      },
+    )
+
+    const eventImages = await this.eventRepository.findEventImages({
+      where: {
+        eventId: {
+          in: [...events.map((e) => e.id)],
+        },
+      },
     })
+
+    const eventWithAvailableTicket = await this.eventRepository.findMany({
+      where: {
+        id: { in: [...events.map((e) => e.id)] },
+        tickets: { some: { currentStock: { gt: 0 } } },
+      },
+      select: { id: true },
+    })
+
+    return events.map((event) => ({
+      ...event,
+      images: eventImages.filter((image) => image.eventId === event.id),
+      ticketAvailable: eventWithAvailableTicket.some((t) => t.id === event.id),
+    }))
   }
 
   async findOne(

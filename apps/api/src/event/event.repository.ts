@@ -47,18 +47,26 @@ export class EventRepository {
   async findMany(params: {
     where?: Prisma.EventWhereInput
     include?: Prisma.EventInclude
+    select?: Prisma.EventSelect
     orderBy?: Prisma.EventOrderByWithRelationAndSearchRelevanceInput
     skip?: number
     take?: number
   }) {
-    const { where, include, orderBy, skip, take } = params
+    const { where, include, orderBy, skip, take, select } = params
+
+    const selectOrInclude: any = include
+      ? {
+          include: include ?? {
+            tickets: true,
+            images: true,
+          },
+        }
+      : { select }
+
     return await this.prismaService.event.findMany({
+      ...selectOrInclude,
       where: where ?? { status: $Enums.EventStatus.PUBLISHED, deletedAt: null },
-      include: include ?? {
-        tickets: true,
-        images: true,
-      },
-      orderBy: [orderBy],
+      orderBy: orderBy ? [orderBy] : undefined,
       skip,
       take,
     })
@@ -176,27 +184,13 @@ export class EventRepository {
   async findNearbyByUserLocation(
     userId: string,
     params: { distance: number; count: number; status: $Enums.EventStatus },
-  ) {
+  ): Promise<Event[]> {
     const { distance, count, status } = params
 
-    const events: Event[] = await this.prismaService
-      .$queryRaw`SELECT ${this.columnStrings}
+    return await this.prismaService.$queryRaw`SELECT ${this.columnStrings}
      FROM "Event" e WHERE "public"."st_distance"(
             e."locationGeography",
             (SELECT "locationGeography" FROM "User" u WHERE u.id = ${userId})
         ) / 1000 <= ${distance} AND e."status" = ${status}::"EventStatus" LIMIT ${count}`
-
-    const eventImages = await this.prismaService.eventImage.findMany({
-      where: {
-        eventId: {
-          in: [...events.map((e) => e.id)],
-        },
-      },
-    })
-
-    return events.map((event) => ({
-      ...event,
-      images: eventImages.filter((image) => image.eventId === event.id),
-    }))
   }
 }
