@@ -257,6 +257,7 @@ export class EventService {
             },
           },
         },
+        user: true,
       },
     })
 

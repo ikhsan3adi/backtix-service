@@ -23,7 +23,7 @@ export class UserEntity {
   location: string
   latitude: number
   longitude: number
-  locationGeography: any
+  locationGeography?: any
 
   @Transform(getFullFileUrlTransformer(config.fileStream.userImageUrlPath))
   image: string
@@ -43,5 +43,5 @@ export class UserEntity {
   updatedAt: Date
   deletedAt?: Date
 
-  balance: { balance: number; revenue: number }
+  balance?: { balance: number; revenue: number }
 }

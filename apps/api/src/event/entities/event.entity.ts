@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
 import { Ticket } from '../../ticket/entities/ticket.entity'
+import { UserEntity } from '../../user/entities/user.entity'
 import { EventImage } from './event-image.entity'
 
 export class Event {
@@ -31,4 +32,6 @@ export class Event {
   images?: EventImage[]
   @Type(() => Ticket)
   tickets?: Ticket[]
+  @Type(() => UserEntity)
+  user?: UserEntity
 }
