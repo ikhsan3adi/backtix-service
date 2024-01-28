@@ -149,6 +149,8 @@ export class EventService {
     search?: string,
     location?: string,
     categories?: string[],
+    endedOnly: boolean = false,
+    ongoingOnly: boolean = true,
   ) {
     const orderBy: any = byStartDate ? { date: 'desc' } : { createdAt: 'desc' }
 
@@ -165,10 +167,15 @@ export class EventService {
             ? { hasSome: categories }
             : undefined,
         date: { gte: fromDate, lte: toDate },
+        endDate: endedOnly
+          ? { lte: new Date().toISOString() }
+          : ongoingOnly
+            ? { gt: new Date().toISOString() }
+            : undefined,
         status: 'PUBLISHED',
         deletedAt: null,
       },
-      include: { images: true },
+      include: { images: true, user: true },
       orderBy: search
         ? {
             _relevance: {
@@ -270,17 +277,65 @@ export class EventService {
     user: UserEntity,
     status: 'PUBLISHED' | 'DRAFT' | 'CANCELLED' = 'PUBLISHED',
     page: number = 0,
+    byStartDate: boolean = false,
+    from?: string,
+    to?: string,
+    search?: string,
+    location?: string,
+    categories?: string[],
+    endedOnly: boolean = false,
+    ongoingOnly: boolean = true,
   ) {
-    return await this.eventRepository.findMany({
+    const orderBy: any = byStartDate ? { date: 'desc' } : { createdAt: 'desc' }
+
+    const fromDate = isNaN(Date.parse(from)) ? undefined : new Date(from)
+    const toDate = isNaN(Date.parse(to)) ? undefined : new Date(to)
+
+    const events = await this.eventRepository.findMany({
       where: {
         userId: user.id,
+        name: { search },
+        description: { search },
+        location: { search: location !== '' ? location : search },
+        categories:
+          categories && categories[0] !== ''
+            ? { hasSome: categories }
+            : undefined,
+        date: { gte: fromDate, lte: toDate },
+        endDate: endedOnly
+          ? { lte: new Date().toISOString() }
+          : ongoingOnly
+            ? { gt: new Date().toISOString() }
+            : undefined,
         status,
         deletedAt: null,
       },
       include: { images: true },
-      skip: page * this.perPage,
+      orderBy: search
+        ? {
+            _relevance: {
+              fields: ['name', 'description', 'location'],
+              search,
+              sort: 'asc',
+            },
+          }
+        : orderBy,
+      skip: isNaN(page) ? 0 : page * this.perPage,
       take: this.perPage,
     })
+
+    const eventWithAvailableTicket = await this.eventRepository.findMany({
+      where: {
+        id: { in: [...events.map((e) => e.id)] },
+        tickets: { some: { currentStock: { gt: 0 } } },
+      },
+      select: { id: true },
+    })
+
+    return events.map((event) => ({
+      ...event,
+      ticketAvailable: eventWithAvailableTicket.some((t) => t.id === event.id),
+    }))
   }
 
   async update(

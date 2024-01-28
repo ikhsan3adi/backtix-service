@@ -101,6 +101,10 @@ export class EventController {
     @Query('location') location: string,
     @Query('categories', new ParseArrayPipe({ optional: true }))
     categories: string[],
+    @Query('endedOnly', new ParseBoolPipe({ optional: true }))
+    endedOnly?: boolean,
+    @Query('ongoingOnly', new ParseBoolPipe({ optional: true }))
+    ongoingOnly?: boolean,
   ) {
     return (
       await this.eventService.findPublished(
@@ -111,6 +115,8 @@ export class EventController {
         search ? search : undefined,
         location,
         categories,
+        endedOnly,
+        ongoingOnly,
       )
     ).map((e) => new Event(e))
   }
@@ -134,11 +140,34 @@ export class EventController {
   async myEvents(
     @User() user: UserEntity,
     @Query('status') status?: string,
+    @Query('byStartDate') byStartDate?: string,
     @Query('page') page?: number,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('search') search?: string,
+    @Query('location') location?: string,
+    @Query('categories', new ParseArrayPipe({ optional: true }))
+    categories?: string[],
+    @Query('endedOnly', new ParseBoolPipe({ optional: true }))
+    endedOnly?: boolean,
+    @Query('ongoingOnly', new ParseBoolPipe({ optional: true }))
+    ongoingOnly?: boolean,
   ) {
-    return (await this.eventService.myEvents(user, status as any, page)).map(
-      (e) => new Event(e),
-    )
+    return (
+      await this.eventService.myEvents(
+        user,
+        status as any,
+        page,
+        byStartDate ? Boolean(byStartDate) : false,
+        from,
+        to,
+        search ? search : undefined,
+        location,
+        categories,
+        endedOnly,
+        ongoingOnly,
+      )
+    ).map((e) => new Event(e))
   }
 
   @Get('my/:id')
