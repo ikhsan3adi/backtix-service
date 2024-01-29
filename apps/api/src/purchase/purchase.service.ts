@@ -134,6 +134,16 @@ export class PurchaseService {
         let TOTAL_PRICE = ticket.price * createTicketOrderDto.quantity
         let REBATE = 0
 
+        const item_details = [
+          {
+            id: ticketId,
+            name: `${ticket.name} | ${ticket.event.name}`,
+            merchant_name: eventOwnerUsername,
+            price: ticket.price,
+            quantity: createTicketOrderDto.quantity,
+          },
+        ]
+
         if (createTicketOrderDto.paymentMethod === PaymentMethod.balance) {
           const { balance: userBalance } =
             await tx.userBalance.findUniqueOrThrow({
@@ -157,19 +167,7 @@ export class PurchaseService {
 
           REBATE = userBalance
           TOTAL_PRICE -= REBATE
-        }
 
-        const item_details = [
-          {
-            id: ticketId,
-            name: `${ticket.name} | ${ticket.event.name}`,
-            merchant_name: eventOwnerUsername,
-            price: ticket.price,
-            quantity: createTicketOrderDto.quantity,
-          },
-        ]
-
-        if (REBATE > 0) {
           item_details.push({
             id: `${ticketId}-${user.username}_REBATE`,
             name: 'rebate from the balance',

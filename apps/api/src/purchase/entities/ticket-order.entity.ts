@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import { Ticket } from '../../ticket/entities/ticket.entity'
 
 export class TicketOrder {
@@ -6,10 +7,13 @@ export class TicketOrder {
   }
 
   ticket: Ticket
-  transaction: {
-    status: string
-    token?: string
-    redirect_url?: string
-    error_messages?: string[]
-  }
+  transaction: Transaction
+}
+
+class Transaction {
+  @ApiProperty({ enum: ['paid', 'pending'] })
+  status: string
+  token?: string
+  redirect_url?: string
+  error_messages?: string[]
 }
