@@ -167,10 +167,18 @@ export class EventService {
             ? { hasSome: categories }
             : undefined,
         date: { gte: fromDate, lte: toDate },
-        endDate: endedOnly
-          ? { lte: new Date().toISOString() }
-          : ongoingOnly
-            ? { gt: new Date().toISOString() }
+        OR:
+          endedOnly || ongoingOnly
+            ? [
+                {
+                  endDate: endedOnly
+                    ? { lte: new Date().toISOString() }
+                    : ongoingOnly
+                      ? { gt: new Date().toISOString() }
+                      : undefined,
+                },
+                { endDate: ongoingOnly ? null : undefined },
+              ]
             : undefined,
         status: 'PUBLISHED',
         deletedAt: null,
