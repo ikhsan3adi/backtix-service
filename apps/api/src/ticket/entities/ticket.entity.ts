@@ -1,7 +1,7 @@
+import { ApiHideProperty } from '@nestjs/swagger'
 import { Exclude, Transform, Type } from 'class-transformer'
 import { config } from '../../common/config'
 import { getFullFileUrlTransformer } from '../../common/helpers/transformers'
-import { ApiHideProperty } from '@nestjs/swagger'
 import { Event } from '../../event/entities/event.entity'
 
 export class Ticket {
@@ -17,6 +17,7 @@ export class Ticket {
   name: string
   price: number
   stock: number
+  currentStock: number
 
   @Transform(getFullFileUrlTransformer(config.fileStream.ticketImageUrlPath))
   image: string
