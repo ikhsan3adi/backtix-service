@@ -98,53 +98,61 @@ export class PurchaseService {
 
   async createTicketOrder(
     user: UserEntity,
-    ticketId: string,
-    createTicketOrderDto: CreatePurchaseDto,
+    { paymentMethod, purchases }: CreatePurchaseDto,
   ) {
     try {
       return await this.purchaseRepository.createTransactions(async (tx) => {
-        const ticket = await this.ticketService.getAndValidateTicket(
-          ticketId,
-          createTicketOrderDto.quantity,
-        )
+        const ticketPurchases = (
+          await Promise.all(
+            purchases.map((e) =>
+              this.ticketService.getAndValidateTicket(e.ticketId, e.quantity),
+            ),
+          )
+        ).map((t) => ({
+          ...t,
+          quantity: purchases.find((e) => e.ticketId === t.id).quantity,
+        }))
 
         const orderId = `BTx-${this.idGenerator(12)}`
 
         const [{ username: eventOwnerUsername }] = await Promise.all([
           tx.user.findUnique({
-            where: { id: ticket.event.userId },
+            where: { id: ticketPurchases[0].event.userId },
             select: { username: true },
           }),
-          tx.purchase.createMany({
-            data: Array.from(
-              { length: createTicketOrderDto.quantity },
-              (): Prisma.PurchaseCreateManyInput => ({
-                orderId,
-                ticketId,
-                price: ticket.price,
-                status: 'PENDING',
-                userId: user.id,
-              }),
-            ),
-          }),
+          ...ticketPurchases.map((t) =>
+            tx.purchase.createMany({
+              data: Array.from(
+                { length: t.quantity },
+                (): Prisma.PurchaseCreateManyInput => ({
+                  orderId,
+                  ticketId: t.id,
+                  price: t.price,
+                  status: 'PENDING',
+                  userId: user.id,
+                }),
+              ),
+            }),
+          ),
         ])
 
         const customerFullnameSplitted = user.fullname.split(' ')
 
-        let TOTAL_PRICE = ticket.price * createTicketOrderDto.quantity
-        let REBATE = 0
+        let TOTAL_PRICE = ticketPurchases
+          .map((e) => e.price * e.quantity)
+          .reduce((p, c) => p + c)
 
-        const item_details = [
-          {
-            id: ticketId,
-            name: `${ticket.name} | ${ticket.event.name}`,
-            merchant_name: eventOwnerUsername,
-            price: ticket.price,
-            quantity: createTicketOrderDto.quantity,
-          },
-        ]
+        let REBATE = 0 // if using user balance
 
-        if (createTicketOrderDto.paymentMethod === PaymentMethod.balance) {
+        const item_details = ticketPurchases.map((t) => ({
+          id: t.id,
+          name: `${t.name} | ${t.event.name}`,
+          merchant_name: eventOwnerUsername,
+          price: t.price,
+          quantity: t.quantity,
+        }))
+
+        if (paymentMethod === PaymentMethod.balance) {
           const { balance: userBalance } =
             await tx.userBalance.findUniqueOrThrow({
               where: { userId: user.id },
@@ -155,21 +163,27 @@ export class PurchaseService {
             await this.completeSuccessTicketOrder({
               tx,
               orderId,
-              eventOwnerId: ticket.event.userId,
+              eventOwnerId: ticketPurchases[0].event.userId,
               totalRevenue: TOTAL_PRICE,
               balanceDeducted: {
                 buyerUserId: user.id,
                 amount: TOTAL_PRICE,
               },
             })
-            return { ticket, transaction: { status: 'paid' } }
+            return {
+              tickets: ticketPurchases.map((e) => ({
+                ...e,
+                currentStock: e.currentStock - e.quantity,
+              })),
+              transaction: { status: 'paid' },
+            }
           }
 
           REBATE = userBalance
           TOTAL_PRICE -= REBATE
 
           item_details.push({
-            id: `${ticketId}-${user.username}_REBATE`,
+            id: `${orderId}-${user.username}_REBATE`,
             name: 'rebate from the balance',
             merchant_name: eventOwnerUsername,
             price: -REBATE,
@@ -192,7 +206,10 @@ export class PurchaseService {
           custom_field1: REBATE,
         })
 
-        return { ticket, transaction: { ...transaction, status: 'pending' } }
+        return {
+          tickets: ticketPurchases,
+          transaction: { ...transaction, status: 'pending' },
+        }
       })
     } catch (e) {
       if (e instanceof HttpException) throw e
@@ -242,22 +259,33 @@ export class PurchaseService {
         data: { balance: { decrement: balanceDeducted.amount } },
       })
     }
-    // change purchase status to completed
-    const [purchase, { ticketId }] = await Promise.all([
+    // change purchase status to completed & get ticket ids
+    const [ticketIds] = await Promise.all([
+      tx.purchase.findMany({
+        where: { orderId },
+        select: { ticketId: true },
+      }),
       tx.purchase.updateMany({
         where: { orderId },
         data: { status: 'COMPLETED' },
       }),
-      tx.purchase.findFirst({
-        where: { orderId },
-        select: { ticketId: true },
-      }),
     ])
-    // reduce current ticket stock
-    await tx.ticket.update({
-      where: { id: ticketId },
-      data: { currentStock: { decrement: purchase.count } },
-    })
+
+    // remove duplicate ids & reduce current ticket stock
+    await Promise.all(
+      [...new Set(ticketIds.map((e) => e.ticketId))].map((uniqueId) =>
+        tx.ticket.update({
+          where: { id: uniqueId },
+          data: {
+            currentStock: {
+              decrement: ticketIds.filter(
+                ({ ticketId }) => ticketId === uniqueId,
+              ).length,
+            },
+          },
+        }),
+      ),
+    )
     // event owner earns revenue
     await tx.userBalance.update({
       where: { userId: eventOwnerId },

@@ -6,7 +6,7 @@ export class TicketOrder {
     Object.assign(this, partial)
   }
 
-  ticket: Ticket
+  tickets: Ticket[]
   transaction: Transaction
 }
 

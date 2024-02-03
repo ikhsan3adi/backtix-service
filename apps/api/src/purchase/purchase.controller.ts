@@ -113,18 +113,13 @@ export class PurchaseController {
   }
 
   @ApiOperation({ summary: 'Buy ticket' })
-  @Post('ticket/:ticketId')
+  @Post('ticket')
   async createTicketOrder(
     @User() user: UserEntity,
-    @Param('ticketId') ticketId: string,
     @Body() createTicketOrderDto: CreateTicketOrderDto,
   ) {
     return new TicketOrder(
-      await this.purchaseService.createTicketOrder(
-        user,
-        ticketId,
-        createTicketOrderDto,
-      ),
+      await this.purchaseService.createTicketOrder(user, createTicketOrderDto),
     )
   }
 }

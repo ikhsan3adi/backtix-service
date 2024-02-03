@@ -17,6 +17,7 @@ describe('PurchaseService', () => {
     let findUniqueUserMock: jest.Mock
     let findUniqueOrThrowUserMock: jest.Mock
     let findFirstPurchaseMock: jest.Mock
+    let findManyPurchaseMock: jest.Mock
     let updateManyPurchaseMock: jest.Mock
     let mockPrismaClient: any
 
@@ -26,6 +27,7 @@ describe('PurchaseService', () => {
       findUniqueUserMock = jest.fn()
       findUniqueOrThrowUserMock = jest.fn()
       findFirstPurchaseMock = jest.fn()
+      findManyPurchaseMock = jest.fn()
       updateManyPurchaseMock = jest.fn()
       mockPrismaClient = {
         user: { findUnique: findUniqueUserMock },
@@ -33,6 +35,7 @@ describe('PurchaseService', () => {
           createMany: () => {},
           updateMany: updateManyPurchaseMock,
           findFirst: findFirstPurchaseMock,
+          findMany: findManyPurchaseMock,
         },
         userBalance: {
           findUniqueOrThrow: findUniqueOrThrowUserMock,
@@ -71,15 +74,18 @@ describe('PurchaseService', () => {
 
     it('should return transaction pending if pay directly', async () => {
       // Arrange
-      const ticket = {
-        id: 'ticket123',
-        name: 'Ticket 123',
-        price: 10000,
-        event: {
-          userId: 'ownerUserId',
-          name: 'Event 123',
+      const tickets = [
+        {
+          id: 'ticket123',
+          name: 'Ticket 123',
+          price: 10000,
+          event: {
+            userId: 'ownerUserId',
+            name: 'Event 123',
+          },
+          quantity: 1,
         },
-      }
+      ]
       const transaction = {
         token: 'token',
         redirect_url: 'url',
@@ -92,7 +98,7 @@ describe('PurchaseService', () => {
 
       service.idGenerator = jest.fn().mockReturnValue('123')
 
-      getAndValidateTicketMock.mockResolvedValue(ticket)
+      getAndValidateTicketMock.mockResolvedValue(tickets[0])
       findUniqueUserMock.mockResolvedValue({ username: 'eventowner' })
       createTransactionMock.mockResolvedValue(transaction)
 
@@ -102,14 +108,18 @@ describe('PurchaseService', () => {
       )
 
       // Action
-      const order = await service.createTicketOrder(
-        new UserEntity(user),
-        'ticket123',
-        { quantity: 1, paymentMethod: PaymentMethod.direct },
-      )
+      const order = await service.createTicketOrder(new UserEntity(user), {
+        purchases: [
+          {
+            quantity: 1,
+            ticketId: 'ticket123',
+          },
+        ],
+        paymentMethod: PaymentMethod.direct,
+      })
 
       // Assert
-      expect(order.ticket).toStrictEqual(ticket)
+      expect(order.tickets).toStrictEqual(tickets)
       expect(order.transaction).toStrictEqual({
         ...transaction,
         status: 'pending',
@@ -122,9 +132,9 @@ describe('PurchaseService', () => {
         item_details: [
           {
             id: 'ticket123',
-            name: `${ticket.name} | ${ticket.event.name}`,
+            name: `${tickets[0].name} | ${tickets[0].event.name}`,
             merchant_name: 'eventowner',
-            price: ticket.price,
+            price: tickets[0].price,
             quantity: 1,
           },
         ],
@@ -141,15 +151,18 @@ describe('PurchaseService', () => {
 
     it('should return transaction pending if pay partially using the balance', async () => {
       // Arrange
-      const ticket = {
-        id: 'ticket123',
-        name: 'Ticket 123',
-        price: 10000,
-        event: {
-          userId: 'ownerUserId',
-          name: 'Event 123',
+      const tickets = [
+        {
+          id: 'ticket123',
+          name: 'Ticket 123',
+          price: 10000,
+          event: {
+            userId: 'ownerUserId',
+            name: 'Event 123',
+          },
+          quantity: 1,
         },
-      }
+      ]
       const transaction = {
         token: 'token',
         redirect_url: 'url',
@@ -163,7 +176,7 @@ describe('PurchaseService', () => {
 
       service.idGenerator = jest.fn().mockReturnValue('123')
 
-      getAndValidateTicketMock.mockResolvedValue(ticket)
+      getAndValidateTicketMock.mockResolvedValue(tickets[0])
       findUniqueUserMock.mockResolvedValue({ username: 'eventowner' })
       createTransactionMock.mockResolvedValue(transaction)
       findUniqueOrThrowUserMock.mockResolvedValue({ balance: 2000 })
@@ -174,14 +187,18 @@ describe('PurchaseService', () => {
       )
 
       // Action
-      const order = await service.createTicketOrder(
-        new UserEntity(user),
-        'ticket123',
-        { quantity: 1, paymentMethod: PaymentMethod.balance },
-      )
+      const order = await service.createTicketOrder(new UserEntity(user), {
+        purchases: [
+          {
+            quantity: 1,
+            ticketId: 'ticket123',
+          },
+        ],
+        paymentMethod: PaymentMethod.balance,
+      })
 
       // Assert
-      expect(order.ticket).toStrictEqual(ticket)
+      expect(order.tickets).toStrictEqual(tickets)
       expect(order.transaction).toStrictEqual({
         ...transaction,
         status: 'pending',
@@ -194,13 +211,13 @@ describe('PurchaseService', () => {
         item_details: [
           {
             id: 'ticket123',
-            name: `${ticket.name} | ${ticket.event.name}`,
+            name: `${tickets[0].name} | ${tickets[0].event.name}`,
             merchant_name: 'eventowner',
-            price: ticket.price,
+            price: tickets[0].price,
             quantity: 1,
           },
           {
-            id: `ticket123-${user.username}_REBATE`,
+            id: `BTx-123-${user.username}_REBATE`,
             name: 'rebate from the balance',
             merchant_name: 'eventowner',
             price: -2000,
@@ -220,19 +237,22 @@ describe('PurchaseService', () => {
 
     it('should return transaction paid if the balance is sufficient', async () => {
       // Arrange
-      const ticket = {
-        id: 'ticket123',
-        name: 'Ticket 123',
-        price: 10000,
-        event: {
-          userId: 'ownerUserId',
-          name: 'Event 123',
+      const tickets = [
+        {
+          id: 'ticket123',
+          name: 'Ticket 123',
+          price: 10000,
+          event: {
+            userId: 'ownerUserId',
+            name: 'Event 123',
+          },
+          quantity: 1,
         },
-      }
+      ]
 
       service.idGenerator = jest.fn().mockReturnValue('123')
 
-      getAndValidateTicketMock.mockResolvedValue(ticket)
+      getAndValidateTicketMock.mockResolvedValue(tickets[0])
       findUniqueUserMock.mockResolvedValue({ username: 'eventowner' })
       createTransactionMock.mockResolvedValue({
         token: 'token',
@@ -241,6 +261,7 @@ describe('PurchaseService', () => {
       findUniqueOrThrowUserMock.mockResolvedValue({ balance: 10000 })
       updateManyPurchaseMock.mockResolvedValue({ count: 1 })
       findFirstPurchaseMock.mockResolvedValue({ ticketId: 'ticket123' })
+      findManyPurchaseMock.mockResolvedValue([{ ticketId: 'ticket123' }])
 
       const completeTicketOrderSpy = jest.spyOn(
         service,
@@ -254,12 +275,19 @@ describe('PurchaseService', () => {
           fullname: 'John Doe',
           email: 'example@email.com',
         }),
-        'ticket123',
-        { quantity: 1, paymentMethod: PaymentMethod.balance },
+        {
+          purchases: [
+            {
+              quantity: 1,
+              ticketId: 'ticket123',
+            },
+          ],
+          paymentMethod: PaymentMethod.balance,
+        },
       )
 
       // Assert
-      expect(order.ticket).toStrictEqual(ticket)
+      expect(order.tickets).toStrictEqual(tickets)
       expect(order.transaction).toStrictEqual({ status: 'paid' })
       expect(createTransactionMock).not.toHaveBeenCalled()
       expect(completeTicketOrderSpy).toHaveBeenCalledWith({
@@ -275,17 +303,20 @@ describe('PurchaseService', () => {
   describe('notifyTicketOrder', () => {
     let getAndValidateTicketMock: jest.Mock = jest.fn()
     let findFirstPurchaseMock: jest.Mock
+    let findManyPurchaseMock: jest.Mock
     let updateManyPurchaseMock: jest.Mock
     let mockPrismaClient: any
 
     beforeEach(async () => {
       getAndValidateTicketMock = jest.fn()
       findFirstPurchaseMock = jest.fn()
+      findManyPurchaseMock = jest.fn()
       updateManyPurchaseMock = jest.fn()
       mockPrismaClient = {
         purchase: {
           updateMany: updateManyPurchaseMock,
           findFirst: findFirstPurchaseMock,
+          findMany: findManyPurchaseMock,
         },
         userBalance: { update: () => {} },
         ticket: { update: () => {} },
@@ -322,6 +353,13 @@ describe('PurchaseService', () => {
       service.compareSignatureKey = jest.fn()
 
       updateManyPurchaseMock.mockResolvedValue({ count: 1 })
+      findManyPurchaseMock.mockResolvedValue([
+        {
+          ticketId: 'ticket123',
+          ticket: { event: { userId: 'owner123' } },
+          userId: 'user123',
+        },
+      ])
       findFirstPurchaseMock.mockResolvedValue({
         ticketId: 'ticket123',
         ticket: { event: { userId: 'owner123' } },
