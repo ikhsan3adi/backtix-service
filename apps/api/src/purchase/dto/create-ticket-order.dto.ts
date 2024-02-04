@@ -14,7 +14,7 @@ import {
 import { objectStringTransformer } from '../../common/helpers/transformers'
 import { PaymentMethod } from '../enums/payment-method.enum'
 
-class TicketPurchase {
+export class TicketPurchase {
   @IsString()
   @IsNotEmpty()
   ticketId: string
