@@ -403,7 +403,10 @@ export class EventService {
       const updatedEvent = await this.eventRepository.update({
         where: { id, deletedAt: null },
         data: event,
-        updatedImages: images.filter((e) => !e.delete),
+        updatedImages: images
+          .filter((e) => !e.delete)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          .map(({ delete: _, ...e }) => e),
         deletedImages: images.filter((e) => e.delete),
         include: { images: true, tickets: false },
       })
