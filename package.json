@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test --workspaces",
-    "start": "npm run start --workspace=@backtix-service/api",
+    "start": "npm run start:prod --workspace=@backtix-service/api",
     "start:dev": "npm run start:dev --workspace=@backtix-service/api",
     "admin:dev": "npm run dev --workspace=@backtix-service/admin-panel",
     "admin:build": "npm run build --workspace=@backtix-service/admin-panel",
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@ts-safeql/eslint-plugin": "^2.0.3",
+    "cpx": "^1.5.0",
     "prisma": "^5.7.1"
   },
   "prisma": {
