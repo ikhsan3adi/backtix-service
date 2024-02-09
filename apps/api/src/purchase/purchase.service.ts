@@ -86,9 +86,14 @@ export class PurchaseService {
         transactionStatus === 'deny' ||
         transactionStatus === 'expire'
       ) {
-        await tx.purchase.updateMany({
+        // if you don't want canceled purchases to be deleted
+        // return await tx.purchase.updateMany({
+        //   where: { orderId, status: 'PENDING' },
+        //   data: { status: 'CANCELLED' },
+        // })
+
+        await tx.purchase.deleteMany({
           where: { orderId, status: 'PENDING' },
-          data: { status: 'CANCELLED' },
         })
       }
       // else if (transactionStatus === 'pending') {

@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   Param,
-  ParseBoolPipe,
   Patch,
   Post,
   Query,
@@ -67,7 +66,7 @@ export class PurchaseController {
     @Req() req: Request,
     @Body() paymentNotificationDto: PaymentNotificationDto,
   ) {
-    console.log(req.body)
+    // console.log(req.body)
 
     return await this.purchaseService.notifyTicketOrder(paymentNotificationDto)
   }
@@ -85,7 +84,7 @@ export class PurchaseController {
     @Query('page') page: number,
     @Query('status') status?: string,
     @Query('refundStatus') refundStatus?: string,
-    @Query('used', ParseBoolPipe) used: boolean = false,
+    @Query('used') used: boolean = false,
   ) {
     return (
       await this.ticketService.myTickets(user, page, status, refundStatus, used)
