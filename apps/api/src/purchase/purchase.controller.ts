@@ -18,6 +18,7 @@ import { UserEntity } from '../user/entities/user.entity'
 import { CreatePurchaseDto as CreateTicketOrderDto } from './dto/create-ticket-order.dto'
 import { PaymentNotificationDto } from './dto/payment-notification.dto'
 import { ValidateTicketDto } from './dto/validate-ticket.dto'
+import { EventWithPurchases } from './entities/event-with-purchases.entity'
 import { Purchase } from './entities/purchase.entity'
 import { TicketOrder } from './entities/ticket-order.entity'
 import { PurchaseService } from './purchase.service'
@@ -88,7 +89,7 @@ export class PurchaseController {
   ) {
     return (
       await this.ticketService.myTickets(user, page, status, refundStatus, used)
-    ).map((e) => new Purchase(e))
+    ).map((e) => new EventWithPurchases(e))
   }
 
   @ApiOperation({ summary: 'Validate purchased ticket uid (from QR Code)' })

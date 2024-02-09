@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common'
 import { EventModule } from '../event/event.module'
+import { EventRepository } from '../event/event.repository'
 import { PaymentService } from '../payment/payment.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { TicketModule } from '../ticket/ticket.module'
@@ -21,6 +22,7 @@ import { PurchaseTicketService } from './ticket/ticket.service'
     PurchaseRefundService,
     PurchaseTicketService,
     PurchaseEventService,
+    EventRepository,
   ],
   exports: [PurchaseEventService],
 })

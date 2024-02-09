@@ -8,6 +8,7 @@ import {
 import { PrismaClient } from '@prisma/client'
 import { config } from '../../common/config'
 import { exceptions } from '../../common/exceptions/exceptions'
+import { EventRepository } from '../../event/event.repository'
 import { UserEntity } from '../../user/entities/user.entity'
 import { PurchaseRepository } from '../purchase.repository'
 import { PurchaseService } from '../purchase.service'
@@ -17,8 +18,9 @@ export class PurchaseTicketService {
   constructor(
     private purchaseRepository: PurchaseRepository,
     private purchaseService: PurchaseService,
+    private eventRepository: EventRepository,
   ) {
-    this.perPage = config.pagination.ticketPerPage
+    this.perPage = config.pagination.eventWithPurchasesPerPage
   }
 
   purchaseStatuses = ['PENDING', 'COMPLETED', 'CANCELLED']
@@ -37,20 +39,36 @@ export class PurchaseTicketService {
       ? refundStatus
       : undefined
 
-    return await this.purchaseRepository.findMany({
-      where: { userId: user.id, status: s, refundStatus: rs, used },
-      include: {
-        ticket: {
-          include: {
-            event: {
-              include: { images: { take: 1 } },
+    const events = await this.eventRepository.findMany({
+      where: {
+        tickets: {
+          some: {
+            purchases: {
+              some: { userId: user.id, status: s, refundStatus: rs, used },
             },
           },
         },
       },
+      include: { images: { take: 1 } },
       skip: page * this.perPage,
       take: this.perPage,
     })
+
+    const purchases = await this.purchaseRepository.findMany({
+      where: {
+        userId: user.id,
+        status: s,
+        refundStatus: rs,
+        used,
+        ticket: { eventId: { in: events.map((e) => e.id) } },
+      },
+      include: { ticket: true },
+    })
+
+    return events.map((event) => ({
+      event: event,
+      purchases: purchases.filter((e) => e.ticket.eventId === event.id),
+    }))
   }
 
   async myTicket(user: UserEntity, uid: string) {

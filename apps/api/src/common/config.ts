@@ -5,5 +5,6 @@ export const config = {
   pagination: {
     eventPerPage: 20,
     ticketPerPage: 20,
+    eventWithPurchasesPerPage: 10,
   },
 }
