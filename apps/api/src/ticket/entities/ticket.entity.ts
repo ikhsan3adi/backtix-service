@@ -2,10 +2,10 @@ import { ApiHideProperty } from '@nestjs/swagger'
 import { Exclude, Transform, Type } from 'class-transformer'
 import { config } from '../../common/config'
 import { getFullFileUrlTransformer } from '../../common/helpers/transformers'
-import { Event } from '../../event/entities/event.entity'
+import { EventEntity } from '../../event/entities/event.entity'
 
-export class Ticket {
-  constructor(partial: Partial<Ticket>) {
+export class TicketEntity {
+  constructor(partial: Partial<TicketEntity>) {
     Object.assign(this, partial)
   }
 
@@ -27,6 +27,6 @@ export class Ticket {
   createdAt: Date
   updatedAt: Date
 
-  @Type(() => Event)
-  event?: Event
+  @Type(() => EventEntity)
+  event?: EventEntity
 }

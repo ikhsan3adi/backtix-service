@@ -22,7 +22,7 @@ import { User } from '../user/decorators/user.decorator'
 import { UserEntity } from '../user/entities/user.entity'
 import { CreateTicketDto } from './dto/create-ticket.dto'
 import { UpdateTicketDto } from './dto/update-ticket.dto'
-import { Ticket } from './entities/ticket.entity'
+import { TicketEntity } from './entities/ticket.entity'
 import { TicketService } from './ticket.service'
 
 @ApiBearerAuth()
@@ -44,7 +44,7 @@ export class TicketController {
     )
     image: Express.Multer.File,
   ) {
-    return new Ticket(
+    return new TicketEntity(
       await this.ticketService.create(user, eventId, createTicketDto, image),
     )
   }
@@ -56,7 +56,7 @@ export class TicketController {
     @Param('eventId') eventId: string,
     @Param('id') id: string,
   ) {
-    return new Ticket(await this.ticketService.findOne(user, eventId, id))
+    return new TicketEntity(await this.ticketService.findOne(user, eventId, id))
   }
 
   @ApiOperation({ summary: 'Update ticket' })
@@ -67,7 +67,7 @@ export class TicketController {
     @Param('id') id: string,
     @Body() updateTicketDto: UpdateTicketDto,
   ) {
-    return new Ticket(
+    return new TicketEntity(
       await this.ticketService.update(user, id, updateTicketDto),
     )
   }
@@ -75,6 +75,6 @@ export class TicketController {
   @ApiOperation({ summary: 'Delete ticket' })
   @Delete('tickets/:id')
   async delete(@User() user: UserEntity, @Param('id') id: string) {
-    return new Ticket(await this.ticketService.remove(user, id))
+    return new TicketEntity(await this.ticketService.remove(user, id))
   }
 }

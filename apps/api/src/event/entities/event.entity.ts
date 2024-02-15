@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
-import { Ticket } from '../../ticket/entities/ticket.entity'
+import { TicketEntity } from '../../ticket/entities/ticket.entity'
 import { UserEntity } from '../../user/entities/user.entity'
-import { EventImage } from './event-image.entity'
+import { EventImageEntity } from './event-image.entity'
 
-export class Event {
-  constructor(partial: Partial<Event>) {
+export class EventEntity {
+  constructor(partial: Partial<EventEntity>) {
     Object.assign(this, partial)
   }
 
@@ -28,10 +28,10 @@ export class Event {
   updatedAt: Date
   deletedAt?: Date
 
-  @Type(() => EventImage)
-  images?: EventImage[]
-  @Type(() => Ticket)
-  tickets?: Ticket[]
+  @Type(() => EventImageEntity)
+  images?: EventImageEntity[]
+  @Type(() => TicketEntity)
+  tickets?: TicketEntity[]
   @Type(() => UserEntity)
   user?: UserEntity
 }

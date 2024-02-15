@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
-import { Ticket } from '../../ticket/entities/ticket.entity'
 import { Type } from 'class-transformer'
+import { TicketEntity } from '../../ticket/entities/ticket.entity'
 
-export class Purchase {
-  constructor(partial: Partial<Purchase>) {
+export class PurchaseEntity {
+  constructor(partial: Partial<PurchaseEntity>) {
     Object.assign(this, partial)
   }
 
@@ -30,6 +30,6 @@ export class Purchase {
   updatedAt: Date
   deletedAt: Date
 
-  @Type(() => Ticket)
-  ticket: Ticket
+  @Type(() => TicketEntity)
+  ticket: TicketEntity
 }

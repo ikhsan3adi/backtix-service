@@ -1,7 +1,7 @@
 import { UserEntity } from '../../user/entities/user.entity'
 
-export class WithdrawRequest {
-  constructor(partial: Partial<WithdrawRequest>) {
+export class WithdrawRequestEntity {
+  constructor(partial: Partial<WithdrawRequestEntity>) {
     Object.assign(this, partial)
   }
 

@@ -6,7 +6,7 @@ import { UserEntity } from '../user/entities/user.entity'
 import { Group } from '../user/enums/group.enum'
 import { BalanceService } from './balance.service'
 import { CreateWithdrawRequestDto } from './dto/create-withdraw-request.dto'
-import { WithdrawRequest } from './entities/withdraw-request.entity'
+import { WithdrawRequestEntity } from './entities/withdraw-request.entity'
 
 @ApiTags('balance')
 @Controller()
@@ -19,7 +19,7 @@ export class BalanceController {
     @Query('status') status: string,
   ) {
     return (await this.balanceService.myWithdrawals(user, status)).map(
-      (e) => new WithdrawRequest(e),
+      (e) => new WithdrawRequestEntity(e),
     )
   }
 
@@ -28,7 +28,7 @@ export class BalanceController {
     @User() user: UserEntity,
     @Body() withdrawRequestDto: CreateWithdrawRequestDto,
   ) {
-    return new WithdrawRequest(
+    return new WithdrawRequestEntity(
       await this.balanceService.requestWithdrawal(user, withdrawRequestDto),
     )
   }
@@ -37,7 +37,7 @@ export class BalanceController {
   @Get('withdraw')
   async withdrawRequests(@Query('status') status: string) {
     return (await this.balanceService.withdrawRequests(status)).map(
-      (e) => new WithdrawRequest(e),
+      (e) => new WithdrawRequestEntity(e),
     )
   }
 }

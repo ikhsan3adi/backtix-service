@@ -1,10 +1,10 @@
-import { Exclude, Transform } from 'class-transformer'
-import { getFullFileUrlTransformer } from '../../common/helpers/transformers'
-import { config } from '../../common/config'
 import { ApiHideProperty } from '@nestjs/swagger'
+import { Exclude, Transform } from 'class-transformer'
+import { config } from '../../common/config'
+import { getFullFileUrlTransformer } from '../../common/helpers/transformers'
 
-export class EventImage {
-  constructor(partial: Partial<EventImage>) {
+export class EventImageEntity {
+  constructor(partial: Partial<EventImageEntity>) {
     Object.assign(this, partial)
   }
 

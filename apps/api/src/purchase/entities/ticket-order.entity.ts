@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Ticket } from '../../ticket/entities/ticket.entity'
+import { TicketEntity } from '../../ticket/entities/ticket.entity'
 
-export class TicketOrder {
-  constructor(partial: Partial<TicketOrder>) {
+export class TicketOrderEntity {
+  constructor(partial: Partial<TicketOrderEntity>) {
     Object.assign(this, partial)
   }
 
-  tickets: Ticket[]
+  tickets: TicketEntity[]
   transaction: Transaction
 }
 

@@ -16,9 +16,9 @@ import { UserEntity } from '../user/entities/user.entity'
 import { CreatePurchaseDto as CreateTicketOrderDto } from './dto/create-ticket-order.dto'
 import { PaymentNotificationDto } from './dto/payment-notification.dto'
 import { ValidateTicketDto } from './dto/validate-ticket.dto'
-import { EventWithPurchases } from './entities/event-with-purchases.entity'
-import { Purchase } from './entities/purchase.entity'
-import { TicketOrder } from './entities/ticket-order.entity'
+import { EventWithPurchasesEntity } from './entities/event-with-purchases.entity'
+import { PurchaseEntity } from './entities/purchase.entity'
+import { TicketOrderEntity } from './entities/ticket-order.entity'
 import { PurchaseService } from './purchase.service'
 import { PurchaseRefundService } from './refund/refund.service'
 import { PurchaseTicketService } from './ticket/ticket.service'
@@ -36,7 +36,9 @@ export class PurchaseController {
   @ApiOperation({ summary: 'Request ticket refund/cancel' })
   @Post(':uid/refund')
   async refundTicketOrder(@User() user: UserEntity, @Param('uid') uid: string) {
-    return new Purchase(await this.refundService.refundTicketOrder(user, uid))
+    return new PurchaseEntity(
+      await this.refundService.refundTicketOrder(user, uid),
+    )
   }
 
   @ApiOperation({ summary: 'Accept ticket refund/cancel by event owner' })
@@ -45,7 +47,9 @@ export class PurchaseController {
     @User() user: UserEntity,
     @Param('uid') uid: string,
   ) {
-    return new Purchase(await this.refundService.acceptTicketRefund(user, uid))
+    return new PurchaseEntity(
+      await this.refundService.acceptTicketRefund(user, uid),
+    )
   }
 
   @ApiOperation({ summary: 'Reject ticket refund/cancel by event owner' })
@@ -54,7 +58,9 @@ export class PurchaseController {
     @User() user: UserEntity,
     @Param('uid') uid: string,
   ) {
-    return new Purchase(await this.refundService.rejectTicketRefund(user, uid))
+    return new PurchaseEntity(
+      await this.refundService.rejectTicketRefund(user, uid),
+    )
   }
 
   @ApiOperation({ summary: 'Notify ticket order (used by payment gateway)' })
@@ -73,7 +79,7 @@ export class PurchaseController {
   @ApiOperation({ summary: 'My purchased ticket detail' })
   @Get('ticket/my/:uid')
   async myTicket(@User() user: UserEntity, @Param('uid') uid: string) {
-    return new Purchase(await this.ticketService.myTicket(user, uid))
+    return new PurchaseEntity(await this.ticketService.myTicket(user, uid))
   }
 
   @ApiOperation({ summary: 'My purchased tickets' })
@@ -87,7 +93,7 @@ export class PurchaseController {
   ) {
     return (
       await this.ticketService.myTickets(user, page, status, refundStatus, used)
-    ).map((e) => new EventWithPurchases(e))
+    ).map((e) => new EventWithPurchasesEntity(e))
   }
 
   @ApiOperation({ summary: 'Validate purchased ticket uid (from QR Code)' })
@@ -96,7 +102,7 @@ export class PurchaseController {
     @User() user: UserEntity,
     @Body() { uid, eventId }: ValidateTicketDto,
   ) {
-    return new Purchase(
+    return new PurchaseEntity(
       await this.ticketService.validateTicket(user, uid, eventId),
     )
   }
@@ -107,7 +113,9 @@ export class PurchaseController {
     @User() user: UserEntity,
     @Body() { uid, eventId }: ValidateTicketDto,
   ) {
-    return new Purchase(await this.ticketService.useTicket(user, uid, eventId))
+    return new PurchaseEntity(
+      await this.ticketService.useTicket(user, uid, eventId),
+    )
   }
 
   @ApiOperation({ summary: 'Buy ticket' })
@@ -116,7 +124,7 @@ export class PurchaseController {
     @User() user: UserEntity,
     @Body() createTicketOrderDto: CreateTicketOrderDto,
   ) {
-    return new TicketOrder(
+    return new TicketOrderEntity(
       await this.purchaseService.createTicketOrder(user, createTicketOrderDto),
     )
   }

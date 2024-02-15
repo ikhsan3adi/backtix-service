@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { $Enums, Prisma, PrismaClient } from '@prisma/client'
 import { Sql, raw } from '@prisma/client/runtime/library'
 import { PrismaService } from '../prisma/prisma.service'
-import { Event } from './entities/event.entity'
+import { EventEntity } from './entities/event.entity'
 
 @Injectable()
 export class EventRepository {
@@ -184,7 +184,7 @@ export class EventRepository {
   async findNearbyByUserLocation(
     userId: string,
     params: { distance: number; count: number; status: $Enums.EventStatus },
-  ): Promise<Event[]> {
+  ): Promise<EventEntity[]> {
     const { distance, count, status } = params
 
     return await this.prismaService.$queryRaw`SELECT ${this.columnStrings}

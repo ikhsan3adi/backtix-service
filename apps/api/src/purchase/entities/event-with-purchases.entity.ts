@@ -1,15 +1,15 @@
 import { Type } from 'class-transformer'
-import { Event } from '../../event/entities/event.entity'
-import { Purchase } from './purchase.entity'
+import { EventEntity } from '../../event/entities/event.entity'
+import { PurchaseEntity } from './purchase.entity'
 
-export class EventWithPurchases {
-  constructor(partial: Partial<EventWithPurchases>) {
+export class EventWithPurchasesEntity {
+  constructor(partial: Partial<EventWithPurchasesEntity>) {
     Object.assign(this, partial)
   }
 
-  @Type(() => Event)
-  event: Event
+  @Type(() => EventEntity)
+  event: EventEntity
 
-  @Type(() => Purchase)
-  purchases: Purchase[]
+  @Type(() => PurchaseEntity)
+  purchases: PurchaseEntity[]
 }

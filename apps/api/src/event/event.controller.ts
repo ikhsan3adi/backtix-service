@@ -28,14 +28,14 @@ import {
 import { $Enums } from '@prisma/client'
 import { Groups } from '../auth/decorators/groups.decorator'
 import { imageValidators } from '../common/files/file-validators'
-import { Purchase } from '../purchase/entities/purchase.entity'
+import { PurchaseEntity } from '../purchase/entities/purchase.entity'
 import { PurchaseEventService } from '../purchase/event/event.service'
 import { User } from '../user/decorators/user.decorator'
 import { UserEntity } from '../user/entities/user.entity'
 import { Group } from '../user/enums/group.enum'
 import { CreateEventDto } from './dto/create-event.dto'
 import { UpdateEventDto } from './dto/update-event.dto'
-import { Event } from './entities/event.entity'
+import { EventEntity } from './entities/event.entity'
 import { EventService } from './event.service'
 
 @ApiBearerAuth()
@@ -64,7 +64,7 @@ export class EventController {
       ticket?: Express.Multer.File[]
     },
   ) {
-    return new Event(
+    return new EventEntity(
       await this.eventService.create(user.id, createEventDto, files),
     )
   }
@@ -74,7 +74,7 @@ export class EventController {
   @Groups(Group.ADMIN)
   @Put(':id/approve')
   async approve(@Param('id') id: string) {
-    return new Event(await this.eventService.approve(id))
+    return new EventEntity(await this.eventService.approve(id))
   }
 
   @ApiOperation({ summary: '[Admin] Reject draft event' })
@@ -82,13 +82,13 @@ export class EventController {
   @Groups(Group.ADMIN)
   @Put(':id/reject')
   async reject(@Param('id') id: string) {
-    return new Event(await this.eventService.reject(id))
+    return new EventEntity(await this.eventService.reject(id))
   }
 
   @ApiOperation({ summary: 'Retry request draft event approval' })
   @Put(':id/retry')
   async retryPublish(@Param('id') id: string) {
-    return new Event(await this.eventService.retry(id))
+    return new EventEntity(await this.eventService.retry(id))
   }
 
   @Get()
@@ -118,7 +118,7 @@ export class EventController {
         endedOnly,
         ongoingOnly,
       )
-    ).map((e) => new Event(e))
+    ).map((e) => new EventEntity(e))
   }
 
   @ApiOperation({
@@ -133,7 +133,7 @@ export class EventController {
   ) {
     return (
       await this.eventService.findNearestPublishedEvents(user, count, distance)
-    ).map((e) => new Event(e))
+    ).map((e) => new EventEntity(e))
   }
 
   @Get('my')
@@ -167,17 +167,17 @@ export class EventController {
         endedOnly,
         ongoingOnly,
       )
-    ).map((e) => new Event(e))
+    ).map((e) => new EventEntity(e))
   }
 
   @Get('my/:id')
   async myEventDetail(@User() user: UserEntity, @Param('id') id: string) {
-    return new Event(await this.eventService.findOne(id, user, false))
+    return new EventEntity(await this.eventService.findOne(id, user, false))
   }
 
   @Get(':id')
   async findOnePublished(@Param('id') id: string) {
-    return new Event(await this.eventService.findOne(id))
+    return new EventEntity(await this.eventService.findOne(id))
   }
 
   @ApiConsumes('multipart/form-data')
@@ -192,14 +192,14 @@ export class EventController {
     )
     event?: Express.Multer.File[],
   ) {
-    return new Event(
+    return new EventEntity(
       await this.eventService.update(user, id, updateEventDto, event),
     )
   }
 
   @Delete(':id')
   async softDelete(@User() user: UserEntity, @Param('id') id: string) {
-    return new Event(await this.eventService.softDelete(user, id))
+    return new EventEntity(await this.eventService.softDelete(user, id))
   }
 
   @Get(':id/purchases')
@@ -227,6 +227,6 @@ export class EventController {
         refundStatus,
         used,
       )
-    ).map((e) => new Purchase(e))
+    ).map((e) => new PurchaseEntity(e))
   }
 }
