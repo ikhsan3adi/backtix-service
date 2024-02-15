@@ -21,8 +21,8 @@ import { Group } from './enums/group.enum'
 import { UserService } from './user.service'
 
 @ApiBearerAuth()
-@ApiTags('user')
-@Controller('user')
+@ApiTags('users')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

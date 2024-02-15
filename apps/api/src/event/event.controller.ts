@@ -39,8 +39,8 @@ import { Event } from './entities/event.entity'
 import { EventService } from './event.service'
 
 @ApiBearerAuth()
-@ApiTags('event')
-@Controller('event')
+@ApiTags('events')
+@Controller('events')
 export class EventController {
   constructor(
     private readonly eventService: EventService,
@@ -202,7 +202,7 @@ export class EventController {
     return new Event(await this.eventService.softDelete(user, id))
   }
 
-  @Get(':id/purchase')
+  @Get(':id/purchases')
   async purchasesByEvent(
     @Param('id') id: string,
     @Query('page') page: number,

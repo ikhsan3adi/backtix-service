@@ -23,9 +23,9 @@ import { PurchaseService } from './purchase.service'
 import { PurchaseRefundService } from './refund/refund.service'
 import { PurchaseTicketService } from './ticket/ticket.service'
 
-@ApiTags('purchase')
+@ApiTags('purchases')
 @ApiBearerAuth()
-@Controller('purchase')
+@Controller('purchases')
 export class PurchaseController {
   constructor(
     private readonly purchaseService: PurchaseService,
