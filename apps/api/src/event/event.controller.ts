@@ -171,12 +171,8 @@ export class EventController {
   }
 
   @Get('my/:id')
-  async myEventDetail(
-    @User() user: UserEntity,
-    @Param('id') id: string,
-    @Query('status') status?: string,
-  ) {
-    return new Event(await this.eventService.findOne(id, status as any, user))
+  async myEventDetail(@User() user: UserEntity, @Param('id') id: string) {
+    return new Event(await this.eventService.findOne(id, user, false))
   }
 
   @Get(':id')
@@ -209,6 +205,7 @@ export class EventController {
   @Get(':id/purchase')
   async purchasesByEvent(
     @Param('id') id: string,
+    @Query('page') page: number,
     @Query(
       'status',
       new ParseEnumPipe($Enums.PurchaseStatus, { optional: true }),
@@ -225,6 +222,7 @@ export class EventController {
     return (
       await this.purchaseEventService.purchasesByEvent(
         id,
+        page,
         status,
         refundStatus,
         used,

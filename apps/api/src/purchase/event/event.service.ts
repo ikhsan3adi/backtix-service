@@ -13,6 +13,7 @@ export class PurchaseEventService {
 
   async purchasesByEvent(
     eventId: string,
+    page: number = 0,
     status: $Enums.PurchaseStatus = 'COMPLETED',
     refundStatus: $Enums.PurchaseRefundStatus = null,
     used: boolean = false,
@@ -25,6 +26,8 @@ export class PurchaseEventService {
           refundStatus,
           used,
         },
+        skip: isNaN(page) ? 0 : page * this.perPage,
+        take: this.perPage,
       })
     } catch (e) {
       console.error(e)

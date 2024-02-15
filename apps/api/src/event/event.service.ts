@@ -253,13 +253,14 @@ export class EventService {
 
   async findOne(
     id: string,
-    status: 'PUBLISHED' | 'DRAFT' | 'CANCELLED' = 'PUBLISHED',
     user?: UserEntity,
+    checkStatus = true,
+    status: 'PUBLISHED' | 'DRAFT' | 'CANCELLED' = 'PUBLISHED',
   ) {
     const event = await this.eventRepository.findOne({
       where: {
         id,
-        status,
+        status: checkStatus ? status : undefined,
         deletedAt: null,
         userId: user ? user.id : undefined,
       },

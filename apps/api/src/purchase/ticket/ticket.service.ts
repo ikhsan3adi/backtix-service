@@ -34,7 +34,7 @@ export class PurchaseTicketService {
     refundStatus?: string | any,
     used?: boolean,
   ) {
-    const s = this.purchaseStatuses.includes(status) ? status : 'COMPLETED'
+    const s = this.purchaseStatuses.includes(status) ? status : undefined
     const rs = this.refundStatuses.includes(refundStatus)
       ? refundStatus
       : undefined
@@ -50,7 +50,7 @@ export class PurchaseTicketService {
         },
       },
       include: { images: { take: 1 } },
-      skip: page * this.perPage,
+      skip: isNaN(page) ? 0 : page * this.perPage,
       take: this.perPage,
     })
 

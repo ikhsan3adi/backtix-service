@@ -8,10 +8,8 @@ import {
   Patch,
   Post,
   Query,
-  Req,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { Request } from 'express'
 import { Public } from '../auth/decorators/public.decorator'
 import { User } from '../user/decorators/user.decorator'
 import { UserEntity } from '../user/entities/user.entity'
@@ -64,7 +62,7 @@ export class PurchaseController {
   @HttpCode(200)
   @Post('ticket/notify')
   async notifyTicketOrder(
-    @Req() req: Request,
+    // @Req() req: Request,
     @Body() paymentNotificationDto: PaymentNotificationDto,
   ) {
     // console.log(req.body)
