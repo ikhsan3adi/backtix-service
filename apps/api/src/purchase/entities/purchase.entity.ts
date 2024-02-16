@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { $Enums } from '@prisma/client'
 import { Type } from 'class-transformer'
 import { TicketEntity } from '../../ticket/entities/ticket.entity'
+import { UserEntity } from '../../user/entities/user.entity'
 
 export class PurchaseEntity {
   constructor(partial: Partial<PurchaseEntity>) {
@@ -32,4 +33,7 @@ export class PurchaseEntity {
 
   @Type(() => TicketEntity)
   ticket: TicketEntity
+
+  @Type(() => UserEntity)
+  user: UserEntity
 }

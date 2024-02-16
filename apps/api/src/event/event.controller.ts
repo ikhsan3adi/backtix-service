@@ -6,7 +6,6 @@ import {
   Param,
   ParseArrayPipe,
   ParseBoolPipe,
-  ParseEnumPipe,
   ParseFilePipe,
   Patch,
   Post,
@@ -25,7 +24,6 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger'
-import { $Enums } from '@prisma/client'
 import { Groups } from '../auth/decorators/groups.decorator'
 import { imageValidators } from '../common/files/file-validators'
 import { PurchaseEntity } from '../purchase/entities/purchase.entity'
@@ -206,16 +204,10 @@ export class EventController {
   async purchasesByEvent(
     @Param('id') id: string,
     @Query('page') page: number,
-    @Query(
-      'status',
-      new ParseEnumPipe($Enums.PurchaseStatus, { optional: true }),
-    )
-    status?: $Enums.PurchaseStatus,
-    @Query(
-      'refundStatus',
-      new ParseEnumPipe($Enums.PurchaseRefundStatus, { optional: true }),
-    )
-    refundStatus?: $Enums.PurchaseRefundStatus,
+    @Query('status')
+    status?: string,
+    @Query('refundStatus')
+    refundStatus?: string,
     @Query('used', new ParseBoolPipe({ optional: true }))
     used?: boolean,
   ) {
@@ -223,8 +215,8 @@ export class EventController {
       await this.purchaseEventService.purchasesByEvent(
         id,
         page,
-        status,
-        refundStatus,
+        status as any,
+        refundStatus as any,
         used,
       )
     ).map((e) => new PurchaseEntity(e))

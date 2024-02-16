@@ -66,7 +66,7 @@ export class PurchaseTicketService {
     })
 
     return events.map((event) => ({
-      event: event,
+      event,
       purchases: purchases.filter((e) => e.ticket.eventId === event.id),
     }))
   }
@@ -76,6 +76,7 @@ export class PurchaseTicketService {
       where: { userId: user.id, uid },
       include: {
         ticket: { include: { event: { include: { images: { take: 1 } } } } },
+        user: true,
       },
     })
     if (!purchase) throw new NotFoundException(exceptions.PURCHASE.NOT_FOUND)
