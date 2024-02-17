@@ -4,9 +4,11 @@ import {
   Delete,
   Get,
   Param,
+  ParseBoolPipe,
   ParseFilePipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common'
@@ -18,6 +20,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 import { imageValidators } from '../common/files/file-validators'
+import { TicketWithPurchasesEntity } from '../purchase/entities/ticket-with-purchases.entity'
+import { PurchaseTicketService } from '../purchase/ticket/ticket.service'
 import { User } from '../user/decorators/user.decorator'
 import { UserEntity } from '../user/entities/user.entity'
 import { CreateTicketDto } from './dto/create-ticket.dto'
@@ -29,7 +33,10 @@ import { TicketService } from './ticket.service'
 @ApiTags('tickets')
 @Controller()
 export class TicketController {
-  constructor(private readonly ticketService: TicketService) {}
+  constructor(
+    private readonly ticketService: TicketService,
+    private readonly purchaseTicketService: PurchaseTicketService,
+  ) {}
 
   @ApiOperation({ summary: 'Add new ticket to event' })
   @ApiConsumes('multipart/form-data')
@@ -76,5 +83,27 @@ export class TicketController {
   @Delete('tickets/:id')
   async delete(@User() user: UserEntity, @Param('id') id: string) {
     return new TicketEntity(await this.ticketService.remove(user, id))
+  }
+
+  @Get('tickets/:id/purchases')
+  async purchasesByTicket(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('status')
+    status?: string,
+    @Query('refundStatus')
+    refundStatus?: string,
+    @Query('used', new ParseBoolPipe({ optional: true }))
+    used?: boolean,
+  ) {
+    return new TicketWithPurchasesEntity(
+      await this.purchaseTicketService.purchasesByTicket(
+        id,
+        page,
+        status as any,
+        refundStatus as any,
+        used,
+      ),
+    )
   }
 }

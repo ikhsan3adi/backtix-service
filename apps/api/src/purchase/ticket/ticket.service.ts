@@ -9,6 +9,7 @@ import { PrismaClient } from '@prisma/client'
 import { config } from '../../common/config'
 import { exceptions } from '../../common/exceptions/exceptions'
 import { EventRepository } from '../../event/event.repository'
+import { TicketRepository } from '../../ticket/ticket.repository'
 import { UserEntity } from '../../user/entities/user.entity'
 import { PurchaseRepository } from '../purchase.repository'
 import { PurchaseService } from '../purchase.service'
@@ -19,6 +20,7 @@ export class PurchaseTicketService {
     private purchaseRepository: PurchaseRepository,
     private purchaseService: PurchaseService,
     private eventRepository: EventRepository,
+    private ticketRepository: TicketRepository,
   ) {
     this.perPage = config.pagination.eventWithPurchasesPerPage
   }
@@ -119,6 +121,46 @@ export class PurchaseTicketService {
     } catch (e) {
       if (e instanceof HttpException) throw e
       console.error(e)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  async purchasesByTicket(
+    ticketId: string,
+    page: number = 0,
+    status: 'PENDING' | 'COMPLETED' | 'CANCELLED' = 'COMPLETED',
+    refundStatus: 'REFUNDING' | 'REFUNDED' | 'DENIED' = null,
+    used: boolean = false,
+  ) {
+    const s = this.purchaseStatuses.includes(status) ? status : undefined
+    const rs = this.refundStatuses.includes(refundStatus)
+      ? refundStatus
+      : undefined
+
+    try {
+      const ticket = await this.ticketRepository.findOne({
+        where: {
+          id: ticketId,
+        },
+        include: { event: true },
+      })
+
+      const purchases = await this.purchaseRepository.findMany({
+        where: {
+          ticketId,
+          status: s,
+          refundStatus: rs,
+          used,
+        },
+        include: { user: true },
+        skip: isNaN(page) ? 0 : page * this.perPage,
+        take: this.perPage,
+      })
+
+      return { ticket, purchases }
+    } catch (e) {
+      console.error(e)
+
       throw new InternalServerErrorException()
     }
   }

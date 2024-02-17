@@ -4,6 +4,7 @@ import { EventRepository } from '../event/event.repository'
 import { PaymentService } from '../payment/payment.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { TicketModule } from '../ticket/ticket.module'
+import { TicketRepository } from '../ticket/ticket.repository'
 import { PurchaseEventService } from './event/event.service'
 import { PurchaseController } from './purchase.controller'
 import { PurchaseRepository } from './purchase.repository'
@@ -23,7 +24,8 @@ import { PurchaseTicketService } from './ticket/ticket.service'
     PurchaseTicketService,
     PurchaseEventService,
     EventRepository,
+    TicketRepository,
   ],
-  exports: [PurchaseEventService],
+  exports: [PurchaseEventService, PurchaseTicketService],
 })
 export class PurchaseModule {}
