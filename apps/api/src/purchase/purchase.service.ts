@@ -15,7 +15,7 @@ import { EventService } from '../event/event.service'
 import { PaymentService } from '../payment/payment.service'
 import { TicketService } from '../ticket/ticket.service'
 import { UserEntity } from '../user/entities/user.entity'
-import { CreatePurchaseDto } from './dto/create-ticket-order.dto'
+import { CreateTicketOrderDto } from './dto/create-ticket-order.dto'
 import { PaymentNotificationDto } from './dto/payment-notification.dto'
 import { PaymentMethod } from './enums/payment-method.enum'
 import { PurchaseRepository } from './purchase.repository'
@@ -103,7 +103,7 @@ export class PurchaseService {
 
   async createTicketOrder(
     user: UserEntity,
-    { paymentMethod, purchases }: CreatePurchaseDto,
+    { paymentMethod, purchases }: CreateTicketOrderDto,
   ) {
     try {
       return await this.purchaseRepository.createTransactions(async (tx) => {

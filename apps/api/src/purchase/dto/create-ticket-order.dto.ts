@@ -24,7 +24,7 @@ export class TicketPurchase {
   quantity: number = 1
 }
 
-export class CreatePurchaseDto {
+export class CreateTicketOrderDto {
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(64)
