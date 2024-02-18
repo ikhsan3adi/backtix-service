@@ -3,7 +3,9 @@ import {
   Injectable,
   InternalServerErrorException,
   NotAcceptableException,
+  NotFoundException,
 } from '@nestjs/common'
+import { exceptions } from '../../common/exceptions/exceptions'
 import { UserEntity } from '../../user/entities/user.entity'
 import { PurchaseRepository } from '../purchase.repository'
 import { PurchaseService } from '../purchase.service'
@@ -16,9 +18,21 @@ export class PurchaseRefundService {
   ) {}
 
   async refundTicketOrder(user: UserEntity, uid: string) {
+    const purchase = await this.purchaseRepository.findOne({
+      where: {
+        uid,
+        userId: user.id,
+        refundStatus: null,
+        status: 'COMPLETED',
+        used: false,
+      },
+    })
+
+    if (!purchase) throw new NotFoundException(exceptions.PURCHASE.NOT_FOUND)
+
     try {
       return await this.purchaseRepository.update({
-        where: { uid, userId: user.id, refundStatus: null },
+        where: { uid },
         data: { refundStatus: 'REFUNDING' },
         include: { ticket: true },
       })
