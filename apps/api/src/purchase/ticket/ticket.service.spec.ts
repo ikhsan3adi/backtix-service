@@ -1,4 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { EventRepository } from '../../event/event.repository'
+import { TicketRepository } from '../../ticket/ticket.repository'
 import { PurchaseRepository } from '../purchase.repository'
 import { PurchaseService } from '../purchase.service'
 import { PurchaseTicketService } from './ticket.service'
@@ -12,6 +14,8 @@ describe('TicketService', () => {
         PurchaseTicketService,
         { provide: PurchaseService, useValue: {} },
         { provide: PurchaseRepository, useValue: {} },
+        { provide: EventRepository, useValue: {} },
+        { provide: TicketRepository, useValue: {} },
       ],
     }).compile()
 

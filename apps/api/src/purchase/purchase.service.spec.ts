@@ -247,6 +247,7 @@ describe('PurchaseService', () => {
             name: 'Event 123',
           },
           quantity: 1,
+          currentStock: 100,
         },
       ]
 
@@ -287,7 +288,9 @@ describe('PurchaseService', () => {
       )
 
       // Assert
-      expect(order.tickets).toStrictEqual(tickets)
+      expect(order.tickets).toStrictEqual(
+        tickets.map((e) => ({ ...e, currentStock: e.currentStock - 1 })),
+      )
       expect(order.transaction).toStrictEqual({ status: 'paid' })
       expect(createTransactionMock).not.toHaveBeenCalled()
       expect(completeTicketOrderSpy).toHaveBeenCalledWith({
@@ -305,6 +308,7 @@ describe('PurchaseService', () => {
     let findFirstPurchaseMock: jest.Mock
     let findManyPurchaseMock: jest.Mock
     let updateManyPurchaseMock: jest.Mock
+    let deleteManyPurchaseMock: jest.Mock
     let mockPrismaClient: any
 
     beforeEach(async () => {
@@ -312,11 +316,13 @@ describe('PurchaseService', () => {
       findFirstPurchaseMock = jest.fn()
       findManyPurchaseMock = jest.fn()
       updateManyPurchaseMock = jest.fn()
+      deleteManyPurchaseMock = jest.fn()
       mockPrismaClient = {
         purchase: {
           updateMany: updateManyPurchaseMock,
           findFirst: findFirstPurchaseMock,
           findMany: findManyPurchaseMock,
+          deleteMany: deleteManyPurchaseMock,
         },
         userBalance: { update: () => {} },
         ticket: { update: () => {} },
@@ -423,9 +429,12 @@ describe('PurchaseService', () => {
 
       // Assert
       expect(completeTicketOrderSpy).not.toHaveBeenCalled()
-      expect(updateManyPurchaseMock).toHaveBeenCalledWith({
+      // expect(updateManyPurchaseMock).toHaveBeenCalledWith({
+      //   where: { orderId: 'BTx-123', status: 'PENDING' },
+      //   data: { status: 'CANCELLED' },
+      // })
+      expect(deleteManyPurchaseMock).toHaveBeenCalledWith({
         where: { orderId: 'BTx-123', status: 'PENDING' },
-        data: { status: 'CANCELLED' },
       })
     })
   })
