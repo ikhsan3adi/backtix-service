@@ -50,6 +50,8 @@ export class CreateEventDto {
   description: string
 
   @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(64)
   categories: string[]
 
   @IsArray()
