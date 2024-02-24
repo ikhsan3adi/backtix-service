@@ -18,6 +18,7 @@ export class EventEntity {
   latitude: number
   longitude: number
   description: string
+  categories: string[]
   @ApiProperty({
     enum: $Enums.EventStatus,
     isArray: true,
