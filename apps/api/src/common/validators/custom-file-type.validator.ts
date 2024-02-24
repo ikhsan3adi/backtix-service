@@ -19,10 +19,20 @@ export class CustomFileTypeValidator extends FileTypeValidator {
         for (const _file of file[key]) {
           if (!_file) continue
 
-          const isValid =
-            !!_file &&
-            'mimetype' in _file &&
-            !!_file.mimetype.match(this.validationOptions.fileType)
+          const isOctetStream = _file.mimetype === 'application/octet-stream'
+
+          let isValidType = !!_file.mimetype.match(
+            this.validationOptions.fileType,
+          )
+
+          if (isOctetStream) {
+            const splitted = _file.originalname.split('.')
+            isValidType = splitted[splitted.length - 1].match(
+              this.validationOptions.fileType,
+            )
+          }
+
+          const isValid = !!_file && 'mimetype' in _file && !!isValidType
 
           if (!isValid) {
             this.errFile = _file
