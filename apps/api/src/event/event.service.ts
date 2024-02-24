@@ -37,8 +37,8 @@ export class EventService {
     const eventImages = []
 
     // file
-    const eventImageFiles = files.event.slice()
-    const ticketImageFiles = files.ticket.slice()
+    const eventImageFiles = files.event?.slice()
+    const ticketImageFiles = files.ticket?.slice()
 
     // generate event images data & filename
     for (const imageDescription of createEventDto.imageDescriptions) {
@@ -46,7 +46,7 @@ export class EventService {
         eventImageFiles.shift().originalname,
       )
       eventImages.push({
-        description: imageDescription,
+        description: imageDescription ? undefined : imageDescription,
         image: filename,
       })
     }
@@ -86,8 +86,8 @@ export class EventService {
     })
 
     // save images
-    const eventImageFilesCopy = files.event.slice()
-    const ticketImageFilesCopy = files.ticket.slice()
+    const eventImageFilesCopy = files.event?.slice()
+    const ticketImageFilesCopy = files.ticket?.slice()
 
     for (const { image } of eventImages) {
       await this.storageService.createFile(
@@ -373,9 +373,11 @@ export class EventService {
         )
       }
 
+      const desc = updateEventDto.images[index].description
+
       images.push({
         id: updateEventDto.images[index].id,
-        description: updateEventDto.images[index].description,
+        description: desc ? undefined : desc,
         image: filename,
         delete: updateEventDto.images[index].delete,
       })
@@ -405,7 +407,7 @@ export class EventService {
         where: { id, deletedAt: null },
         data: event,
         updatedImages: images
-          .filter((e) => !e.delete)
+          .filter((e) => !(e.delete ?? false))
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .map(({ delete: _, ...e }) => e),
         deletedImages: images.filter((e) => e.delete),
