@@ -128,11 +128,9 @@ export class EventRepository {
       // Delete event images
       if (deletedImages) {
         await Promise.all(
-          updatedImages
-            .filter((e: { id: number }) => e.id !== undefined)
-            .map((e: { id: number }) =>
-              tx.eventImage.delete({ where: { id: e.id } }),
-            ),
+          deletedImages.map((e: { id: number }) =>
+            tx.eventImage.delete({ where: { id: e.id } }),
+          ),
         )
       }
 
