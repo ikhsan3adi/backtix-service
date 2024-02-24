@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
   IsBooleanString,
   IsLatitude,
@@ -29,6 +29,7 @@ export class AdminUpdateUserDto extends PartialType(UpdateUserDto) {
   @IsBooleanString()
   activated?: boolean
 
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   @ApiProperty({
     enum: [
       Group.USER.valueOf(),

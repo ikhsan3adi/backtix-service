@@ -49,16 +49,19 @@ export class CreateEventDto {
   @IsNotEmpty()
   description: string
 
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(64)
   categories: string[]
 
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(64)
-  imageDescriptions: string[]
+  imageDescriptions: (string | null)[]
 
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(64)
