@@ -57,7 +57,7 @@ export class TicketController {
   }
 
   @ApiOperation({ summary: 'Get ticket detail' })
-  @Get('events/:eventId/ticket/:id')
+  @Get('events/:eventId/tickets/:id')
   async findOne(
     @User() user: UserEntity,
     @Param('eventId') eventId: string,
