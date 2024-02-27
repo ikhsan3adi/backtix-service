@@ -46,7 +46,7 @@ export class EventService {
         eventImageFiles.shift().originalname,
       )
       eventImages.push({
-        description: imageDescription ? undefined : imageDescription,
+        description: imageDescription ? imageDescription : undefined,
         image: filename,
       })
     }
@@ -377,7 +377,7 @@ export class EventService {
 
       images.push({
         id: updateEventDto.images[index].id,
-        description: desc ? undefined : desc,
+        description: desc ? desc : undefined,
         image: filename,
         delete: updateEventDto.images[index].delete,
       })

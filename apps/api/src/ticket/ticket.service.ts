@@ -47,7 +47,7 @@ export class TicketService {
     })
     if (filename) {
       await this.storageService.createFile(
-        config.storage.eventImagePath,
+        config.storage.ticketImagePath,
         filename,
         ticketImage.buffer,
       )
@@ -111,7 +111,7 @@ export class TicketService {
       })
       if (filename) {
         await this.storageService.createFile(
-          config.storage.eventImagePath,
+          config.storage.ticketImagePath,
           filename,
           newTicketImage.buffer,
         )
