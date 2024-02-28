@@ -69,13 +69,18 @@ export class TicketController {
   @ApiOperation({ summary: 'Update ticket' })
   @ApiConsumes('multipart/form-data')
   @Patch('tickets/:id')
+  @UseInterceptors(FileInterceptor('image'))
   async update(
     @User() user: UserEntity,
     @Param('id') id: string,
     @Body() updateTicketDto: UpdateTicketDto,
+    @UploadedFile(
+      new ParseFilePipe({ validators: imageValidators, fileIsRequired: false }),
+    )
+    image: Express.Multer.File,
   ) {
     return new TicketEntity(
-      await this.ticketService.update(user, id, updateTicketDto),
+      await this.ticketService.update(user, id, updateTicketDto, image),
     )
   }
 

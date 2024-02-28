@@ -37,9 +37,12 @@ export class TicketService {
         )
       : undefined
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { hasImage, ...data } = createTicketDto
+
     const createdTicket = await this.ticketRepository.create({
       data: {
-        ...createTicketDto,
+        ...data,
         currentStock: createTicketDto.stock,
         event: { connect: { id: eventId } },
         image: filename,
@@ -97,7 +100,7 @@ export class TicketService {
         )
       : undefined
 
-    const { additionalStock, ...data } = updateTicketDto
+    const { additionalStock, deleteImage, ...data } = updateTicketDto
 
     try {
       const updatedTicket = await this.ticketRepository.update({
@@ -106,7 +109,7 @@ export class TicketService {
           ...data,
           stock: { increment: additionalStock },
           currentStock: { increment: additionalStock },
-          image: filename,
+          image: filename ? filename : deleteImage ? null : filename,
         },
       })
       if (filename) {
@@ -115,6 +118,15 @@ export class TicketService {
           filename,
           newTicketImage.buffer,
         )
+      } else if (!filename && deleteImage) {
+        try {
+          this.storageService.deleteFile(
+            config.storage.ticketImagePath,
+            ticket.image,
+          )
+        } catch (e) {
+          console.error(e)
+        }
       }
       return updatedTicket
     } catch (e) {
