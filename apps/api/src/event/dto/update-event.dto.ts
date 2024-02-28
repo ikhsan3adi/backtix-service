@@ -12,6 +12,7 @@ export class UpdateEventDto extends OmitType(CreateEventDto, [
   @IsArray()
   @ArrayMaxSize(64)
   @Transform(objectStringTransformer(UpdateEventImageDto))
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   @ValidateNested()
   images: UpdateEventImageDto[] = []
 
