@@ -11,37 +11,20 @@ export class CustomFileTypeValidator extends FileTypeValidator {
   }
 
   isValid(file: any) {
-    if (!this.isFileFields(file)) return super.isValid(file)
     if (!this.validationOptions) return true
-
-    for (const key in file) {
-      if (Object.prototype.hasOwnProperty.call(file, key)) {
-        for (const _file of file[key]) {
-          if (!_file) continue
-
-          const isOctetStream = _file.mimetype === 'application/octet-stream'
-
-          let isValidType = !!_file.mimetype.match(
-            this.validationOptions.fileType,
-          )
-
-          if (isOctetStream) {
-            const splitted = _file.originalname.split('.')
-            isValidType = splitted[splitted.length - 1].match(
-              this.validationOptions.fileType,
-            )
-          }
-
-          const isValid = !!_file && 'mimetype' in _file && !!isValidType
-
-          if (!isValid) {
-            this.errFile = _file
-            return isValid
+    if (this.isFileFields(file)) {
+      for (const key in file) {
+        if (Object.prototype.hasOwnProperty.call(file, key)) {
+          for (const _file of file[key]) {
+            if (!_file) continue
+            const valid = this.validate(_file)
+            if (!valid) return valid
           }
         }
       }
+      return true
     }
-    return true
+    return this.validate(file) !== false
   }
 
   private isFileFields(file: any) {
@@ -51,5 +34,25 @@ export class CustomFileTypeValidator extends FileTypeValidator {
       }
     }
     return false
+  }
+
+  private validate(file: Express.Multer.File) {
+    const isOctetStream = file.mimetype === 'application/octet-stream'
+
+    let isValidType = !!file.mimetype.match(this.validationOptions.fileType)
+
+    if (isOctetStream) {
+      const splitted = file.originalname.split('.')
+      isValidType = !!splitted[splitted.length - 1].match(
+        this.validationOptions.fileType,
+      )
+    }
+
+    const isValid = file && 'mimetype' in file && isValidType
+
+    if (!isValid) {
+      this.errFile = file
+      return isValid
+    }
   }
 }
