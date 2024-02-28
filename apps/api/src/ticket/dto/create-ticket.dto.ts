@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Transform } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
   IsBoolean,
   IsDateString,
@@ -16,10 +16,12 @@ export class CreateTicketDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @Type(() => Number)
   price: number
 
   @IsNumber()
   @IsNotEmpty()
+  @Type(() => Number)
   stock: number
 
   @ApiProperty({
