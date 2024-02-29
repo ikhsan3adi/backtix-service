@@ -377,7 +377,7 @@ export class EventService {
 
       images.push({
         id: updateEventDto.images[index].id,
-        description: desc ? desc : undefined,
+        description: desc ? desc : '',
         image: filename,
         delete: updateEventDto.images[index].delete,
       })
