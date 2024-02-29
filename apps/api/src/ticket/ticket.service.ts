@@ -178,7 +178,13 @@ export class TicketService {
       throw new BadRequestException(exceptions.TICKET.INSUFFICIENT_STOCK)
     } else if (new Date() < ticket.salesOpenDate) {
       throw new BadRequestException(exceptions.TICKET.SALES_NOT_YET_OPEN)
-    } else if (new Date() > ticket.purchaseDeadline) {
+    } else if (
+      ticket.purchaseDeadline
+        ? new Date() > ticket.purchaseDeadline
+        : ticket.event.endDate
+          ? new Date() > ticket.event.endDate
+          : false
+    ) {
       throw new BadRequestException(exceptions.TICKET.SALES_CLOSED)
     } else if (ticket.event.status !== 'PUBLISHED') {
       throw new BadRequestException(exceptions.TICKET.INVALID)
