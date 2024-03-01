@@ -230,9 +230,7 @@ export class PurchaseService {
     ownerUser: UserEntity,
     uid: string,
   ) {
-    const {
-      ticket: { eventId },
-    } = await this.purchaseRepository.findOne({
+    const purchase = await this.purchaseRepository.findOne({
       where: { uid },
       include: {
         ticket: {
@@ -241,9 +239,14 @@ export class PurchaseService {
       },
     })
 
-    if (!eventId) throw new NotFoundException(exceptions.EVENT.NOT_FOUND)
+    if (!purchase || !purchase.ticket.eventId)
+      throw new NotFoundException(exceptions.EVENT.NOT_FOUND)
 
-    await this.eventService.verifyEventOwner(ownerUser, eventId, false)
+    await this.eventService.verifyEventOwner(
+      ownerUser,
+      purchase.ticket.eventId,
+      false,
+    )
   }
 
   async completeSuccessTicketOrder(params: {
