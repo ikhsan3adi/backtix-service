@@ -91,11 +91,7 @@ export class PurchaseTicketService {
         await this.purchaseService.verifyEventOwnerByTicketPurchase(user, uid)
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { ticket: _, ...purchase } = await this.checkTicketPurchase(
-          tx,
-          uid,
-          eventId,
-        )
+        const purchase = await this.checkTicketPurchase(tx, uid, eventId)
 
         return purchase
       })
@@ -111,12 +107,14 @@ export class PurchaseTicketService {
       return await this.purchaseRepository.createTransactions(async (tx) => {
         await this.purchaseService.verifyEventOwnerByTicketPurchase(user, uid)
 
-        await this.checkTicketPurchase(tx, uid, eventId)
+        const purchase = await this.checkTicketPurchase(tx, uid, eventId)
 
-        return await tx.purchase.update({
+        const updatedPurchase = await tx.purchase.update({
           where: { uid },
           data: { used: true },
         })
+
+        return { ...purchase, ...updatedPurchase }
       })
     } catch (e) {
       if (e instanceof HttpException) throw e
@@ -172,7 +170,7 @@ export class PurchaseTicketService {
   ) {
     const purchase = await tx.purchase.findUnique({
       where: { uid },
-      include: { ticket: { select: { eventId: true } } },
+      include: { ticket: true, user: true },
     })
 
     if (!purchase) {
