@@ -118,7 +118,9 @@ export class TicketService {
           filename,
           newTicketImage.buffer,
         )
-      } else if (!filename && deleteImage) {
+      }
+      // delete old image if `deleteImage` is true or if there's new `filename`
+      if ((filename || deleteImage) && ticket.image) {
         try {
           this.storageService.deleteFile(
             config.storage.ticketImagePath,
