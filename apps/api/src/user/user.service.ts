@@ -4,17 +4,20 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common'
 import { Prisma, User } from '@prisma/client'
+import { AuthService } from '../auth/auth.service'
 import { config } from '../common/config'
 import { exceptions } from '../common/exceptions/exceptions'
 import { StorageService } from '../storage/storage.service'
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { UserEntity } from './entities/user.entity'
 import { UserRepository } from './user.repository'
 
 @Injectable()
 export class UserService {
   constructor(
+    private authService: AuthService,
     private userRepository: UserRepository,
     private storageService: StorageService,
   ) {}
@@ -61,26 +64,39 @@ export class UserService {
     })
   }
 
-  async editUser(
-    id: string,
-    updateUserDto: UpdateUserDto,
-    image?: Express.Multer.File,
-  ) {
-    await this.checkEmailUsername({
-      email: updateUserDto.email,
-      username: updateUserDto.username,
-    })
+  async editUser(params: {
+    id: string
+    updateUserDto: UpdateUserDto
+    oldUser?: UserEntity
+    image?: Express.Multer.File
+  }) {
+    const { id, updateUserDto, oldUser, image } = params
+
+    const usernameOrEmailChanged =
+      oldUser &&
+      ((updateUserDto.username &&
+        updateUserDto.username !== oldUser.username) ||
+        (updateUserDto.email && updateUserDto.email !== oldUser.email))
+
+    if (!oldUser || usernameOrEmailChanged) {
+      await this.checkEmailUsername({
+        email: updateUserDto.email,
+        username: updateUserDto.username,
+      })
+    }
 
     const filename = image
       ? await this.storageService.generateRandomFilename(image.originalname)
       : undefined
 
+    const { deleteImage, ...data } = updateUserDto
+
     try {
       const user = await this.userRepository.update({
         where: { id },
         data: {
-          ...updateUserDto,
-          image: filename,
+          ...data,
+          image: filename ? filename : deleteImage ? null : filename,
           balance:
             updateUserDto instanceof AdminUpdateUserDto
               ? {
@@ -103,7 +119,23 @@ export class UserService {
           image.buffer,
         )
       }
-      return user
+      // delete old image if `deleteImage` is true or if there's new `filename`
+      if ((deleteImage || filename) && oldUser.image) {
+        try {
+          this.storageService.deleteFile(
+            config.storage.userImagePath,
+            oldUser.image,
+          )
+        } catch (e) {
+          console.error(e)
+        }
+      }
+
+      const newAuth = usernameOrEmailChanged
+        ? await this.authService.login(user)
+        : undefined
+
+      return { user: new UserEntity(user), newAuth }
     } catch (e) {
       console.error(e)
 

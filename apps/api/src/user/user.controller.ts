@@ -42,10 +42,16 @@ export class UserController {
       new ParseFilePipe({ validators: imageValidators, fileIsRequired: false }),
     )
     image: Express.Multer.File,
-  ) {
-    return new UserEntity(
-      await this.userService.editUser(user.id, updateUserDto, image),
-    )
+  ): Promise<{
+    user: UserEntity
+    newAuth: { accessToken: string; refreshToken: string }
+  }> {
+    return await this.userService.editUser({
+      id: user.id,
+      updateUserDto,
+      oldUser: user,
+      image: image,
+    })
   }
 
   @ApiConsumes('multipart/form-data')
@@ -61,7 +67,7 @@ export class UserController {
     image: Express.Multer.File,
   ) {
     return new UserEntity(
-      await this.userService.editUser(id, updateUserDto, image),
+      (await this.userService.editUser({ id, updateUserDto, image })).user,
     )
   }
 }
