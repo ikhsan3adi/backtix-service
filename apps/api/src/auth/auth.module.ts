@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, forwardRef } from '@nestjs/common'
 import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { config } from '../common/config'
@@ -15,7 +15,7 @@ import { LocalStrategy } from './strategies/local.strategy'
 
 @Module({
   imports: [
-    UserModule,
+    forwardRef(() => UserModule),
     PassportModule,
     JwtModule.register({
       secret: config.security.accessTokenKey,
@@ -23,6 +23,7 @@ import { LocalStrategy } from './strategies/local.strategy'
     }),
     MailModule,
   ],
+  exports: [AuthService],
   controllers: [AuthController],
   providers: [
     AuthService,

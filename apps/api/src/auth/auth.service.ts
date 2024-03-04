@@ -9,6 +9,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Cache } from 'cache-manager'
@@ -25,7 +26,7 @@ import { PasswordService } from './password.service'
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
+    @Inject(forwardRef(() => UserService)) private userService: UserService,
     private jwtService: JwtService,
     private passwordService: PasswordService,
     private mailService: MailService,
@@ -155,6 +156,8 @@ export class AuthService {
     if (user.activated) throw new BadRequestException(exceptions.AUTH.ACTIVATED)
 
     const otp = await this.otpService.createOtp(user.id)
+
+    console.log(otp)
 
     try {
       await this.mailService.sendUserActivation(user, otp)
