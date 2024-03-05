@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger'
+import { OmitType } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import {
   IsBoolean,
@@ -9,7 +9,7 @@ import {
 } from 'class-validator'
 import { CreateUserDto } from './create-user.dto'
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {
+export class UpdateUserDto extends OmitType(CreateUserDto, ['password']) {
   @IsString()
   @IsNotEmpty()
   location: string
