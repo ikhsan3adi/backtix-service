@@ -7,8 +7,10 @@ export class WithdrawRequestEntity {
 
   id: string
   amount: number
+  fee: number
   method: string
   details: string
+  from: string
   status: string
   createdAt: Date
   updatedAt: Date
