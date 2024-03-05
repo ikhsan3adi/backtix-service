@@ -31,4 +31,18 @@ export class MailService {
       },
     })
   }
+
+  async sendPasswordResetCode(user: UserEntity, otp: string) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Reset Password',
+      template: './reset-password',
+      context: {
+        name: user.fullname,
+        username: user.username,
+        email: user.email,
+        otp,
+      },
+    })
+  }
 }

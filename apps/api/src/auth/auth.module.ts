@@ -23,7 +23,7 @@ import { LocalStrategy } from './strategies/local.strategy'
     }),
     MailModule,
   ],
-  exports: [AuthService],
+  exports: [AuthService, PasswordService],
   controllers: [AuthController],
   providers: [
     AuthService,

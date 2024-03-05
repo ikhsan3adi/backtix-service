@@ -1,15 +1,21 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common'
 import { Prisma, User } from '@prisma/client'
 import { AuthService } from '../auth/auth.service'
+import { OtpService } from '../auth/otp.service'
+import { PasswordService } from '../auth/password.service'
 import { config } from '../common/config'
 import { exceptions } from '../common/exceptions/exceptions'
+import { MailService } from '../mail/mail.service'
 import { StorageService } from '../storage/storage.service'
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto'
 import { CreateUserDto } from './dto/create-user.dto'
+import { ResetPasswordDto } from './dto/reset-password.dto'
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserEntity } from './entities/user.entity'
 import { UserRepository } from './user.repository'
@@ -18,8 +24,11 @@ import { UserRepository } from './user.repository'
 export class UserService {
   constructor(
     private authService: AuthService,
+    private passwordService: PasswordService,
     private userRepository: UserRepository,
     private storageService: StorageService,
+    private otpService: OtpService,
+    private mailService: MailService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -66,7 +75,7 @@ export class UserService {
 
   async editUser(params: {
     id: string
-    updateUserDto: UpdateUserDto
+    updateUserDto: UpdateUserDto | AdminUpdateUserDto
     oldUser?: UserEntity
     image?: Express.Multer.File
   }) {
@@ -143,5 +152,51 @@ export class UserService {
         this.storageService.deleteFile(config.storage.userImagePath, filename)
       throw new InternalServerErrorException(e)
     }
+  }
+
+  async updateUserPassword(user: UserEntity, dto: UpdateUserPasswordDto) {
+    const oldUser = await this.userRepository.findUnique({
+      where: { id: user.id },
+    })
+
+    const oldPasswordMatch = await this.passwordService.validatePassword(
+      dto.oldPassword,
+      oldUser.password,
+    )
+
+    if (!oldPasswordMatch) {
+      throw new BadRequestException(exceptions.USER.WRONG_OLD_PASSWORD)
+    }
+
+    return await this.userRepository.update({
+      where: { id: user.id },
+      data: { password: dto.newPassword },
+    })
+  }
+
+  async requestPasswordReset(user: UserEntity) {
+    const resetCode = await this.otpService.createOtp(
+      `resetpassword_${user.id}`,
+    )
+
+    console.log(resetCode)
+
+    try {
+      await this.mailService.sendPasswordResetCode(user, resetCode)
+    } catch (e) {
+      console.error(e)
+      throw new InternalServerErrorException(exceptions.MAIL.SENDING_FAILED)
+    } finally {
+      return { message: 'Reset password code sent' }
+    }
+  }
+
+  async passwordReset(user: UserEntity, dto: ResetPasswordDto) {
+    await this.otpService.verifyOtp(`resetpassword_${user.id}`, dto.resetCode)
+
+    return await this.userRepository.update({
+      where: { id: user.id },
+      data: { password: dto.newPassword },
+    })
   }
 }

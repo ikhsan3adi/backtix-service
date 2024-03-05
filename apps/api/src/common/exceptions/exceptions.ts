@@ -17,6 +17,7 @@ export const exceptions = {
     USERNAME_ALREADY_REGISTERED: (username: string) => {
       return `Username ${username} already registered`
     },
+    WRONG_OLD_PASSWORD: `Old password does not match`,
   },
   EVENT: {
     NOT_FOUND: 'Event not found',

@@ -5,6 +5,8 @@ import {
   Param,
   ParseFilePipe,
   Patch,
+  Post,
+  Put,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common'
@@ -15,6 +17,8 @@ import { Groups } from '../auth/decorators/groups.decorator'
 import { imageValidators } from '../common/files/file-validators'
 import { User } from './decorators/user.decorator'
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto'
+import { ResetPasswordDto } from './dto/reset-password.dto'
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserEntity } from './entities/user.entity'
 import { Group } from './enums/group.enum'
@@ -34,7 +38,7 @@ export class UserController {
 
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
-  @Patch('my')
+  @Put('my')
   async editMyUser(
     @User() user: UserEntity,
     @Body() updateUserDto: UpdateUserDto,
@@ -52,6 +56,24 @@ export class UserController {
       oldUser: user,
       image: image,
     })
+  }
+
+  @Post('my/password/reset')
+  async requestPasswordReset(@User() user: UserEntity) {
+    return await this.userService.requestPasswordReset(user)
+  }
+
+  @Patch('my/password/reset')
+  async passwordReset(@User() user: UserEntity, @Body() dto: ResetPasswordDto) {
+    return new UserEntity(await this.userService.passwordReset(user, dto))
+  }
+
+  @Patch('my/password')
+  async updateMyPassword(
+    @User() user: UserEntity,
+    @Body() dto: UpdateUserPasswordDto,
+  ) {
+    return new UserEntity(await this.userService.updateUserPassword(user, dto))
   }
 
   @ApiConsumes('multipart/form-data')
