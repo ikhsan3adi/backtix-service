@@ -60,4 +60,7 @@ export const config = {
     url: process.env.MIDTRANS_URL,
     authString: process.env.MIDTRANS_SERVER_KEY,
   },
+  withdraw: {
+    feeKey: 'adminFee',
+  },
 }

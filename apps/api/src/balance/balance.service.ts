@@ -1,4 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { BadRequestException, Inject, Injectable } from '@nestjs/common'
+import { Cache } from 'cache-manager'
+import { config } from '../common/config'
 import { exceptions } from '../common/exceptions/exceptions'
 import { PrismaService } from '../prisma/prisma.service'
 import { UserEntity } from '../user/entities/user.entity'
@@ -6,9 +9,15 @@ import { CreateWithdrawRequestDto } from './dto/create-withdraw-request.dto'
 
 @Injectable()
 export class BalanceService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {
+    this.feeKey = config.withdraw.feeKey
+  }
 
   private withdrawalStatuses = ['PENDING', 'COMPLETED', 'REJECTED']
+  feeKey: string
 
   async myWithdrawals(user: UserEntity, status: string) {
     const s: any = this.withdrawalStatuses.includes(status.toUpperCase())
@@ -28,8 +37,7 @@ export class BalanceService {
     const { from, ...withdraw } = createWithdrawRequestDto
 
     return await this.prismaService.$transaction(async (tx) => {
-      const withdrawalFees =
-        (await tx.withdrawFee.findFirst({ where: { id: 0 } })).amount ?? 0
+      const withdrawalFees = await this.getFee()
 
       const userBalance = await tx.userBalance.findUnique({
         where: { userId: user.id },
@@ -80,5 +88,20 @@ export class BalanceService {
       where: { status: s },
       orderBy: { createdAt: 'desc' },
     })
+  }
+
+  private async getFee() {
+    const fee = await this.cacheManager.get(this.feeKey)
+
+    if (!fee) {
+      const { amount: fee } = await this.prismaService.withdrawFee.findFirst({
+        where: { id: 0 },
+        select: { amount: true },
+      })
+      await this.cacheManager.set(this.feeKey, fee)
+      return fee
+    }
+
+    return Number(fee)
   }
 }

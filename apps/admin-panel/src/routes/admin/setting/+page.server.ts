@@ -3,10 +3,13 @@ import { currencyPrefix } from '$lib/formatter/currency.formatter'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { fail } from '@sveltejs/kit'
 import { hash } from 'bcrypt'
+import { redisClient } from '../../../lib/server/database/redis'
 import type { Actions, PageServerLoad } from './$types'
 
 export const load = (async ({ locals }) => {
-	const withdrawFee = await prisma.withdrawFee.findFirst({ where: { id: 0 } })
+	const withdrawFee =
+		{ id: 0, amount: Number(await redisClient.get(config.withdraw.feeKey)) } ??
+		(await prisma.withdrawFee.findFirst({ where: { id: 0 } }))
 
 	return { myUser: locals.user, withdrawFee: withdrawFee, currencyPrefix: currencyPrefix }
 }) satisfies PageServerLoad
@@ -16,14 +19,13 @@ export const actions: Actions = {
 		const { fee } = Object.fromEntries(await request.formData()) as { fee: string }
 
 		try {
-			if (!(await prisma.withdrawFee.findFirst({ where: { id: 0 } }))) {
-				await prisma.withdrawFee.create({ data: { amount: Number(fee) } })
-			} else {
-				await prisma.withdrawFee.update({
-					data: { amount: { set: Number(fee) } },
-					where: { id: 0 }
-				})
-			}
+			const adminFee = await prisma.withdrawFee.upsert({
+				create: { amount: Number(fee) },
+				update: { amount: { set: Number(fee) } },
+				where: { id: 0 }
+			})
+
+			await redisClient.set(config.withdraw.feeKey, adminFee.amount)
 
 			return { success: true, message: 'Update fee successful' }
 		} catch (e) {
