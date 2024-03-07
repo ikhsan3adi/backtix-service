@@ -13,6 +13,11 @@ import { WithdrawRequestEntity } from './entities/withdraw-request.entity'
 export class BalanceController {
   constructor(private readonly balanceService: BalanceService) {}
 
+  @Get('balance/withdraw/my')
+  async getUserBalanceWithAdminFee(@User() user: UserEntity) {
+    return await this.balanceService.getUserBalanceWithAdminFee(user)
+  }
+
   @Get('withdraw/my')
   async myWithdrawals(
     @User() user: UserEntity,

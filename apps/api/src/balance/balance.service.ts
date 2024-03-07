@@ -21,6 +21,16 @@ export class BalanceService {
   perPage: number
   feeKey: string
 
+  async getUserBalanceWithAdminFee(user: UserEntity) {
+    const userBalance = await this.prismaService.userBalance.findUnique({
+      where: { userId: user.id },
+    })
+
+    const fee = await this.getFee()
+
+    return { userBalance, fee }
+  }
+
   async myWithdrawals(page: number = 0, user: UserEntity, status: string = '') {
     const s: any = this.withdrawalStatuses.includes(status.toUpperCase())
       ? status.toUpperCase()
