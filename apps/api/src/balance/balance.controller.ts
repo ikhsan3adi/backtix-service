@@ -17,8 +17,9 @@ export class BalanceController {
   async myWithdrawals(
     @User() user: UserEntity,
     @Query('status') status: string,
+    @Query('page') page: number,
   ) {
-    return (await this.balanceService.myWithdrawals(user, status)).map(
+    return (await this.balanceService.myWithdrawals(page, user, status)).map(
       (e) => new WithdrawRequestEntity(e),
     )
   }

@@ -13,13 +13,15 @@ export class BalanceService {
     private prismaService: PrismaService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
+    this.perPage = config.pagination.withdrawRequestPerPage
     this.feeKey = config.withdraw.feeKey
   }
 
   private withdrawalStatuses = ['PENDING', 'COMPLETED', 'REJECTED']
+  perPage: number
   feeKey: string
 
-  async myWithdrawals(user: UserEntity, status: string) {
+  async myWithdrawals(page: number = 0, user: UserEntity, status: string = '') {
     const s: any = this.withdrawalStatuses.includes(status.toUpperCase())
       ? status.toUpperCase()
       : undefined
@@ -27,6 +29,8 @@ export class BalanceService {
     return await this.prismaService.withdrawRequest.findMany({
       where: { userId: user.id, status: s },
       orderBy: { createdAt: 'desc' },
+      skip: isNaN(page) ? 0 : page * this.perPage,
+      take: this.perPage,
     })
   }
 
@@ -79,7 +83,7 @@ export class BalanceService {
     })
   }
 
-  async withdrawRequests(status: string) {
+  async withdrawRequests(status: string = '') {
     const s: any = this.withdrawalStatuses.includes(status)
       ? status.toUpperCase()
       : undefined
