@@ -98,23 +98,26 @@ export class UserService {
       ? await this.storageService.generateRandomFilename(image.originalname)
       : undefined
 
-    const { deleteImage, ...data } = updateUserDto
+    const { deleteImage, balance, revenue, ...data } =
+      updateUserDto as AdminUpdateUserDto
+
+    const password = (data as AdminUpdateUserDto).password
 
     try {
       const user = await this.userRepository.update({
         where: { id },
         data: {
           ...data,
+          password: password
+            ? await this.passwordService.hashPassword(password)
+            : undefined,
           image: filename ? filename : deleteImage ? null : filename,
           balance:
             updateUserDto instanceof AdminUpdateUserDto
               ? {
                   update: {
                     where: { userId: id },
-                    data: {
-                      balance: updateUserDto.balance,
-                      revenue: updateUserDto.revenue,
-                    },
+                    data: { balance, revenue },
                   },
                 }
               : undefined,
