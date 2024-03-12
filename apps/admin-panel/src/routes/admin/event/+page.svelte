@@ -65,7 +65,7 @@
 		</BreadcrumbItem>
 	</Breadcrumb>
 
-	<div class="items-center justify-between lg:flex">
+	<div class="max-w-screen-xl items-center justify-between lg:flex">
 		<div class="mb-3 lg:mb-0">
 			<Heading tag="h2" class="mb-3">Event management</Heading>
 			<div class="flex gap-2">
@@ -120,7 +120,7 @@
 				</Badge>
 			</div>
 		</div>
-		<div class="flex gap-2">
+		<div class="mr-2 flex gap-2">
 			<Button
 				on:click={() => {
 					actionModal = true
