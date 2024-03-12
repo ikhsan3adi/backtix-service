@@ -46,6 +46,7 @@ export const objectStringTransformer =
  */
 export const dateTimeTransformer = (options: TransformFnParams) => {
   try {
+    if (!options.value) return options.value
     return new Date(options.value).toISOString()
   } catch (e) {
     throw new BadRequestException(
