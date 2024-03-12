@@ -173,7 +173,9 @@ export class UserService {
 
     return await this.userRepository.update({
       where: { id: user.id },
-      data: { password: dto.newPassword },
+      data: {
+        password: await this.passwordService.hashPassword(dto.newPassword),
+      },
     })
   }
 
@@ -199,7 +201,9 @@ export class UserService {
 
     return await this.userRepository.update({
       where: { id: user.id },
-      data: { password: dto.newPassword },
+      data: {
+        password: await this.passwordService.hashPassword(dto.newPassword),
+      },
     })
   }
 }
