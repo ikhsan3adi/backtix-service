@@ -3,5 +3,5 @@ export const site = {
 	name: 'BackTix Admin Panel',
 	href: '',
 	imgAlt: 'Logo',
-	img: 'https://flowbite-admin-dashboard.vercel.app/images/logo.svg'
+	img: 'https://raw.githubusercontent.com/ikhsan3adi/backtix-support/main/assets/logo.svg'
 }

@@ -74,7 +74,7 @@
 
 	const navLinks = [
 		{
-			href: 'https://github.com/ikhsan3adi',
+			href: 'https://github.com/ikhsan3adi/backtix',
 			name: 'GitHub'
 		},
 		{
