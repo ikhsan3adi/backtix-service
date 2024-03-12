@@ -7,9 +7,13 @@ import { redisClient } from '../../../lib/server/database/redis'
 import type { Actions, PageServerLoad } from './$types'
 
 export const load = (async ({ locals }) => {
-	const withdrawFee =
-		{ id: 0, amount: Number(await redisClient.get(config.withdraw.feeKey)) } ??
-		(await prisma.withdrawFee.findFirst({ where: { id: 0 } }))
+	const withdrawFee = {
+		id: 0,
+		amount: Number(
+			(await redisClient.get(config.withdraw.feeKey)) ??
+				(await prisma.withdrawFee.findFirst({ where: { id: 0 } })).amount
+		)
+	}
 
 	return { myUser: locals.user, withdrawFee: withdrawFee, currencyPrefix: currencyPrefix }
 }) satisfies PageServerLoad
