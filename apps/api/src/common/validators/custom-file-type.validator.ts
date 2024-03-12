@@ -18,7 +18,8 @@ export class CustomFileTypeValidator extends FileTypeValidator {
           for (const _file of file[key]) {
             if (!_file) continue
             const valid = this.validate(_file)
-            if (!valid) return valid
+            if (valid === undefined) continue
+            if (!valid) return false
           }
         }
       }
@@ -52,7 +53,7 @@ export class CustomFileTypeValidator extends FileTypeValidator {
 
     if (!isValid) {
       this.errFile = file
-      return isValid
+      return false
     }
   }
 }
