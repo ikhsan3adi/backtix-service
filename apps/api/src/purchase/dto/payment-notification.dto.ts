@@ -1,9 +1,4 @@
-import {
-  IsNotEmpty,
-  IsNumberString,
-  IsString,
-  ValidateIf,
-} from 'class-validator'
+import { IsNotEmpty, IsString } from 'class-validator'
 
 export class PaymentNotificationDto {
   @IsString()
@@ -24,7 +19,5 @@ export class PaymentNotificationDto {
   @IsNotEmpty()
   status_code: string
 
-  @IsNumberString()
-  @ValidateIf((_, v) => v)
   custom_field1?: number | string
 }

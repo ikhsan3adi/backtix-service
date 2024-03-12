@@ -35,10 +35,10 @@ export class CreateTicketDto {
   hasImage?: boolean = false
 
   @Transform(dateTimeTransformer)
-  @IsDateString()
+  @IsDateString({ strict: true })
   salesOpenDate: string
 
   @Transform(dateTimeTransformer)
-  @IsDateString()
-  purchaseDeadline: string
+  @IsDateString({ strict: true })
+  purchaseDeadline: string = null
 }

@@ -9,7 +9,6 @@ import {
   IsLongitude,
   IsNotEmpty,
   IsString,
-  ValidateIf,
   ValidateNested,
 } from 'class-validator'
 import {
@@ -28,10 +27,9 @@ export class CreateEventDto {
   @IsNotEmpty()
   date: string
 
-  @ValidateIf((_, v) => v)
   @Transform(dateTimeTransformer)
   @IsDateString({ strict: true })
-  endDate?: string
+  endDate: string = null
 
   @IsString()
   @IsNotEmpty()

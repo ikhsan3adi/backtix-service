@@ -8,7 +8,6 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
-  ValidateIf,
   ValidateNested,
 } from 'class-validator'
 import { objectStringTransformer } from '../../common/helpers/transformers'
@@ -20,7 +19,6 @@ export class TicketPurchase {
   ticketId: string
 
   @IsNumber()
-  @ValidateIf((_, v) => v)
   quantity: number = 1
 }
 
@@ -37,6 +35,5 @@ export class CreateTicketOrderDto {
   })
   @IsEnum(PaymentMethod)
   @IsNotEmpty()
-  @ValidateIf((_, v) => v)
   paymentMethod: PaymentMethod = PaymentMethod.direct
 }
