@@ -80,19 +80,19 @@
 		series: [
 			{
 				name: 'Purchases',
-				data: data.chartData.map((e) => e.purchases),
+				data: data.chartData.map((e) => Math.trunc(e.purchases)),
 				color: '#3CBA5D'
 			},
 			{
 				name: 'Withdraw requests',
-				data: data.chartData.map((e) => e.withdraws),
+				data: data.chartData.map((e) => Math.trunc(e.withdraws)),
 				color: '#4A90E0'
 			}
 		].concat(
 			isNominal
 				? {
 						name: 'Profit',
-						data: data.chartData.map((e) => e.profits),
+						data: data.chartData.map((e) => Math.trunc(e.profits)),
 						color: '#BD4AE0'
 					}
 				: []
@@ -241,7 +241,7 @@
 						<dt class="pb-1 text-base font-normal text-gray-500 dark:text-gray-400">
 							Withdraw requests
 						</dt>
-						<dd class="text-xl font-bold leading-none text-primary-900 dark:text-white">
+						<dd class="text-primary-900 text-xl font-bold leading-none dark:text-white">
 							{data.successfulWithdraw.length}
 						</dd>
 					</dl>
@@ -404,7 +404,7 @@
 				<div class="flex-shrink-0">
 					<a
 						href="/admin/event?status=PUBLISHED"
-						class="inline-flex items-center rounded-lg p-2 text-xs font-medium uppercase text-primary-700 hover:bg-gray-100 sm:text-sm dark:text-primary-500 dark:hover:bg-gray-700"
+						class="text-primary-700 dark:text-primary-500 inline-flex items-center rounded-lg p-2 text-xs font-medium uppercase hover:bg-gray-100 sm:text-sm dark:hover:bg-gray-700"
 					>
 						Events
 						<ChevronRightSolid class="ms-1.5 h-2.5 w-2.5" />
