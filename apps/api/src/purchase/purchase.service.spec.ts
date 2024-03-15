@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { EventService } from '../event/event.service'
+import { NotificationsService } from '../notifications/notifications.service'
 import { PaymentService } from '../payment/payment.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { TicketService } from '../ticket/ticket.service'
@@ -41,7 +42,7 @@ describe('PurchaseService', () => {
           findUniqueOrThrow: findUniqueOrThrowUserMock,
           update: () => {},
         },
-        ticket: { update: () => {} },
+        ticket: { update: () => ({ event: { id: '', name: '' } }) },
       }
 
       const module: TestingModule = await Test.createTestingModule({
@@ -64,6 +65,13 @@ describe('PurchaseService', () => {
             useValue: {
               $transaction: async (callback: (tx: any) => any) =>
                 await callback(mockPrismaClient),
+            },
+          },
+          {
+            provide: NotificationsService,
+            useValue: {
+              createNotification: () => {},
+              sendTicketSalesNotification: () => {},
             },
           },
         ],
@@ -298,7 +306,8 @@ describe('PurchaseService', () => {
         orderId: 'BTx-123',
         eventOwnerId: 'ownerUserId',
         totalRevenue: 10000,
-        balanceDeducted: { buyerUserId: 'user123', amount: 10000 },
+        buyerUserId: 'user123',
+        balanceDeducted: 10000,
       })
     })
   })
@@ -325,7 +334,7 @@ describe('PurchaseService', () => {
           deleteMany: deleteManyPurchaseMock,
         },
         userBalance: { update: () => {} },
-        ticket: { update: () => {} },
+        ticket: { update: () => ({ event: { id: '', name: '' } }) },
       }
 
       const module: TestingModule = await Test.createTestingModule({
@@ -346,6 +355,13 @@ describe('PurchaseService', () => {
             useValue: {
               $transaction: async (callback: (tx: any) => any) =>
                 await callback(mockPrismaClient),
+            },
+          },
+          {
+            provide: NotificationsService,
+            useValue: {
+              createNotification: () => {},
+              sendTicketSalesNotification: () => {},
             },
           },
         ],
@@ -398,10 +414,8 @@ describe('PurchaseService', () => {
         totalRevenue:
           Number(notification.gross_amount) +
           Number(notification.custom_field1),
-        balanceDeducted: {
-          buyerUserId: 'user123',
-          amount: Number(notification.custom_field1),
-        },
+        buyerUserId: 'user123',
+        balanceDeducted: Number(notification.custom_field1),
       })
     })
 
