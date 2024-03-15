@@ -31,9 +31,11 @@ model User {
   longitude         Float?
   locationGeography Unsupported("\"public\".geography")?
 
-  events           Event[]
-  purchases        Purchase[]
-  withdrawRequests WithdrawRequest[]
+  events            Event[]
+  purchases         Purchase[]
+  withdrawRequests  WithdrawRequest[]
+  notifications     Notification[]
+  notificationReads NotificationRead[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -174,4 +176,44 @@ enum WithdrawRequestStatus {
 model WithdrawFee {
   id     Int   @id @default(0)
   amount Float @default(0)
+}
+
+model Notification {
+  id         Int                     @id @default(autoincrement())
+  userId     String? // null if notification is global
+  message    String
+  type       NotificationType        @default(OTHER)
+  entityType NotificationEntityType?
+  entityId   String?
+  createdAt  DateTime                @default(now())
+  updatedAt  DateTime                @updatedAt
+
+  user  User?              @relation(fields: [userId], references: [id])
+  reads NotificationRead[]
+}
+
+enum NotificationType {
+  TICKET_PURCHASE
+  TICKET_SALES
+  WITHDRAW_STATUS
+  OTHER
+}
+
+enum NotificationEntityType {
+  EVENT
+  TICKET
+  PURCHASE
+  WITHDRAW_REQUEST
+}
+
+model NotificationRead {
+  id             Int     @id @default(autoincrement())
+  userId         String
+  notificationId Int
+  isRead         Boolean @default(false)
+
+  notification Notification @relation(fields: [notificationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@unique([userId, notificationId])
 }

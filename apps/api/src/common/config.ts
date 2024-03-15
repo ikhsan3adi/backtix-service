@@ -7,5 +7,6 @@ export const config = {
     ticketPerPage: 20,
     eventWithPurchasesPerPage: 10,
     withdrawRequestPerPage: 30,
+    notificationPerPage: 50,
   },
 }

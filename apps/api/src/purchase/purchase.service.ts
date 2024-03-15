@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid'
 import { config } from '../common/config'
 import { exceptions } from '../common/exceptions/exceptions'
 import { EventService } from '../event/event.service'
+import { NotificationsService } from '../notifications/notifications.service'
 import { PaymentService } from '../payment/payment.service'
 import { TicketService } from '../ticket/ticket.service'
 import { UserEntity } from '../user/entities/user.entity'
@@ -27,6 +28,7 @@ export class PurchaseService {
     private paymentService: PaymentService,
     private ticketService: TicketService,
     private eventService: EventService,
+    private notificationService: NotificationsService,
   ) {
     this.idGenerator = nanoid
   }
@@ -71,9 +73,8 @@ export class PurchaseService {
           eventOwnerId,
           totalRevenue:
             Number(grossAmount) + (balanceUsed ? Number(balanceUsed) : 0),
-          balanceDeducted: balanceUsed
-            ? { buyerUserId: userId, amount: Number(balanceUsed) }
-            : undefined,
+          buyerUserId: userId,
+          balanceDeducted: balanceUsed ? Number(balanceUsed) : undefined,
         })
       }
 
@@ -170,10 +171,8 @@ export class PurchaseService {
               orderId,
               eventOwnerId: ticketPurchases[0].event.userId,
               totalRevenue: TOTAL_PRICE,
-              balanceDeducted: {
-                buyerUserId: user.id,
-                amount: TOTAL_PRICE,
-              },
+              buyerUserId: user.id,
+              balanceDeducted: TOTAL_PRICE,
             })
             return {
               tickets: ticketPurchases.map((e) => ({
@@ -254,17 +253,22 @@ export class PurchaseService {
     orderId: string
     eventOwnerId: string
     totalRevenue: number
-    balanceDeducted?: {
-      buyerUserId: string
-      amount: number
-    }
+    buyerUserId: string
+    balanceDeducted?: number
   }) {
-    const { tx, orderId, eventOwnerId, totalRevenue, balanceDeducted } = params
+    const {
+      tx,
+      orderId,
+      eventOwnerId,
+      totalRevenue,
+      balanceDeducted,
+      buyerUserId,
+    } = params
     // user balance deduction (if any)
     if (balanceDeducted) {
       await tx.userBalance.update({
-        where: { userId: balanceDeducted.buyerUserId },
-        data: { balance: { decrement: balanceDeducted.amount } },
+        where: { userId: buyerUserId },
+        data: { balance: { decrement: balanceDeducted } },
       })
     }
     // change purchase status to completed & get ticket ids
@@ -279,9 +283,9 @@ export class PurchaseService {
       }),
     ])
 
-    // remove duplicate ids & reduce current ticket stock
-    await Promise.all(
-      [...new Set(ticketIds.map((e) => e.ticketId))].map((uniqueId) =>
+    const [{ event }] = await Promise.all([
+      // remove duplicate ids & reduce current ticket stock
+      ...[...new Set(ticketIds.map((e) => e.ticketId))].map((uniqueId, i) =>
         tx.ticket.update({
           where: { id: uniqueId },
           data: {
@@ -291,14 +295,43 @@ export class PurchaseService {
               ).length,
             },
           },
+          include:
+            i === 0
+              ? { event: { select: { name: true, id: true } } }
+              : undefined,
         }),
       ),
-    )
-    // event owner earns revenue
-    await tx.userBalance.update({
-      where: { userId: eventOwnerId },
-      data: { revenue: { increment: totalRevenue } },
-    })
+    ])
+
+    await Promise.all([
+      // event owner earns revenue
+      tx.userBalance.update({
+        where: { userId: eventOwnerId },
+        data: { revenue: { increment: totalRevenue } },
+      }),
+      // send buyer notification
+      this.notificationService.createNotification({
+        userId: buyerUserId,
+        message: `You have successfully purchased ${
+          ticketIds.length
+        } ticket(s) for the event "${event.name
+          .substring(0, 32)
+          .trim()}". Order ID: ${orderId}`,
+        type: 'TICKET_PURCHASE',
+        entityType: 'EVENT',
+        entityId: event.id,
+      }),
+      // send event owner notification
+      this.notificationService.sendTicketSalesNotification({
+        userId: eventOwnerId,
+        message: `${ticketIds.length} "${event.name
+          .substring(0, 32)
+          .trim()}" ticket(s) have been sold`,
+        type: 'TICKET_SALES',
+        entityType: 'EVENT',
+        entityId: event.id,
+      }),
+    ])
   }
 
   compareSignatureKey(notification: PaymentNotificationDto) {
