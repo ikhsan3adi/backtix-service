@@ -28,6 +28,7 @@ import { PaymentService } from './payment/payment.service'
 import { PurchaseModule } from './purchase/purchase.module'
 import { TicketModule } from './ticket/ticket.module'
 import { UserModule } from './user/user.module'
+import { NotificationsModule } from './notifications/notifications.module'
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { UserModule } from './user/user.module'
     TicketModule,
     PurchaseModule,
     BalanceModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,5 +1,6 @@
 import type { $Enums } from '@prisma/client'
 import { fail } from '@sveltejs/kit'
+import { defaultCurrencyFormatter } from '../../../lib/formatter/currency.formatter'
 import type { Actions, PageServerLoad } from './$types'
 
 const perPage = 20
@@ -27,10 +28,12 @@ export const actions: Actions = {
 				id: string
 			}
 
-			await prisma.withdrawRequest.update({
+			const withdrawRequest = await prisma.withdrawRequest.update({
 				where: { id },
 				data: { status: 'COMPLETED' }
 			})
+
+			await sendNotification(withdrawRequest)
 
 			return { success: true, message: 'Successful confirmation' }
 		} catch (e) {
@@ -45,22 +48,27 @@ export const actions: Actions = {
 				id: string
 			}
 
-			await prisma.$transaction(async (tx) => {
-				const withdrawalFee = (await tx.withdrawFee.findFirst({ where: { id: 0 } })).amount ?? 0
-
-				const { userId, from, amount } = await tx.withdrawRequest.update({
-					where: { id },
-					data: { status: 'REJECTED' }
-				})
+			const withdrawRequest = await prisma.$transaction(async (tx) => {
+				const [{ amount: withdrawalFee }, wd] = await Promise.all([
+					tx.withdrawFee.findFirst({ where: { id: 0 } }),
+					tx.withdrawRequest.update({
+						where: { id },
+						data: { status: 'REJECTED' }
+					})
+				])
 
 				await tx.userBalance.update({
-					where: { userId },
+					where: { userId: wd.userId },
 					data:
-						from === 'BALANCE'
-							? { balance: { increment: amount + withdrawalFee } }
-							: { revenue: { increment: amount + withdrawalFee } }
+						wd.from === 'BALANCE'
+							? { balance: { increment: wd.amount + withdrawalFee } }
+							: { revenue: { increment: wd.amount + withdrawalFee } }
 				})
+
+				return wd
 			})
+
+			await sendNotification(withdrawRequest)
 
 			return { success: true, message: 'Successfully resisted withdrawal' }
 		} catch (e) {
@@ -75,18 +83,18 @@ export const actions: Actions = {
 				id: string
 			}
 
-			await prisma.$transaction(async (tx) => {
+			const withdrawRequest = await prisma.$transaction(async (tx) => {
 				const withdrawalFee = (await prisma.withdrawFee.findFirst({ where: { id: 0 } })).amount ?? 0
 
 				const { status } = await tx.withdrawRequest.findUniqueOrThrow({
 					where: { id },
 					select: { status: true }
 				})
-				const { userId, from, amount } = await tx.withdrawRequest.update({
+				const wd = await tx.withdrawRequest.update({
 					where: { id },
 					data: { status: 'PENDING' }
 				})
-
+				const { userId, from, amount } = wd
 				if (status === 'REJECTED') {
 					const { balance, revenue } = await tx.userBalance.findUniqueOrThrow({
 						where: { userId },
@@ -105,7 +113,11 @@ export const actions: Actions = {
 						})
 					}
 				}
+
+				return wd
 			})
+
+			await sendNotification(withdrawRequest)
 
 			return { success: true, message: 'Successfully undo withdrawal status' }
 		} catch (e) {
@@ -114,4 +126,28 @@ export const actions: Actions = {
 			return fail(500, { success: false, message: 'Unknown error' })
 		}
 	}
+}
+
+async function sendNotification(params: {
+	userId: string
+	amount: number
+	id: string
+	from: string
+	method: string
+	status: string
+}) {
+	const { userId, amount, id, method, from, status } = params
+
+	return await prisma.notification.create({
+		data: {
+			userId,
+			message: `Withdraw: ${method} ${defaultCurrencyFormatter.format(
+				amount
+			)} from ${from}. Status: ${status}`,
+			type: 'WITHDRAW_STATUS',
+			entityType: 'WITHDRAW_REQUEST',
+			entityId: id,
+			reads: { create: { userId } }
+		}
+	})
 }
