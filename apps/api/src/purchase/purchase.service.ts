@@ -53,7 +53,7 @@ export class PurchaseService {
     )
 
     return await this.purchaseRepository.createTransactions(async (tx) => {
-      const completeSuccessTicketOrder = async () => {
+      const completeOrder = async () => {
         const {
           ticket: {
             event: { userId: eventOwnerId },
@@ -79,9 +79,9 @@ export class PurchaseService {
       }
 
       if (transactionStatus === 'capture' && fraudStatus === 'accept') {
-        await completeSuccessTicketOrder()
+        await completeOrder()
       } else if (transactionStatus === 'settlement') {
-        await completeSuccessTicketOrder()
+        await completeOrder()
       } else if (
         transactionStatus === 'cancel' ||
         transactionStatus === 'deny' ||
