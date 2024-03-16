@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -6,6 +7,8 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { exceptions } from '../../common/exceptions/exceptions'
+import { EventRepository } from '../../event/event.repository'
+import { NotificationsService } from '../../notifications/notifications.service'
 import { UserEntity } from '../../user/entities/user.entity'
 import { PurchaseRepository } from '../purchase.repository'
 import { PurchaseService } from '../purchase.service'
@@ -15,9 +18,13 @@ export class PurchaseRefundService {
   constructor(
     private purchaseRepository: PurchaseRepository,
     private purchaseService: PurchaseService,
+    private eventRepository: EventRepository,
+    private notificationsService: NotificationsService,
   ) {}
 
-  async refundTicketOrder(user: UserEntity, uid: string) {
+  async refundTicketOrder(user: UserEntity, uid: string, eventId: string) {
+    if (!eventId) throw new BadRequestException()
+
     const purchase = await this.purchaseRepository.findOne({
       where: {
         uid,
@@ -26,16 +33,29 @@ export class PurchaseRefundService {
         status: 'COMPLETED',
         used: false,
       },
+      include: { user: true },
     })
 
     if (!purchase) throw new NotFoundException(exceptions.PURCHASE.NOT_FOUND)
 
     try {
-      return await this.purchaseRepository.update({
-        where: { uid },
-        data: { refundStatus: 'REFUNDING' },
-        include: { ticket: true },
+      const [updatedPurchase, { userId }] = await Promise.all([
+        this.purchaseRepository.update({
+          where: { uid },
+          data: { refundStatus: 'REFUNDING' },
+          include: { ticket: true },
+        }),
+        this.eventRepository.findOne({ where: { id: eventId } }),
+      ])
+      /// send notification to event owner
+      this.notificationsService.createNotification({
+        userId,
+        message: `User @${purchase.user.username} requests a ticket refund. Ticket: "${updatedPurchase.ticket.name}"`,
+        type: 'TICKET_REFUND_REQUEST',
+        entityType: 'EVENT',
+        entityId: updatedPurchase.ticket.eventId,
       })
+      return updatedPurchase
     } catch (e) {
       console.error(e)
       throw new InternalServerErrorException(e)
@@ -64,14 +84,23 @@ export class PurchaseRefundService {
 
         if (!purchase) throw new NotAcceptableException()
 
-        await tx.ticket.update({
-          where: { id: purchase.ticketId },
-          data: { currentStock: { increment: 1 } },
-        })
-
-        await tx.userBalance.update({
-          where: { userId: applicantUserId },
-          data: { balance: { increment: purchase.price } },
+        await Promise.all([
+          tx.ticket.update({
+            where: { id: purchase.ticketId },
+            data: { currentStock: { increment: 1 } },
+          }),
+          tx.userBalance.update({
+            where: { userId: applicantUserId },
+            data: { balance: { increment: purchase.price } },
+          }),
+        ])
+        /// send notification to buyer
+        this.notificationsService.createNotification({
+          userId: applicantUserId,
+          message: `(Approved) Ticket refund request "${purchase.ticket.name}". Price: ${purchase.price} ${purchase.refundStatus}`,
+          type: 'TICKET_REFUND_STATUS',
+          entityType: 'EVENT',
+          entityId: purchase.ticket.eventId,
         })
 
         return purchase
@@ -99,6 +128,16 @@ export class PurchaseRefundService {
           include: { ticket: true },
         })
         if (!purchase) throw new NotAcceptableException()
+
+        /// send notification to buyer
+        this.notificationsService.createNotification({
+          userId: applicantUserId,
+          message: `(Rejected) Ticket refund request "${purchase.ticket.name}". Price: ${purchase.price} ${purchase.refundStatus}`,
+          type: 'TICKET_REFUND_STATUS',
+          entityType: 'EVENT',
+          entityId: purchase.ticket.eventId,
+        })
+
         return purchase
       })
     } catch (e) {

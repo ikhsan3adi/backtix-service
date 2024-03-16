@@ -35,9 +35,13 @@ export class PurchaseController {
 
   @ApiOperation({ summary: 'Request ticket refund/cancel' })
   @Post(':uid/refund')
-  async refundTicketOrder(@User() user: UserEntity, @Param('uid') uid: string) {
+  async refundTicketOrder(
+    @User() user: UserEntity,
+    @Param('uid') uid: string,
+    @Query('eventId') eventId: string,
+  ) {
     return new PurchaseEntity(
-      await this.refundService.refundTicketOrder(user, uid),
+      await this.refundService.refundTicketOrder(user, uid, eventId),
     )
   }
 
