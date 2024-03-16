@@ -20,6 +20,7 @@ export class NotificationsService {
           ? { gte: isNaN(Date.parse(from)) ? undefined : new Date(from) }
           : undefined,
       },
+      orderBy: { updatedAt: 'desc' },
       include: { reads: { where: { userId: user.id } } },
       skip: isNaN(page) ? 0 : page * this.perPage,
       take: this.perPage,
@@ -34,6 +35,7 @@ export class NotificationsService {
           ? { gte: isNaN(Date.parse(from)) ? undefined : new Date(from) }
           : undefined,
       },
+      orderBy: { updatedAt: 'desc' },
       include: { reads: { where: { userId: user.id } } },
       skip: isNaN(page) ? 0 : page * this.perPage,
       take: this.perPage,
@@ -96,9 +98,15 @@ export class NotificationsService {
     })
   }
 
-  async readAllNotification(user: UserEntity) {
+  async readAllNotification(user: UserEntity, type?: 'IMPORTANT' | 'INFO') {
     await this.prismaService.notificationRead.updateMany({
-      where: { userId: user.id, isRead: false },
+      where: {
+        userId: user.id,
+        isRead: false,
+        notification: type
+          ? { userId: type === 'IMPORTANT' ? user.id : null }
+          : undefined,
+      },
       data: { isRead: true },
     })
     return { message: 'success' }

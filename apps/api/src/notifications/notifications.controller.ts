@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Query } from '@nestjs/common'
+import { Controller, Get, Param, Patch, Query } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { User } from '../user/decorators/user.decorator'
 import { UserEntity } from '../user/entities/user.entity'
@@ -33,8 +33,11 @@ export class NotificationsController {
   }
 
   @Patch('read')
-  async readAllNotification(@User() user: UserEntity) {
-    return await this.notificationsService.readAllNotification(user)
+  async readAllNotification(
+    @User() user: UserEntity,
+    @Query('type') type?: 'IMPORTANT' | 'INFO',
+  ) {
+    return await this.notificationsService.readAllNotification(user, type)
   }
 
   @Patch('/:id/read')
