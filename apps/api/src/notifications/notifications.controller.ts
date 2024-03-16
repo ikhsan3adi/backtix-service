@@ -38,7 +38,7 @@ export class NotificationsController {
   }
 
   @Patch('/:id/read')
-  async readNotification(@User() user: UserEntity, id: number) {
+  async readNotification(@User() user: UserEntity, @Param('id') id: number) {
     return await this.notificationsService.readNotification(user, id)
   }
 }
