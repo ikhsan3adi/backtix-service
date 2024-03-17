@@ -303,35 +303,26 @@ export class PurchaseService {
       ),
     ])
 
-    await Promise.all([
-      // event owner earns revenue
-      tx.userBalance.update({
-        where: { userId: eventOwnerId },
-        data: { revenue: { increment: totalRevenue } },
-      }),
-      // send buyer notification
-      this.notificationService.createNotification({
-        userId: buyerUserId,
-        message: `You have successfully purchased ${
-          ticketIds.length
-        } ticket(s) for the event "${event.name
-          .substring(0, 32)
-          .trim()}". Order ID: ${orderId}`,
-        type: 'TICKET_PURCHASE',
-        entityType: 'EVENT',
-        entityId: event.id,
-      }),
-      // send event owner notification
-      this.notificationService.sendTicketSalesNotification({
-        userId: eventOwnerId,
-        message: `${ticketIds.length} "${event.name
-          .substring(0, 32)
-          .trim()}" ticket(s) have been sold`,
-        type: 'TICKET_SALES',
-        entityType: 'EVENT',
-        entityId: event.id,
-      }),
-    ])
+    // event owner earns revenue
+    await tx.userBalance.update({
+      where: { userId: eventOwnerId },
+      data: { revenue: { increment: totalRevenue } },
+    })
+
+    // send buyer notification
+    this.notificationService.createNotification({
+      userId: buyerUserId,
+      message: `You have successfully purchased ${
+        ticketIds.length
+      } ticket(s) for the event "${event.name
+        .substring(0, 32)
+        .trim()}". Order ID: ${orderId}`,
+      type: 'TICKET_PURCHASE',
+      entityType: 'EVENT',
+      entityId: event.id,
+    })
+    // send event owner notification
+    this.notificationService.sendTicketSalesNotification(eventOwnerId, event)
   }
 
   compareSignatureKey(notification: PaymentNotificationDto) {

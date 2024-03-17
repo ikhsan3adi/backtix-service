@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { config } from '../common/config'
+import { EventEntity } from '../event/entities/event.entity'
 import { PrismaService } from '../prisma/prisma.service'
 import { UserEntity } from '../user/entities/user.entity'
 import { CreateNotificationDto } from './dto/create-notification.dto'
@@ -97,7 +98,27 @@ export class NotificationsService {
     })
   }
 
-  async sendTicketSalesNotification(dto: CreateNotificationDto) {
+  async sendTicketSalesNotification(
+    eventOwnerId: string,
+    event: Partial<EventEntity>,
+  ) {
+    const sold = await this.prismaService.purchase.count({
+      where: {
+        ticket: { eventId: event.id },
+        status: 'COMPLETED',
+      },
+    })
+
+    const dto = new CreateNotificationDto({
+      userId: eventOwnerId,
+      message: `${sold} "${event.name
+        .substring(0, 32)
+        .trim()}" ticket(s) have been sold`,
+      type: 'TICKET_SALES',
+      entityType: 'EVENT',
+      entityId: event.id,
+    })
+
     const notification = await this.prismaService.notification.findFirst({
       where: {
         AND: {
@@ -111,8 +132,22 @@ export class NotificationsService {
 
     return await this.prismaService.notification.upsert({
       where: { id: notification?.id ?? -1 },
-      create: dto,
-      update: dto,
+      create: { ...dto, reads: { create: { userId: dto.userId } } },
+      update: {
+        ...dto,
+        reads: {
+          upsert: {
+            create: { userId: dto.userId },
+            update: { userId: dto.userId, isRead: false },
+            where: {
+              userId_notificationId: {
+                notificationId: notification?.id ?? -1,
+                userId: dto.userId,
+              },
+            },
+          },
+        },
+      },
     })
   }
 
