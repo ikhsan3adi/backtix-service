@@ -12,33 +12,51 @@ export class NotificationsService {
 
   perPage: number
 
-  async findAllImportant(user: UserEntity, page: number = 0, from?: string) {
+  async findAllImportant(
+    user: UserEntity,
+    page: number = 0,
+    skip?: number,
+    from?: string,
+    to?: string,
+  ) {
     return await this.prismaService.notification.findMany({
       where: {
         userId: user.id,
         updatedAt: from
-          ? { gte: isNaN(Date.parse(from)) ? undefined : new Date(from) }
+          ? {
+              gte: isNaN(Date.parse(from)) ? undefined : new Date(from),
+              lte: isNaN(Date.parse(to)) ? undefined : new Date(to),
+            }
           : undefined,
       },
       orderBy: { updatedAt: 'desc' },
       include: { reads: { where: { userId: user.id } } },
-      skip: isNaN(page) ? 0 : page * this.perPage,
-      take: this.perPage,
+      skip: skip ? skip : isNaN(page) ? 0 : page * this.perPage,
+      take: from ? undefined : this.perPage,
     })
   }
 
-  async findAllInfo(user: UserEntity, page: number = 0, from?: string) {
+  async findAllInfo(
+    user: UserEntity,
+    page: number = 0,
+    skip?: number,
+    from?: string,
+    to?: string,
+  ) {
     return await this.prismaService.notification.findMany({
       where: {
         userId: null,
         updatedAt: from
-          ? { gte: isNaN(Date.parse(from)) ? undefined : new Date(from) }
+          ? {
+              gte: isNaN(Date.parse(from)) ? undefined : new Date(from),
+              lte: isNaN(Date.parse(to)) ? undefined : new Date(to),
+            }
           : undefined,
       },
       orderBy: { updatedAt: 'desc' },
       include: { reads: { where: { userId: user.id } } },
-      skip: isNaN(page) ? 0 : page * this.perPage,
-      take: this.perPage,
+      skip: skip ? skip : isNaN(page) ? 0 : page * this.perPage,
+      take: from ? undefined : this.perPage,
     })
   }
 

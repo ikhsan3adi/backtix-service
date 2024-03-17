@@ -13,23 +13,33 @@ export class NotificationsController {
   @Get()
   async findAllImportantByUserId(
     @Query('page') page: number,
+    @Query('skip') skip: number,
     @Query('from') from: string,
+    @Query('to') to: string,
     @User() user: UserEntity,
   ) {
     return (
-      await this.notificationsService.findAllImportant(user, page, from)
+      await this.notificationsService.findAllImportant(
+        user,
+        page,
+        skip,
+        from,
+        to,
+      )
     ).map((e) => new NotificationEntity(e))
   }
 
   @Get('info')
   async findAllInfo(
     @Query('page') page: number,
+    @Query('skip') skip: number,
     @Query('from') from: string,
+    @Query('to') to: string,
     @User() user: UserEntity,
   ) {
-    return (await this.notificationsService.findAllInfo(user, page, from)).map(
-      (e) => new NotificationEntity(e),
-    )
+    return (
+      await this.notificationsService.findAllInfo(user, page, skip, from, to)
+    ).map((e) => new NotificationEntity(e))
   }
 
   @Patch('read')
