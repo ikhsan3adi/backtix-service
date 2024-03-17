@@ -89,13 +89,13 @@ async function getChartData(dateRange = 7, type: 'count' | 'value') {
 						const [purchases, withdraws] = await Promise.all([
 							prisma.purchase.count({
 								where: {
-									createdAt: { gte: current, lt: next },
+									updatedAt: { gte: current, lt: next },
 									status: 'COMPLETED'
 								}
 							}),
 							prisma.withdrawRequest.count({
 								where: {
-									createdAt: { gte: current, lt: next },
+									updatedAt: { gte: current, lt: next },
 									status: 'COMPLETED'
 								}
 							})
@@ -103,37 +103,29 @@ async function getChartData(dateRange = 7, type: 'count' | 'value') {
 
 						return { date: shortDateTimeFormatter.format(current), purchases, withdraws }
 					} else {
-						const [purchases, withdraws, profits] = await Promise.all([
-							prisma.purchase
-								.findMany({
-									where: {
-										createdAt: { gte: current, lt: next },
-										status: 'COMPLETED'
-									},
-									select: { price: true }
-								})
-								.then((v) => v.map((v) => v.price ?? 0).reduce((p, c) => p + c, 0)),
-							prisma.withdrawRequest
-								.findMany({
-									where: {
-										createdAt: { gte: current, lt: next },
-										status: 'COMPLETED'
-									},
-									select: { amount: true }
-								})
-								.then((v) => v.map((v) => v.amount ?? 0).reduce((p, c) => p + c, 0)),
-							prisma.withdrawRequest
-								.findMany({
-									where: {
-										createdAt: { gte: current, lt: next },
-										status: 'COMPLETED'
-									},
-									select: { fee: true }
-								})
-								.then((v) => v.map((v) => v.fee ?? 0).reduce((p, c) => p + c, 0))
+						const [purchases, withdraws] = await Promise.all([
+							prisma.purchase.aggregate({
+								where: {
+									updatedAt: { gte: current, lt: next },
+									status: 'COMPLETED'
+								},
+								_sum: { price: true }
+							}),
+							prisma.withdrawRequest.aggregate({
+								where: {
+									updatedAt: { gte: current, lt: next },
+									status: 'COMPLETED'
+								},
+								_sum: { amount: true, fee: true }
+							})
 						])
 
-						return { date: shortDateTimeFormatter.format(current), purchases, withdraws, profits }
+						return {
+							date: shortDateTimeFormatter.format(current),
+							purchases: purchases._sum.price,
+							withdraws: withdraws._sum.amount,
+							profits: withdraws._sum.fee
+						}
 					}
 				})
 		)

@@ -126,20 +126,22 @@ export class PurchaseService {
             where: { id: ticketPurchases[0].event.userId },
             select: { username: true },
           }),
-          ...ticketPurchases.map((t) =>
-            tx.purchase.createMany({
-              data: Array.from(
-                { length: t.quantity },
-                (): Prisma.PurchaseCreateManyInput => ({
-                  orderId,
-                  ticketId: t.id,
-                  price: t.price,
-                  status: 'PENDING',
-                  userId: user.id,
-                }),
-              ),
-            }),
-          ),
+          tx.purchase.createMany({
+            data: ticketPurchases
+              .map((t) => {
+                return Array.from(
+                  { length: t.quantity },
+                  (): Prisma.PurchaseCreateManyInput => ({
+                    orderId,
+                    ticketId: t.id,
+                    price: t.price,
+                    status: 'PENDING',
+                    userId: user.id,
+                  }),
+                )
+              })
+              .flat(),
+          }),
         ])
 
         const customerFullnameSplitted = user.fullname.split(' ')
