@@ -16,7 +16,8 @@ export const load = (async ({ url }) => {
 		},
 		include: { user: true },
 		skip: page * perPage,
-		take: perPage
+		take: perPage,
+		orderBy: { updatedAt: 'desc' }
 	})
 
 	return { events, status, deleted, page }

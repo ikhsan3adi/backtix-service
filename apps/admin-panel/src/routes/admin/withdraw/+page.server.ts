@@ -13,7 +13,8 @@ export const load = (async ({ url }) => {
 		where: { status: status ?? undefined },
 		include: { user: true },
 		skip: page * perPage,
-		take: perPage
+		take: perPage,
+		orderBy: { updatedAt: 'desc' }
 	})
 
 	const withdrawalFee = (await prisma.withdrawFee.findFirst({ where: { id: 0 } })).amount ?? 0
