@@ -1,3 +1,4 @@
+import { sendEventStatusNotification } from '$lib/server/notification-sender'
 import type { $Enums } from '@prisma/client'
 import { redirect } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
@@ -36,6 +37,8 @@ export const actions: Actions = {
 			data: { status: 'PUBLISHED' }
 		})
 
+		sendNotifications(eventIds, 'PUBLISHED')
+
 		redirect(303, '/admin/event?status=PUBLISHED')
 	},
 
@@ -51,6 +54,30 @@ export const actions: Actions = {
 			data: { status: 'REJECTED' }
 		})
 
+		sendNotifications(eventIds, 'REJECTED')
+
 		redirect(303, '/admin/event?status=REJECTED')
 	}
+}
+
+/** send bulk notifications */
+async function sendNotifications(eventIds: string[], status: $Enums.EventStatus) {
+	const events = await prisma.event.findMany({
+		where: {
+			id: { in: eventIds },
+			status
+		},
+		select: { id: true, name: true, userId: true }
+	})
+
+	Promise.all(
+		events.map(({ id, name, userId }) =>
+			sendEventStatusNotification({
+				eventId: id,
+				userId,
+				eventName: name,
+				status
+			})
+		)
+	)
 }

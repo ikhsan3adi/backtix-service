@@ -1,4 +1,5 @@
 import { eventImageUrl, ticketImageUrl, userImageUrl } from '$lib/config'
+import { sendEventStatusNotification } from '$lib/server/notification-sender'
 import { redirect } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
 
@@ -50,9 +51,21 @@ export const actions: Actions = {
 			id: string
 		}
 
-		await prisma.event.update({
+		const {
+			id: eventId,
+			name,
+			userId
+		} = await prisma.event.update({
 			where: { id },
-			data: { status: 'PUBLISHED' }
+			data: { status: 'PUBLISHED' },
+			select: { id: true, name: true, userId: true }
+		})
+
+		sendEventStatusNotification({
+			eventId,
+			userId,
+			eventName: name,
+			status: 'PUBLISHED'
 		})
 
 		redirect(303, '/admin/event?status=PUBLISHED')
@@ -63,9 +76,20 @@ export const actions: Actions = {
 			id: string
 		}
 
-		await prisma.event.update({
+		const {
+			id: eventId,
+			name,
+			userId
+		} = await prisma.event.update({
 			where: { id },
 			data: { status: 'REJECTED' }
+		})
+
+		sendEventStatusNotification({
+			eventId,
+			userId,
+			eventName: name,
+			status: 'REJECTED'
 		})
 
 		redirect(303, '/admin/event?status=REJECTED')
