@@ -1,6 +1,6 @@
+import { sendWithdrawRequestNotification } from '$lib/server/notification-sender'
 import type { $Enums } from '@prisma/client'
 import { fail } from '@sveltejs/kit'
-import { defaultCurrencyFormatter } from '../../../lib/formatter/currency.formatter'
 import type { Actions, PageServerLoad } from './$types'
 
 const perPage = 20
@@ -34,7 +34,7 @@ export const actions: Actions = {
 				data: { status: 'COMPLETED' }
 			})
 
-			await sendNotification(withdrawRequest)
+			await sendWithdrawRequestNotification(withdrawRequest)
 
 			return { success: true, message: 'Successful confirmation' }
 		} catch (e) {
@@ -69,7 +69,7 @@ export const actions: Actions = {
 				return wd
 			})
 
-			await sendNotification(withdrawRequest)
+			await sendWithdrawRequestNotification(withdrawRequest)
 
 			return { success: true, message: 'Successfully resisted withdrawal' }
 		} catch (e) {
@@ -118,7 +118,7 @@ export const actions: Actions = {
 				return wd
 			})
 
-			await sendNotification(withdrawRequest)
+			await sendWithdrawRequestNotification(withdrawRequest)
 
 			return { success: true, message: 'Successfully undo withdrawal status' }
 		} catch (e) {
@@ -127,28 +127,4 @@ export const actions: Actions = {
 			return fail(500, { success: false, message: 'Unknown error' })
 		}
 	}
-}
-
-async function sendNotification(params: {
-	userId: string
-	amount: number
-	id: string
-	from: string
-	method: string
-	status: string
-}) {
-	const { userId, amount, id, method, from, status } = params
-
-	return await prisma.notification.create({
-		data: {
-			userId,
-			message: `Withdraw: ${method} ${defaultCurrencyFormatter.format(
-				amount
-			)} from ${from}. Status: ${status}`,
-			type: 'WITHDRAW_STATUS',
-			entityType: 'WITHDRAW_REQUEST',
-			entityId: id,
-			reads: { create: { userId } }
-		}
-	})
 }
