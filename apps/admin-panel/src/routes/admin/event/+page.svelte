@@ -168,7 +168,7 @@
 			<Checkbox bind:group={selectAll}></Checkbox>
 		</TableHeadCell>
 		<TableHeadCell padding="pl-0">Event Name</TableHeadCell>
-		<TableHeadCell>Location</TableHeadCell>
+		<TableHeadCell padding="px-2">Location</TableHeadCell>
 		<TableHeadCell>Owner</TableHeadCell>
 		<TableHeadCell>Event Date</TableHeadCell>
 		<TableHeadCell>Date Created</TableHeadCell>
@@ -183,11 +183,11 @@
 						<Checkbox value={event.id} bind:group={selected}></Checkbox>
 					</TableBodyCell>
 					<TableBodyCell tdClass="pl-0">{event.name}</TableBodyCell>
-					<TableBodyCell>
+					<TableBodyCell tdClass="px-2 max-w-64">
 						{#if event.location}
 							<A
 								href={`https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}`}
-								aClass="underline"
+								aClass="underline line-clamp-3"
 								color="blue"
 							>
 								{event.location}

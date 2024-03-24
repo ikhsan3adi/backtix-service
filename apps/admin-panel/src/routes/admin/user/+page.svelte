@@ -145,7 +145,7 @@
 		<TableHeadCell>Email</TableHeadCell>
 		<TableHeadCell padding="px-0">Activated?</TableHeadCell>
 		<TableHeadCell>Groups</TableHeadCell>
-		<TableHeadCell>Location</TableHeadCell>
+		<TableHeadCell padding="px-2">Location</TableHeadCell>
 		<TableHeadCell>Date Created</TableHeadCell>
 		<TableHeadCell>Action</TableHeadCell>
 	</TableHead>
@@ -174,11 +174,11 @@
 							{/each}
 						</div>
 					</TableBodyCell>
-					<TableBodyCell>
+					<TableBodyCell tdClass="px-2 max-w-64">
 						{#if user.location}
 							<A
 								href={`https://www.google.com/maps/search/?api=1&query=${user.latitude},${user.longitude}`}
-								aClass="underline"
+								aClass="underline line-clamp-3"
 								color="blue"
 							>
 								{user.location}
