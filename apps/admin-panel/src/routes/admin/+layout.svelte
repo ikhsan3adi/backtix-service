@@ -99,7 +99,7 @@
 			>
 				<BarsSolid />
 			</Button>
-			<NavBrand href="#" class="ml-4 md:ml-0">
+			<NavBrand href={site.href} class="ml-4 md:ml-0">
 				<img src={site.img} class="me-3 h-6 sm:h-9" alt={site.imgAlt} />
 				<span
 					class="hidden self-center whitespace-nowrap pl-4 text-xl font-semibold sm:block dark:text-white"
