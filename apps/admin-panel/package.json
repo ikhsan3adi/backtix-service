@@ -14,7 +14,8 @@
 		"format": "prettier --write .",
 		"test:integration": "playwright test",
 		"test:unit": "vitest --run",
-		"test:unit:watch": "vitest"
+		"test:unit:watch": "vitest",
+		"start:noenv": "HOST=0.0.0.0 PORT=3001 ts-node ./build"
 	},
 	"dependencies": {
 		"dotenv": "^16.3.1",

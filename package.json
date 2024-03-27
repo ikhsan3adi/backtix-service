@@ -11,7 +11,8 @@
     "admin:build": "npm run build --workspace=@backtix-service/admin-panel",
     "admin:preview": "npm run preview --workspace=@backtix-service/admin-panel",
     "admin:start": "npm run start --workspace=@backtix-service/admin-panel",
-    "db:seed": "ts-node prisma/seed.ts"
+    "db:seed": "ts-node prisma/seed.ts",
+    "start:conc": "concurrently \"npm start\" \"npm run admin:build && npm run start:noenv --workspace=@backtix-service/admin-panel\""
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@ts-safeql/eslint-plugin": "^2.0.3",
+    "concurrently": "^8.2.2",
     "cpx": "^1.5.0",
     "prisma": "^5.7.1"
   },
