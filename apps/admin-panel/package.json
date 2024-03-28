@@ -5,6 +5,7 @@
 	"scripts": {
 		"start": "ts-node -r dotenv/config ./build",
 		"dev": "vite dev",
+		"dev:host": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "npm run test:unit",

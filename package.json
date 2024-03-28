@@ -8,6 +8,7 @@
     "start": "npm run start:prod --workspace=@backtix-service/api",
     "start:dev": "npm run start:dev --workspace=@backtix-service/api",
     "admin:dev": "npm run dev --workspace=@backtix-service/admin-panel",
+    "admin:dev:host": "npm run dev:host --workspace=@backtix-service/admin-panel",
     "admin:build": "npm run build --workspace=@backtix-service/admin-panel",
     "admin:preview": "npm run preview --workspace=@backtix-service/admin-panel",
     "admin:start": "npm run start --workspace=@backtix-service/admin-panel",
