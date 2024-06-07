@@ -40,7 +40,7 @@
     "handlebars": "^4.7.8",
     "helmet": "^7.1.0",
     "nanoid": "^3.3.7",
-    "nodemailer": "^6.9.7",
+    "nodemailer": "^6.9.9",
     "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
