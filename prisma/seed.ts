@@ -17,8 +17,10 @@ async function main() {
   }
 
   await prisma.user
-    .create({
-      data: { ...data, password: await hash(data.password, 10) },
+    .upsert({
+      where: { email: data.email },
+      update: {},
+      create: { ...data, password: await hash(data.password, 10) },
     })
     .then((superadmin) => {
       console.info({
@@ -29,7 +31,7 @@ async function main() {
     })
 
   await prisma.withdrawFee
-    .create({ data: { id: 0, amount: 2500 } })
+    .upsert({ where: { id: 0 }, update: {}, create: { id: 0, amount: 2500 } })
     .then((fee) => console.info(fee))
 }
 
