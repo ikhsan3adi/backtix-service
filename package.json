@@ -28,8 +28,11 @@
   },
   "devDependencies": {
     "@ts-safeql/eslint-plugin": "^5.4.1",
+    "@typescript-eslint/eslint-plugin": "^8.66.0",
+    "@typescript-eslint/parser": "^8.66.0",
     "concurrently": "^8.2.2",
     "cpx": "^1.5.0",
+    "eslint": "^9.0.0",
     "prisma": "^5.7.1"
   },
   "prisma": {
