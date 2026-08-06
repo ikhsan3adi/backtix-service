@@ -7,8 +7,7 @@ import {
 } from '@nestjs/common'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { MulterModule } from '@nestjs/platform-express'
-import { redisStore } from 'cache-manager-redis-yet'
-import type { RedisClientOptions } from 'redis'
+import KeyvRedis from '@keyv/redis'
 import { config } from './common/config'
 import { LoggerMiddleware } from './common/utils/logger'
 
@@ -32,15 +31,11 @@ import { NotificationsModule } from './notifications/notifications.module'
 
 @Module({
   imports: [
-    CacheModule.register<RedisClientOptions>({
+    CacheModule.register({
       isGlobal: true,
-      store: async () =>
-        await redisStore({
-          socket: {
-            host: config.redis.host,
-            port: config.redis.port,
-          },
-        }),
+      stores: [
+        new KeyvRedis(`redis://${config.redis.host}:${config.redis.port}`),
+      ],
     }),
     MulterModule.register(),
     AuthModule,

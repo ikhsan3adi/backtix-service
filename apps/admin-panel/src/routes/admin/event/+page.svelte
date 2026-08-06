@@ -19,7 +19,7 @@
 		TableHead,
 		TableHeadCell
 	} from 'flowbite-svelte'
-	import { CalendarMonthSolid, CheckSolid, ExclamationCircleOutline } from 'flowbite-svelte-icons'
+	import { CalendarMonthSolid, CheckOutline, ExclamationCircleOutline } from 'flowbite-svelte-icons'
 	import type { PageServerData } from './$types'
 
 	export let data: PageServerData
@@ -72,13 +72,13 @@
 				<P>Filter:</P>
 				<Badge href="/admin/event" rounded border color="purple" large>
 					{#if !data.status && !data.deleted}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					ALL
 				</Badge>
 				<Badge href="/admin/event?status=DRAFT&deleted=false" rounded border color="yellow" large>
 					{#if data.status === 'DRAFT'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					DRAFT
 				</Badge>
@@ -90,7 +90,7 @@
 					large
 				>
 					{#if data.status === 'PUBLISHED'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					PUBLISHED
 				</Badge>
@@ -102,19 +102,19 @@
 					large
 				>
 					{#if data.status === 'CANCELLED'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					CANCELLED
 				</Badge>
 				<Badge href="/admin/event?status=REJECTED&deleted=false" rounded border color="red" large>
 					{#if data.status === 'REJECTED'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					REJECTED
 				</Badge>
 				<Badge href="/admin/event?deleted=true" rounded border color="dark" large>
 					{#if data.deleted === 'true'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					DELETED
 				</Badge>

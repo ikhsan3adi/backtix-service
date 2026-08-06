@@ -20,9 +20,9 @@
 		Toast
 	} from 'flowbite-svelte'
 	import {
-		CheckSolid,
-		CloseSolid,
-		DollarSolid,
+		CheckOutline,
+		CloseOutline,
+		DollarOutline,
 		ExclamationCircleOutline
 	} from 'flowbite-svelte-icons'
 	import type { ActionData, PageServerData } from './$types'
@@ -50,12 +50,12 @@
 <div class="fixed bottom-0 right-0 z-10 w-screen">
 	{#if form?.success}
 		<Toast color="green" position="bottom-right">
-			<CheckSolid slot="icon" class="h-5 w-5" />
+			<CheckOutline slot="icon" class="h-5 w-5" />
 			{form?.message}
 		</Toast>
 	{:else if form && !form?.success}
 		<Toast color="red" position="bottom-right">
-			<CloseSolid slot="icon" class="h-5 w-5" />
+			<CloseOutline slot="icon" class="h-5 w-5" />
 			{form?.message}
 		</Toast>
 	{/if}
@@ -65,7 +65,7 @@
 	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
 		<BreadcrumbItem home>
 			<svelte:fragment slot="icon">
-				<DollarSolid class="me-2 h-4 w-4" />
+				<DollarOutline class="me-2 h-4 w-4" />
 			</svelte:fragment>
 			Withdraw
 		</BreadcrumbItem>
@@ -83,25 +83,25 @@
 		<P>Filter:</P>
 		<Badge href="/admin/withdraw" rounded border color="purple" large>
 			{#if !data.status}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+				<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 			{/if}
 			ALL
 		</Badge>
 		<Badge href="/admin/withdraw?status=PENDING" rounded border color="yellow" large>
 			{#if data.status === 'PENDING'}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+				<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 			{/if}
 			PENDING
 		</Badge>
 		<Badge href="/admin/withdraw?status=COMPLETED" rounded border color="green" large>
 			{#if data.status === 'COMPLETED'}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+				<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 			{/if}
 			COMPLETED
 		</Badge>
 		<Badge href="/admin/withdraw?status=REJECTED" rounded border color="red" large>
 			{#if data.status === 'REJECTED'}
-				<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+				<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 			{/if}
 			REJECTED
 		</Badge>

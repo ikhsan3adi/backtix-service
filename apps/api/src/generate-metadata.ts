@@ -1,4 +1,4 @@
-import { PluginMetadataGenerator } from '@nestjs/cli/lib/compiler/plugins'
+import { PluginMetadataGenerator } from '@nestjs/cli/lib/compiler/plugins/plugin-metadata-generator'
 import { ReadonlyVisitor } from '@nestjs/swagger/dist/plugin'
 
 const generator = new PluginMetadataGenerator()

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Alert, Button, Input, Label } from 'flowbite-svelte'
-	import { ArrowLeftSolid } from 'flowbite-svelte-icons'
+	import { ArrowLeftOutline } from 'flowbite-svelte-icons'
 	import type { ActionData } from './$types'
 
 	export let form: ActionData
@@ -24,7 +24,7 @@
 	</div>
 	<div class="flex gap-4">
 		<Button href={loginLink} color="alternative" pill>
-			<div class="mr-2"><ArrowLeftSolid size="xs" /></div>
+			<div class="mr-2"><ArrowLeftOutline size="xs" /></div>
 			Back
 		</Button>
 		<Button type="submit" color="primary" pill>Submit</Button>

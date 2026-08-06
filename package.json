@@ -13,7 +13,14 @@
     "admin:preview": "npm run preview --workspace=@backtix-service/admin-panel",
     "admin:start": "npm run start --workspace=@backtix-service/admin-panel",
     "db:seed": "ts-node prisma/seed.ts",
-    "start:conc": "concurrently \"npm start\" \"npm run admin:build && npm run start:noenv --workspace=@backtix-service/admin-panel\""
+    "start:conc": "concurrently \"npm start\" \"npm run admin:build && npm run start:noenv --workspace=@backtix-service/admin-panel\"",
+    "docker:up": "docker compose up -d --build --wait",
+    "docker:down": "docker compose down",
+    "docker:down:v": "docker compose down -v",
+    "docker:logs": "docker compose logs -f",
+    "docker:test": "docker compose exec api npm run test",
+    "docker:test:e2e": "docker compose exec api npm run test:e2e",
+    "docker:ps": "docker compose ps"
   },
   "keywords": [],
   "author": "",
@@ -24,30 +31,28 @@
     "packages/config"
   ],
   "dependencies": {
-    "@prisma/client": "^5.7.1"
+    "@prisma/client": "^6.19.3"
   },
-  "devDependencies": {
-    "@ts-safeql/eslint-plugin": "^5.4.1",
-    "@typescript-eslint/eslint-plugin": "^8.66.0",
-    "@typescript-eslint/parser": "^8.66.0",
-    "concurrently": "^8.2.2",
-    "cpx": "^1.5.0",
-    "eslint": "^9.0.0",
-    "prisma": "^5.7.1"
-  },
+	"devDependencies": {
+		"concurrently": "^10.0.4"
+	},
   "prisma": {
     "seed": "ts-node --transpile-only prisma/seed.ts"
   },
   "allowScripts": {
-    "@nestjs/core@10.4.22": true,
-    "@prisma/client@5.22.0": true,
-    "@prisma/engines@5.22.0": true,
+    "@nestjs/core@11.1.28": true,
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
     "@swc/core@1.15.47": true,
-    "bcrypt@5.1.1": true,
+    "bcrypt@6.0.0": true,
     "core-js@2.6.12": true,
     "esbuild@0.17.17": true,
-    "prisma@5.22.0": true,
-    "svelte-preprocess@5.1.4": true,
-    "esbuild@0.21.5": true
+    "esbuild@0.21.5": true,
+    "esbuild@0.28.1": true,
+    "prisma@6.19.3": true,
+    "svelte-preprocess@6.0.4": true
+  },
+  "overrides": {
+    "js-yaml": "^5.2.3"
   }
 }

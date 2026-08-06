@@ -2,11 +2,12 @@
 	import { page } from '$app/stores'
 	import { defaultCurrencyFormatter } from '$lib/formatter/currency.formatter'
 	import { dateTimeFormatterWithoutSeconds } from '$lib/formatter/date-time.formatter'
+	import type ApexCharts from 'apexcharts'
 	import type { ApexOptions } from 'apexcharts'
+	import { onMount } from 'svelte'
 	import {
 		Button,
 		Card,
-		Chart,
 		Dropdown,
 		DropdownItem,
 		Heading,
@@ -17,7 +18,7 @@
 		TableHead,
 		TableHeadCell
 	} from 'flowbite-svelte'
-	import { ChevronDownSolid, ChevronRightSolid } from 'flowbite-svelte-icons'
+	import { ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons'
 	import type { PageData } from './$types'
 
 	export let data: PageData
@@ -121,6 +122,16 @@
 		}
 	}
 
+	let chartContainer: HTMLElement
+	let chartInstance: ApexCharts | null = null
+
+	onMount(async () => {
+		const ApexChartClass = (await import('apexcharts')).default
+		chartInstance = new ApexChartClass(chartContainer, chartOptions)
+		await chartInstance.render()
+		return () => chartInstance?.destroy()
+	})
+
 	const selectedDateRange = $page.url.searchParams.get('chartRange') ?? '7'
 	const selecteDataType = $page.url.searchParams.get('chartData') ?? 'count'
 
@@ -182,7 +193,7 @@
 						<div>
 							<Button color="light" class="px-3 py-2">
 								{dataType[selecteDataType]}
-								<ChevronDownSolid class="ms-1.5 h-2.5 w-2.5" />
+								<ChevronDownOutline class="ms-1.5 h-2.5 w-2.5" />
 							</Button>
 							<Dropdown class="w-40">
 								{#each Object.keys(dataType) as prop}
@@ -199,7 +210,7 @@
 						<div>
 							<Button color="light" class="px-3 py-2">
 								{dateRanges[selectedDateRange]}
-								<ChevronDownSolid class="ms-1.5 h-2.5 w-2.5" />
+								<ChevronDownOutline class="ms-1.5 h-2.5 w-2.5" />
 							</Button>
 							<Dropdown class="w-40">
 								{#each Object.keys(dateRanges) as prop}
@@ -215,7 +226,7 @@
 						</div>
 					</div>
 				</div>
-				<Chart options={chartOptions} />
+				<div bind:this={chartContainer} />
 			</Card>
 		</div>
 		<div class="flex w-full flex-col gap-4">
@@ -407,7 +418,7 @@
 						class="text-primary-700 dark:text-primary-500 inline-flex items-center rounded-lg p-2 text-xs font-medium uppercase hover:bg-gray-100 sm:text-sm dark:hover:bg-gray-700"
 					>
 						Events
-						<ChevronRightSolid class="ms-1.5 h-2.5 w-2.5" />
+						<ChevronRightOutline class="ms-1.5 h-2.5 w-2.5" />
 					</a>
 				</div>
 			</div>

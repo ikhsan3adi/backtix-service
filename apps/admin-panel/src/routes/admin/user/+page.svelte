@@ -28,10 +28,10 @@
 		Toast
 	} from 'flowbite-svelte'
 	import {
-		CheckSolid,
-		CloseSolid,
+		CheckOutline,
+		CloseOutline,
 		ExclamationCircleOutline,
-		PlusSolid,
+		PlusOutline,
 		UserSolid
 	} from 'flowbite-svelte-icons'
 	import type { ActionData, PageData } from './$types'
@@ -66,12 +66,12 @@
 <div class="fixed bottom-0 right-0 z-10 w-screen">
 	{#if form?.success || $page.url.searchParams.get('success')}
 		<Toast color="green" position="bottom-right">
-			<CheckSolid slot="icon" class="h-5 w-5" />
+			<CheckOutline slot="icon" class="h-5 w-5" />
 			{form?.message ?? $page.url.searchParams.get('message')}
 		</Toast>
 	{:else if form && !form?.success}
 		<Toast color="red" position="bottom-right">
-			<CloseSolid slot="icon" class="h-5 w-5" />
+			<CloseOutline slot="icon" class="h-5 w-5" />
 			{form?.message}
 		</Toast>
 	{/if}
@@ -100,38 +100,38 @@
 					large
 				>
 					{#if data.group === 'SUPERADMIN'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					SUPERADMIN
 				</Badge>
 				<Badge href="/admin/user?group=ADMIN&deleted=false" rounded border color="green" large>
 					{#if data.group === 'ADMIN'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					ADMIN
 				</Badge>
 				<Badge href="/admin/user?group=USER&deleted=false" rounded border color="blue" large>
 					{#if data.group === 'USER'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					USER
 				</Badge>
 				<Badge href="/admin/user?deleted=true" rounded border color="red" large>
 					{#if data.deleted === 'true'}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					DELETED
 				</Badge>
 				<Badge href="/admin/user" rounded border color="purple" large>
 					{#if !data.group && !data.deleted}
-						<CheckSolid class="me-1.5 h-2.5 w-2.5" />
+						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
 					ALL
 				</Badge>
 			</div>
 		</div>
 		<Button href="/admin/user/new" pill color="blue">
-			<PlusSolid class="me-2 h-3.5 w-3.5" />
+			<PlusOutline class="me-2 h-3.5 w-3.5" />
 			Add user/admin
 		</Button>
 	</div>
