@@ -24,7 +24,6 @@ async function checkAccessToken({
 			: undefined
 
 		if (accessToken && claims) {
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const cachedUser = await redisClient.get(claims['sub'] as string)
 
 			const user = cachedUser

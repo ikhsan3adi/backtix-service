@@ -90,7 +90,6 @@ export class PurchaseTicketService {
       return await this.purchaseRepository.createTransactions(async (tx) => {
         await this.purchaseService.verifyEventOwnerByTicketPurchase(user, uid)
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const purchase = await this.checkTicketPurchase(tx, uid, eventId)
 
         return purchase

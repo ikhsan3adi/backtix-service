@@ -17,8 +17,6 @@
 	export let form: ActionData
 
 	const myUser = data.myUser
-
-	let a = []
 </script>
 
 <div class="fixed bottom-0 right-0 z-10 w-screen">
