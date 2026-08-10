@@ -1,3 +1,3 @@
-import { config } from "./config";
+import { config as configInstance } from './config'
 
-export { config };
+export const config = configInstance

@@ -10,26 +10,24 @@
 		Label,
 		Toast
 	} from 'flowbite-svelte'
-	import { CheckSolid, CloseSolid, GearSolid } from 'flowbite-svelte-icons'
+	import { CheckOutline, CloseOutline, CogSolid } from 'flowbite-svelte-icons'
 	import type { ActionData, PageData } from './$types'
 
 	export let data: PageData
 	export let form: ActionData
 
 	const myUser = data.myUser
-
-	let a = []
 </script>
 
 <div class="fixed bottom-0 right-0 z-10 w-screen">
 	{#if form?.success}
 		<Toast color="green" position="bottom-right">
-			<CheckSolid slot="icon" class="h-5 w-5" />
+			<CheckOutline slot="icon" class="h-5 w-5" />
 			{form?.message}
 		</Toast>
 	{:else if form && !form?.success}
 		<Toast color="red" position="bottom-right">
-			<CloseSolid slot="icon" class="h-5 w-5" />
+			<CloseOutline slot="icon" class="h-5 w-5" />
 			{form?.message}
 		</Toast>
 	{/if}
@@ -39,7 +37,7 @@
 	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
 		<BreadcrumbItem home>
 			<svelte:fragment slot="icon">
-				<GearSolid class="me-2 h-4 w-4" />
+				<CogSolid class="me-2 h-4 w-4" />
 			</svelte:fragment>
 			Settings
 		</BreadcrumbItem>

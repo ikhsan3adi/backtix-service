@@ -10,7 +10,7 @@ export class CustomFileTypeValidator extends FileTypeValidator {
     return `Validation failed on file '${this.errFile.originalname}' (expected type is ${this.validationOptions.fileType})`
   }
 
-  isValid(file: any) {
+  async isValid(file?: any): Promise<boolean> {
     if (!this.validationOptions) return true
     if (this.isFileFields(file)) {
       for (const key in file) {

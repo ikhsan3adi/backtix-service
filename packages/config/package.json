@@ -3,14 +3,22 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.js"
+    }
+  },
   "scripts": {
     "test": "echo \"No test specified\"",
-    "postinstall": "tsc && cp -a ./dist/. ./"
+    "postinstall": "tsc && cp -a ./dist/. ./ && npx esbuild src/index.ts --bundle --format=esm --platform=node --outfile=index.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^17.4.2"
   }
 }

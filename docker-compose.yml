@@ -1,0 +1,90 @@
+name: backtix
+
+services:
+  db:
+    image: postgis/postgis:18-3.6
+    environment:
+      POSTGRES_USER: backtix
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-backtix}
+      POSTGRES_DB: backtix
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backtix -d backtix"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://backtix:${DB_PASSWORD:-backtix}@db:5432/backtix?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      HOST: 0.0.0.0
+      PORT: "3000"
+      BASE_URL: http://localhost:3000/
+      SEED: ${SEED:-true}
+    ports:
+      - "3000:3000"
+    volumes:
+      - storage:/app/apps/api/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:3000/api/docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  admin-panel:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://backtix:${DB_PASSWORD:-backtix}@db:5432/backtix?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      HOST: 0.0.0.0
+      PORT: "3001"
+      ORIGIN: http://localhost:3001
+      BASE_URL: http://localhost:3000/
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:3001/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
+  storage:

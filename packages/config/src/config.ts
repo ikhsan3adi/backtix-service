@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv'
 import { join } from 'path'
+import type { StringValue } from 'ms'
 
 const envpath = join(process.cwd(), '../../.env')
 
@@ -17,8 +18,10 @@ export const config = {
   security: {
     accessTokenKey: process.env.ACCESS_TOKEN_KEY,
     refreshTokenKey: process.env.REFRESH_TOKEN_KEY,
-    accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION,
-    refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION,
+    accessTokenExpiration:
+      process.env.ACCESS_TOKEN_EXPIRATION as StringValue | undefined,
+    refreshTokenExpiration:
+      process.env.REFRESH_TOKEN_EXPIRATION as StringValue | undefined,
     refreshTokenTTL: Number(
       process.env.REFRESH_TOKEN_TTL ?? 60 * 60 * 24 * 30 * 1000,
     ),

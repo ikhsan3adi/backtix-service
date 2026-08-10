@@ -32,7 +32,7 @@ export class UserRepository {
     take?: number
     cursor?: Prisma.UserWhereUniqueInput
     where?: Prisma.UserWhereInput
-    orderBy?: Prisma.UserOrderByWithRelationAndSearchRelevanceInput
+    orderBy?: Prisma.UserOrderByWithRelationInput
     select?: Prisma.UserSelect
   }): Promise<User[]> {
     const { skip, take, cursor, where, orderBy, select } = params

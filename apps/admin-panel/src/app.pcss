@@ -1,4 +1,7 @@
 /* Write your global styles here, in PostCSS syntax */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@config '../tailwind.config.cjs';
+@plugin 'flowbite/plugin';
+@custom-variant dark (&:where(.dark, .dark *));
+@source '../node_modules/flowbite-svelte/**/*.{svelte,js}';
+@source '../node_modules/flowbite-svelte-icons/**/*.{svelte,js}';

@@ -23,16 +23,16 @@
 		SidebarWrapper
 	} from 'flowbite-svelte'
 	import {
-		BarsSolid,
+		BarsOutline,
 		CalendarMonthSolid,
 		ChartPieSolid,
-		CheckSolid,
+		CheckOutline,
 		ClockSolid,
 		CloseCircleSolid,
-		CloseSolid,
-		DollarSolid,
+		CloseOutline,
+		DollarOutline,
 		FileSolid,
-		GearSolid,
+		CogSolid,
 		GithubSolid,
 		GlobeSolid,
 		TrashBinSolid,
@@ -97,7 +97,7 @@
 				on:click={() => (drawerHidden = false)}
 				class="mx-2 p-2 hover:text-gray-900 md:hidden dark:hover:text-white"
 			>
-				<BarsSolid />
+				<BarsOutline />
 			</Button>
 			<NavBrand href={site.href} class="ml-4 md:ml-0">
 				<img src={site.img} class="me-3 h-6 sm:h-9" alt={site.imgAlt} />
@@ -121,7 +121,7 @@
 				id="navMenu"
 				class="mx-2 p-2 hover:text-gray-900 md:hidden dark:hover:text-white"
 			>
-				<BarsSolid />
+				<BarsOutline />
 			</Button>
 			<DarkMode class="inline-block px-4 hover:text-gray-900 dark:hover:text-white" />
 			<div class="ml-3 mr-2 cursor-pointer">
@@ -238,7 +238,7 @@
 							on:click={toggleSide}
 						>
 							<svelte:fragment slot="icon">
-								<CloseSolid
+								<CloseOutline
 									class="ml-3 h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 								/>
 							</svelte:fragment>
@@ -267,7 +267,7 @@
 						label="Withdraw Requests"
 					>
 						<svelte:fragment slot="icon">
-							<DollarSolid
+							<DollarOutline
 								class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 							/>
 						</svelte:fragment>
@@ -288,7 +288,7 @@
 							on:click={toggleSide}
 						>
 							<svelte:fragment slot="icon">
-								<CheckSolid
+								<CheckOutline
 									class="ml-3 h-5 w-5  text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 								/>
 							</svelte:fragment>
@@ -341,7 +341,7 @@
 						active={activeUrl === '/admin/setting'}
 					>
 						<svelte:fragment slot="icon">
-							<GearSolid
+							<CogSolid
 								class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 							/>
 						</svelte:fragment>

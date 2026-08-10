@@ -48,7 +48,7 @@ export class EventRepository {
     where?: Prisma.EventWhereInput
     include?: Prisma.EventInclude
     select?: Prisma.EventSelect
-    orderBy?: Prisma.EventOrderByWithRelationAndSearchRelevanceInput
+    orderBy?: Prisma.EventOrderByWithRelationInput
     skip?: number
     take?: number
   }) {
