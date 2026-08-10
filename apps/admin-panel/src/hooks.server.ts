@@ -1,21 +1,13 @@
 import { config } from '$lib/config'
 import { prisma } from '$lib/server/database/prisma'
-import { redisClient } from '$lib/server/database/redis'
+import { redisClient, ensureRedisConnected } from '$lib/server/database/redis'
 import { Group } from '$lib/server/entities/users/group.enum'
-import { redirect, type MaybePromise, type RequestEvent, type ResolveOptions } from '@sveltejs/kit'
+import { redirect, type Handle } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
 import jwt from 'jsonwebtoken'
 
-async function checkAccessToken({
-	event,
-	resolve
-}: {
-	event: RequestEvent<Partial<Record<string, string>>, string | null>
-	resolve(
-		event: RequestEvent<Partial<Record<string, string>>, string | null>,
-		opts?: ResolveOptions | undefined
-	): MaybePromise<Response>
-}) {
+async function checkAccessToken({ event, resolve }: Parameters<Handle>[0]) {
+	await ensureRedisConnected()
 	try {
 		const accessToken = event.cookies.get('accessToken')
 
@@ -27,7 +19,7 @@ async function checkAccessToken({
 			const cachedUser = await redisClient.get(claims['sub'] as string)
 
 			const user = cachedUser
-				? JSON.parse(cachedUser)
+				? JSON.parse(cachedUser as string)
 				: await prisma.user.findUnique({
 						where: {
 							id: claims['sub'] as string,
@@ -52,16 +44,7 @@ async function checkAccessToken({
 	}
 }
 
-async function checkRefreshToken({
-	event,
-	resolve
-}: {
-	event: RequestEvent<Partial<Record<string, string>>, string | null>
-	resolve(
-		event: RequestEvent<Partial<Record<string, string>>, string | null>,
-		opts?: ResolveOptions | undefined
-	): MaybePromise<Response>
-}) {
+async function checkRefreshToken({ event, resolve }: Parameters<Handle>[0]) {
 	try {
 		if (!event.locals.user) {
 			const refreshToken = event.cookies.get('refreshToken')
@@ -73,7 +56,7 @@ async function checkRefreshToken({
 			const savedAuth = await redisClient.get(refreshToken ?? '')
 
 			if (refreshToken && claims && savedAuth) {
-				const { id } = JSON.parse(savedAuth) as { id: string }
+				const { id } = JSON.parse(savedAuth as string) as { id: string }
 
 				const user = await prisma.user.findUnique({
 					where: { id }
@@ -87,7 +70,7 @@ async function checkRefreshToken({
 				const accessToken = jwt.sign(
 					{ sub: user.id, username: user.username, email: user.email },
 					config.security.accessTokenKey!,
-					{ expiresIn: '15s' ?? config.security.accessTokenExpiration }
+					{ expiresIn: config.security.accessTokenExpiration ?? '15m' }
 				)
 				event.cookies.set('accessToken', accessToken, {
 					httpOnly: true,
@@ -105,16 +88,7 @@ async function checkRefreshToken({
 	}
 }
 
-async function protectRoutes({
-	event,
-	resolve
-}: {
-	event: RequestEvent<Partial<Record<string, string>>, string | null>
-	resolve(
-		event: RequestEvent<Partial<Record<string, string>>, string | null>,
-		opts?: ResolveOptions | undefined
-	): MaybePromise<Response>
-}) {
+async function protectRoutes({ event, resolve }: Parameters<Handle>[0]) {
 	if (event.url.pathname.startsWith('/admin')) {
 		if (!event.locals.user) {
 			return redirect(303, '/auth')

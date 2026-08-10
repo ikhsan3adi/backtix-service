@@ -34,7 +34,7 @@
 </div>
 
 <div class="p-4">
-	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
+	<Breadcrumb aria-label="breadcrumb" olClass="mb-5">
 		<BreadcrumbItem home>
 			<svelte:fragment slot="icon">
 				<CogSolid class="me-2 h-4 w-4" />

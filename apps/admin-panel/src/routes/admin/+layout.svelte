@@ -48,7 +48,6 @@
 
 	let breakPoint: number = 1024
 	let width: number
-	let backdrop: boolean = false
 	let activateClickOutside = true
 	let drawerHidden: boolean = false
 
@@ -94,7 +93,7 @@
 		<div class="flex items-center">
 			<Button
 				color="alternative"
-				on:click={() => (drawerHidden = false)}
+				onclick={() => (drawerHidden = false)}
 				class="mx-2 p-2 hover:text-gray-900 md:hidden dark:hover:text-white"
 			>
 				<BarsOutline />
@@ -138,7 +137,7 @@
 						{#each navLinks as nav}
 							<li class="md:mb-0 md:px-2">
 								<A
-									color="dark:text-primary-300 hover:dark:text-white"
+									class="dark:text-primary-300 hover:dark:text-white"
 									aClass="hover:underline"
 									href={nav.href}
 								>
@@ -182,24 +181,22 @@
 	</Popover>
 
 	<Drawer
-		transitionType="fly"
-		{backdrop}
-		bind:hidden={drawerHidden}
-		bind:activateClickOutside
+		open={!drawerHidden}
+		{activateClickOutside}
 		class="z-10 border-r pb-16 pt-20"
-		width="100"
+		width="full"
 		id="sidebar"
 	>
 		<div class="flex items-center">
-			<CloseButton on:click={() => (drawerHidden = true)} class="mb-4 md:hidden dark:text-white" />
+			<CloseButton onclick={() => (drawerHidden = true)} class="mb-4 md:hidden dark:text-white" />
 		</div>
 		<Sidebar {activeUrl}>
-			<SidebarWrapper divClass="py-4 px-3 rounded dark:bg-gray-800">
+			<SidebarWrapper class="py-4 px-3 rounded dark:bg-gray-800">
 				<SidebarGroup>
 					<SidebarItem
 						label="Dashboard"
 						href={activeUrl === '/admin/dashboard' ? null : '/admin/dashboard'}
-						on:click={toggleSide}
+						onclick={toggleSide}
 						active={activeUrl === '/admin/dashboard'}
 					>
 						<svelte:fragment slot="icon">
@@ -214,7 +211,7 @@
 								class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 							/>
 						</svelte:fragment>
-						<SidebarItem label="Draft" href={'/admin/event?status=DRAFT'} on:click={toggleSide}>
+						<SidebarItem label="Draft" href={'/admin/event?status=DRAFT'} onclick={toggleSide}>
 							<svelte:fragment slot="icon">
 								<FileSolid
 									class="ml-3 h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -224,7 +221,7 @@
 						<SidebarItem
 							label="Published"
 							href={'/admin/event?status=PUBLISHED'}
-							on:click={toggleSide}
+							onclick={toggleSide}
 						>
 							<svelte:fragment slot="icon">
 								<GlobeSolid
@@ -235,7 +232,7 @@
 						<SidebarItem
 							label="Cancelled"
 							href={'/admin/event?status=CANCELLED'}
-							on:click={toggleSide}
+							onclick={toggleSide}
 						>
 							<svelte:fragment slot="icon">
 								<CloseOutline
@@ -246,7 +243,7 @@
 						<SidebarItem
 							label="Rejected"
 							href={'/admin/event?status=REJECTED'}
-							on:click={toggleSide}
+							onclick={toggleSide}
 						>
 							<svelte:fragment slot="icon">
 								<CloseCircleSolid
@@ -254,7 +251,7 @@
 								/>
 							</svelte:fragment>
 						</SidebarItem>
-						<SidebarItem label="Deleted" href={'/admin/event?deleted=true'} on:click={toggleSide}>
+						<SidebarItem label="Deleted" href={'/admin/event?deleted=true'} onclick={toggleSide}>
 							<svelte:fragment slot="icon">
 								<TrashBinSolid
 									class="ml-3 h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -274,7 +271,7 @@
 						<SidebarItem
 							label="Pending"
 							href={'/admin/withdraw?status=PENDING'}
-							on:click={toggleSide}
+							onclick={toggleSide}
 						>
 							<svelte:fragment slot="icon">
 								<ClockSolid
@@ -285,7 +282,7 @@
 						<SidebarItem
 							label="Completed"
 							href={'/admin/withdraw?status=COMPLETED'}
-							on:click={toggleSide}
+							onclick={toggleSide}
 						>
 							<svelte:fragment slot="icon">
 								<CheckOutline
@@ -296,7 +293,7 @@
 						<SidebarItem
 							label="Rejected"
 							href={'/admin/withdraw?status=REJECTED'}
-							on:click={toggleSide}
+							onclick={toggleSide}
 						>
 							<svelte:fragment slot="icon">
 								<CloseCircleSolid
@@ -314,7 +311,7 @@
 						<SidebarItem
 							label="Admins"
 							href={'/admin/user?group=ADMIN&deleted=false'}
-							on:click={toggleSide}
+							onclick={toggleSide}
 						>
 							<svelte:fragment slot="icon">
 								<UserSettingsSolid
@@ -325,7 +322,7 @@
 						<SidebarItem
 							label="Users"
 							href={'/admin/user?group=USER&deleted=false'}
-							on:click={toggleSide}
+							onclick={toggleSide}
 						>
 							<svelte:fragment slot="icon">
 								<UserSolid
@@ -337,7 +334,7 @@
 					<SidebarItem
 						label="Settings"
 						href={activeUrl === '/admin/setting' ? null : '/admin/setting'}
-						on:click={toggleSide}
+						onclick={toggleSide}
 						active={activeUrl === '/admin/setting'}
 					>
 						<svelte:fragment slot="icon">

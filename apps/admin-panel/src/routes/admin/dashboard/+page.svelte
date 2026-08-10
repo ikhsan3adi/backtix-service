@@ -125,10 +125,13 @@
 	let chartContainer: HTMLElement
 	let chartInstance: ApexCharts | null = null
 
-	onMount(async () => {
-		const ApexChartClass = (await import('apexcharts')).default
-		chartInstance = new ApexChartClass(chartContainer, chartOptions)
-		await chartInstance.render()
+	onMount(() => {
+		const init = async () => {
+			const ApexChartClass = (await import('apexcharts')).default
+			chartInstance = new ApexChartClass(chartContainer, chartOptions)
+			await chartInstance.render()
+		}
+		init()
 		return () => chartInstance?.destroy()
 	})
 
@@ -153,7 +156,7 @@
 				<div class="mb-5 flex justify-between">
 					<div class="flex gap-8">
 						<div>
-							<Heading tag="h6" color="text-gray-500 dark:text-gray-400" customSize="font-normal">
+							<Heading tag="h6" color="text-gray-500 dark:text-gray-400" class="font-normal">
 								Purchases
 							</Heading>
 							<p class="text-2xl font-bold leading-none text-gray-900 dark:text-white">
@@ -165,7 +168,7 @@
 							</p>
 						</div>
 						<div>
-							<Heading tag="h6" color="text-gray-500 dark:text-gray-400" customSize="font-normal">
+							<Heading tag="h6" color="text-gray-500 dark:text-gray-400" class="font-normal">
 								Withdraw requests
 							</Heading>
 							<p class="text-2xl font-bold leading-none text-gray-900 dark:text-white">
@@ -178,7 +181,7 @@
 						</div>
 						{#if isNominal}
 							<div>
-								<Heading tag="h6" color="text-gray-500 dark:text-gray-400" customSize="font-normal">
+								<Heading tag="h6" color="text-gray-500 dark:text-gray-400" class="font-normal">
 									Profit
 								</Heading>
 								<p class="text-2xl font-bold leading-none text-gray-900 dark:text-white">
@@ -226,7 +229,7 @@
 						</div>
 					</div>
 				</div>
-				<div bind:this={chartContainer} />
+				<div bind:this={chartContainer}></div>
 			</Card>
 		</div>
 		<div class="flex w-full flex-col gap-4">
@@ -378,10 +381,10 @@
 														event.endDate ? new Date(new Date()) : new Date(event.date)
 													)}
 												</TableBodyCell>
-												<TableBodyCell tdClass="px-0">
+												<TableBodyCell class="px-0">
 													{event.tickets.map((e) => e._count.purchases).reduce((p, c) => p + c)}
 												</TableBodyCell>
-												<TableBodyCell tdClass="px-1">
+												<TableBodyCell class="px-1">
 													{defaultCurrencyFormatter.format(
 														event.tickets
 															.map((e) => {
@@ -390,7 +393,7 @@
 															.reduce((p, c) => p + c)
 													)}
 												</TableBodyCell>
-												<TableBodyCell tdClass="px-1">
+												<TableBodyCell class="px-1">
 													<Button href="/admin/event/{event.id}" pill size="sm">Detail</Button>
 												</TableBodyCell>
 											</TableBodyRow>

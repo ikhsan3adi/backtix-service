@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation'
 	import { defaultCurrencyFormatter } from '$lib/formatter/currency.formatter'
 	import {
 		dateTimeFormatterWithoutSeconds,
@@ -12,6 +13,8 @@
 		Button,
 		Card,
 		Carousel,
+		Controls,
+		CarouselIndicators,
 		Heading,
 		Modal,
 		P,
@@ -31,7 +34,6 @@
 	const { event, images, tickets, userImage } = data
 
 	let index = 0
-	let forward = true
 	let selectedImage: any
 
 	let actionModal = false
@@ -39,7 +41,7 @@
 </script>
 
 <div class="p-4">
-	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
+	<Breadcrumb aria-label="breadcrumb" olClass="mb-5">
 		<BreadcrumbItem href="/admin/event?status={event.status}" home>
 			<svelte:fragment slot="icon">
 				<CalendarMonthSolid class="me-2 h-4 w-4" />
@@ -56,7 +58,7 @@
 		{#if event.status === 'DRAFT'}
 			<div class="flex gap-4">
 				<Button
-					on:click={() => {
+					onclick={() => {
 						actionModal = true
 						actionCtx = 'approve'
 					}}
@@ -67,7 +69,7 @@
 					<span class="mx-4">Approve</span>
 				</Button>
 				<Button
-					on:click={() => {
+					onclick={() => {
 						actionModal = true
 						actionCtx = 'reject'
 					}}
@@ -97,7 +99,7 @@
 					<input type="hidden" name="id" value={event.id} />
 					<Button type="submit" color="red">Confirm</Button>
 				</form>
-				<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
+				<Button onclick={() => (actionModal = false)} color="alternative">Cancel</Button>
 			</div>
 		</div>
 	</Modal>
@@ -105,22 +107,14 @@
 
 <div class="mb-3 flex w-full flex-col gap-4 px-4 pb-4 md:flex-row">
 	<div class="w-full md:w-2/3">
-		<Carousel
-			{images}
-			{forward}
-			let:Indicators
-			transition={null}
-			let:Controls
-			bind:index
-			on:change={({ detail }) => (selectedImage = detail)}
-		>
+		<Carousel {images} bind:index onchange={(img) => (selectedImage = img)}>
 			<Controls />
-			<Indicators />
+			<CarouselIndicators />
 		</Carousel>
 		<div class="my-2 h-10 rounded bg-gray-300 p-2 dark:bg-gray-700 dark:text-white">
 			{selectedImage?.alt}
 		</div>
-		<Thumbnails {images} {forward} bind:index imgClass="h-16" />
+		<Thumbnails {images} bind:index imgClass="h-16" />
 	</div>
 	<div class="w-full md:w-1/3">
 		<div class="mb-4 flex items-center gap-4">
@@ -172,7 +166,7 @@
 <Heading tag="h3" class="mb-4 px-4">Tickets</Heading>
 <div class="flex flex-wrap gap-4 px-4">
 	{#each tickets as ticket}
-		<Card horizontal class="mb-4" padding="none">
+		<Card horizontal class="mb-4 !p-0">
 			<div>
 				{#if ticket.image}
 					<img
@@ -231,10 +225,9 @@
 			{#if data.ticketPurchases.length}
 				{#each data.ticketPurchases as purchase}
 					<TableBodyRow
-						color={purchase.status === 'CANCELLED' || purchase.refundStatus === 'REFUNDED'
-							? 'custom'
-							: 'default'}
-						class="bg-red-200 dark:bg-rose-800"
+						class={purchase.status === 'CANCELLED' || purchase.refundStatus === 'REFUNDED'
+							? 'bg-red-200 dark:bg-rose-800'
+							: ''}
 					>
 						<TableBodyCell>{purchase.user.username}</TableBodyCell>
 						<TableBodyCell>{purchase.ticket.name}</TableBodyCell>
@@ -251,7 +244,7 @@
 								{:else if purchase.status === 'CANCELLED'}
 									<Badge rounded border color="red">{purchase.status}</Badge>
 								{:else}
-									<Badge rounded border color="none">{purchase.status}</Badge>
+									<Badge rounded border color="gray">{purchase.status}</Badge>
 								{/if}
 								{#if purchase.refundStatus === 'REFUNDED'}
 									<Badge rounded border color="blue">{purchase.refundStatus}</Badge>

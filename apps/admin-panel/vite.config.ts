@@ -8,6 +8,6 @@ export default defineConfig({
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
 	ssr: {
-		noExternal: ['@backtix-service/config']
+		external: ['redis', '@prisma/client', 'prisma', 'jsonwebtoken', '@backtix-service/config']
 	}
 })

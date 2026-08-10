@@ -6,7 +6,7 @@ const envpath = join(process.cwd(), '../../.env')
 
 dotenv.config({ path: envpath })
 
-console.log('Load .env from' + envpath)
+console.log(`Load .env from ${envpath}`)
 
 export const config = {
   // REST API ONLY

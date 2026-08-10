@@ -14,18 +14,17 @@
 		Toggle
 	} from 'flowbite-svelte'
 	import { UserSolid } from 'flowbite-svelte-icons'
-	import type { ActionData, PageServerLoad } from './$types'
+	import type { ActionData, PageServerData } from './$types'
 
-	export let data: PageServerLoad
+	export let data: PageServerData
 	export let form: ActionData
 
 	let group = []
-	let a = []
-	$: activate = a.length ? true : false
+	let activate = false
 </script>
 
 <div class="p-4">
-	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
+	<Breadcrumb aria-label="breadcrumb" olClass="mb-5">
 		<BreadcrumbItem href="/admin/user" home>
 			<svelte:fragment slot="icon">
 				<UserSolid class="me-2 h-4 w-4" />
@@ -154,7 +153,7 @@
 		{/if}
 	</div>
 
-	<Toggle class="mb-6 mr-3 rtl:space-x-reverse" bind:group={a}>ACTIVATE</Toggle>
+	<Toggle class="mb-6 mr-3 rtl:space-x-reverse" bind:checked={activate}>ACTIVATE</Toggle>
 	<input type="hidden" name="activate" value={activate} />
 	<Button type="submit">Submit</Button>
 </form>

@@ -78,7 +78,7 @@
 </div>
 
 <div class="p-4">
-	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
+	<Breadcrumb aria-label="breadcrumb" olClass="mb-5">
 		<BreadcrumbItem home>
 			<svelte:fragment slot="icon">
 				<UserSolid class="me-2 h-4 w-4" />
@@ -153,20 +153,19 @@
 		{#if data.users.length}
 			{#each data.users as user}
 				<TableBodyRow
-					color={user.username === data.my.username ? 'custom' : 'default'}
-					class="bg-sky-300 dark:bg-blue-900"
+					class={user.username === data.my.username ? 'bg-sky-300 dark:bg-blue-900' : ''}
 				>
-					<TableBodyCell tdClass="px-4">
+					<TableBodyCell class="px-4">
 						<Avatar size="sm" alt={user.username} src={user.image} />
 					</TableBodyCell>
-					<TableBodyCell tdClass="px-2">{user.username}</TableBodyCell>
+					<TableBodyCell class="px-2">{user.username}</TableBodyCell>
 					<TableBodyCell>{user.fullname}</TableBodyCell>
 					<TableBodyCell>
 						<A href="mailto:{user.email}" aClass="underline" color="blue">
 							{user.email}
 						</A>
 					</TableBodyCell>
-					<TableBodyCell tdClass="px-0">{user.activated ? 'Yes' : 'No'}</TableBodyCell>
+					<TableBodyCell class="px-0">{user.activated ? 'Yes' : 'No'}</TableBodyCell>
 					<TableBodyCell>
 						<div class="flex flex-col gap-1">
 							{#each user.groups as group}
@@ -174,7 +173,7 @@
 							{/each}
 						</div>
 					</TableBodyCell>
-					<TableBodyCell tdClass="px-2 max-w-64">
+					<TableBodyCell class="px-2 max-w-64">
 						{#if user.location}
 							<A
 								href={`https://www.google.com/maps/search/?api=1&query=${user.latitude},${user.longitude}`}
@@ -192,7 +191,7 @@
 						<div class="flex gap-2">
 							{#if data.my.groups.includes('SUPERADMIN') || !user.groups.some((v) => v === 'ADMIN' || v === 'SUPERADMIN')}
 								<Button
-									on:click={() => {
+									onclick={() => {
 										formModal = true
 										formUser = user
 										group = []
@@ -204,7 +203,7 @@
 								>
 								{#if user.deletedAt === null}
 									<Button
-										on:click={() => {
+										onclick={() => {
 											actionModal = true
 											actionCtx = 'delete'
 											actionUserId = user.id
@@ -219,7 +218,7 @@
 							{/if}
 							{#if user.deletedAt !== null}
 								<Button
-									on:click={() => {
+									onclick={() => {
 										actionModal = true
 										actionCtx = 'restore'
 										actionUserId = user.id
@@ -259,7 +258,7 @@
 </Table>
 {#if data.page > 0 || data.users.length}
 	<div class="m-4">
-		<Pagination large on:previous={previous} on:next={next} />
+		<Pagination {previous} {next} />
 	</div>
 {/if}
 
@@ -272,7 +271,7 @@
 				<input type="hidden" name="id" value={actionUserId} />
 				<Button type="submit" color="red">Confirm</Button>
 			</form>
-			<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
+			<Button onclick={() => (actionModal = false)} color="alternative">Cancel</Button>
 		</div>
 	</div>
 </Modal>
