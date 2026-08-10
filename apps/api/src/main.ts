@@ -16,7 +16,7 @@ async function bootstrap() {
     }),
   )
 
-  app.setGlobalPrefix('api', { exclude: ['file/(.*)'] })
+  app.setGlobalPrefix('api', { exclude: ['file/{*path}'] })
 
   const document = SwaggerModule.createDocument(app, openApiConfig)
   if (metadata) await SwaggerModule.loadPluginMetadata(metadata)
