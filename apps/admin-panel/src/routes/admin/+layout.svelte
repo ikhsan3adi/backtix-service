@@ -181,7 +181,7 @@
 	</Popover>
 
 	<Drawer
-		bind:hidden={drawerHidden}
+		open={!drawerHidden}
 		{activateClickOutside}
 		class="z-10 border-r pb-16 pt-20"
 		width="full"
