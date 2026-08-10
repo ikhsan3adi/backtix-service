@@ -1,4 +1,6 @@
 *.js
 *.d.ts
+*.mjs
 .env
 dist
+node_modules

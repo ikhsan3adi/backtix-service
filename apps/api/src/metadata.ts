@@ -69,7 +69,7 @@ export default async () => {
             CreateUserDto: {
               username: { required: true, type: () => String },
               fullname: { required: true, type: () => String },
-              email: { required: true, type: () => String },
+              email: { required: true, type: () => String, format: 'email' },
               password: { required: true, type: () => String },
               provider: { required: true, type: () => String },
               image: { required: true, type: () => String },
@@ -139,7 +139,7 @@ export default async () => {
               amount: { required: true, type: () => Number },
               method: { required: true, type: () => String },
               details: { required: true, type: () => String },
-              from: { required: true, type: () => Object },
+              from: { required: true, enum: ['BALANCE', 'REVENUE'] },
             },
           },
         ],
@@ -248,8 +248,22 @@ export default async () => {
               id: { required: false, type: () => Number },
               userId: { required: false, type: () => String },
               message: { required: true, type: () => String },
-              type: { required: true, type: () => Object },
-              entityType: { required: false, type: () => Object },
+              type: {
+                required: true,
+                enum: [
+                  'EVENT_STATUS',
+                  'TICKET_PURCHASE',
+                  'TICKET_SALES',
+                  'TICKET_REFUND_REQUEST',
+                  'TICKET_REFUND_STATUS',
+                  'WITHDRAW_STATUS',
+                  'OTHER',
+                ],
+              },
+              entityType: {
+                required: false,
+                enum: ['EVENT', 'TICKET', 'PURCHASE', 'WITHDRAW_REQUEST'],
+              },
               entityId: { required: false, type: () => String },
             },
           },
@@ -330,13 +344,25 @@ export default async () => {
               latitude: { required: true, type: () => Number },
               longitude: { required: true, type: () => Number },
               description: { required: true, type: () => String },
-              categories: { required: true, type: () => [String] },
-              imageDescriptions: { required: true, type: () => [String] },
+              categories: {
+                required: true,
+                type: () => [String],
+                minItems: 1,
+                maxItems: 64,
+              },
+              imageDescriptions: {
+                required: true,
+                type: () => [String],
+                minItems: 1,
+                maxItems: 64,
+              },
               tickets: {
                 required: true,
                 type: () => [
                   t['./ticket/dto/create-ticket.dto'].CreateTicketDto,
                 ],
+                minItems: 1,
+                maxItems: 64,
               },
               event: { required: true, type: () => [Object] },
               ticket: { required: true, type: () => [Object] },
@@ -367,6 +393,7 @@ export default async () => {
                 type: () => [
                   t['./event/dto/update-event-image.dto'].UpdateEventImageDto,
                 ],
+                maxItems: 64,
               },
               event: { required: true, type: () => [Object] },
             },
@@ -402,6 +429,8 @@ export default async () => {
                 type: () => [
                   t['./purchase/dto/create-ticket-order.dto'].TicketPurchase,
                 ],
+                minItems: 1,
+                maxItems: 64,
               },
               paymentMethod: {
                 required: true,
@@ -504,8 +533,8 @@ export default async () => {
             AuthController: {
               signUp: { type: t['./user/entities/user.entity'].UserEntity },
               signIn: {},
-              requestWebGoogleAuth: { description: 'Web only' },
-              googleAuthCallback: { description: 'Web only', type: Object },
+              requestWebGoogleAuth: { summary: 'Web only' },
+              googleAuthCallback: { summary: 'Web only', type: Object },
               requestGoogleAuth: { type: Object },
               refreshAuth: {},
               logout: {},

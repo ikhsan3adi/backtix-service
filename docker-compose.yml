@@ -8,12 +8,14 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-backtix}
       POSTGRES_DB: backtix
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U backtix -d backtix"]
       interval: 5s
       timeout: 5s
       retries: 10
+    ports:
+      - "5432:5432"
     restart: unless-stopped
 
   redis:
@@ -26,6 +28,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    ports:
+      - "6379:6379"
     restart: unless-stopped
 
   api:

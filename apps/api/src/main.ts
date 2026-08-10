@@ -16,11 +16,12 @@ async function bootstrap() {
     }),
   )
 
+  app.setGlobalPrefix('api', { exclude: ['file/(.*)'] })
+
   const document = SwaggerModule.createDocument(app, openApiConfig)
   if (metadata) await SwaggerModule.loadPluginMetadata(metadata)
   SwaggerModule.setup('api/docs', app, document)
 
-  app.setGlobalPrefix('api', { exclude: ['file/(.*)'] })
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

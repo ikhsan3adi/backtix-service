@@ -19,7 +19,7 @@ export class FileController {
     summary: 'Stream uploaded file',
   })
   @ApiProduces('application/octet-stream')
-  @Get(':path(*)')
+  @Get('*path')
   getUploadedFile(@Param('path') path: string): StreamableFile {
     return this.fileService.getUploadedFile(path)
   }
