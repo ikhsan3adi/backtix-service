@@ -56,7 +56,7 @@
 </script>
 
 <div class="p-4">
-	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
+	<Breadcrumb aria-label="breadcrumb" olClass="mb-5">
 		<BreadcrumbItem home>
 			<svelte:fragment slot="icon">
 				<CalendarMonthSolid class="me-2 h-4 w-4" />
@@ -112,7 +112,7 @@
 					{/if}
 					REJECTED
 				</Badge>
-				<Badge href="/admin/event?deleted=true" rounded border color="dark" large>
+				<Badge href="/admin/event?deleted=true" rounded border color="gray" large>
 					{#if data.deleted === 'true'}
 						<CheckOutline class="me-1.5 h-2.5 w-2.5" />
 					{/if}
@@ -122,7 +122,7 @@
 		</div>
 		<div class="mr-2 flex gap-2">
 			<Button
-				on:click={() => {
+				onclick={() => {
 					actionModal = true
 					actionCtx = 'approve'
 				}}
@@ -133,7 +133,7 @@
 				Approve
 			</Button>
 			<Button
-				on:click={() => {
+				onclick={() => {
 					actionModal = true
 					actionCtx = 'reject'
 				}}
@@ -156,7 +156,7 @@
 					<input type="hidden" name="selectedIds" value={selected} />
 					<Button type="submit" color="red">Confirm</Button>
 				</form>
-				<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
+				<Button onclick={() => (actionModal = false)} color="alternative">Cancel</Button>
 			</div>
 		</div>
 	</Modal>
@@ -179,11 +179,11 @@
 		{#if data.events.length}
 			{#each data.events as event}
 				<TableBodyRow>
-					<TableBodyCell tdClass="pr-2 pl-4">
+					<TableBodyCell class="pr-2 pl-4">
 						<Checkbox value={event.id} bind:group={selected}></Checkbox>
 					</TableBodyCell>
-					<TableBodyCell tdClass="pl-0">{event.name}</TableBodyCell>
-					<TableBodyCell tdClass="px-2 max-w-64">
+					<TableBodyCell class="pl-0">{event.name}</TableBodyCell>
+					<TableBodyCell class="px-2 max-w-64">
 						{#if event.location}
 							<A
 								href={`https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}`}
@@ -216,7 +216,7 @@
 						{:else if event.deletedAt}
 							<Badge rounded border color="primary">DELETED</Badge>
 						{:else}
-							<Badge rounded border color="none">{event.status}</Badge>
+							<Badge rounded border color="gray">{event.status}</Badge>
 						{/if}
 					</TableBodyCell>
 					<TableBodyCell>
@@ -237,6 +237,6 @@
 </Table>
 {#if data.page > 0 || data.events.length}
 	<div class="m-4">
-		<Pagination large on:previous={previous} on:next={next} />
+		<Pagination {previous} {next} />
 	</div>
 {/if}

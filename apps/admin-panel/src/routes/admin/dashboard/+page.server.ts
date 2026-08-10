@@ -139,7 +139,7 @@ async function getChartData(dateRange = 7, type: 'count' | 'value') {
 		return data
 	}
 
-	return JSON.parse(cached) as {
+	return JSON.parse(cached as string) as {
 		date: string
 		purchases: number
 		withdraws: number
@@ -160,7 +160,7 @@ async function getSuccessfulWithdraw() {
 		return successfulWithdraw
 	}
 
-	return JSON.parse(cached) as Record<string, never>[]
+	return JSON.parse(cached as string) as Record<string, never>[]
 }
 
 async function getEventsCount() {
@@ -178,7 +178,7 @@ async function getEventsCount() {
 		return events
 	}
 
-	return JSON.parse(cached) as number
+	return JSON.parse(cached as string) as number
 }
 
 async function getDraftEventsCount() {
@@ -194,7 +194,7 @@ async function getDraftEventsCount() {
 		return events
 	}
 
-	return JSON.parse(cached) as number
+	return JSON.parse(cached as string) as number
 }
 
 async function getRejectedEventsCount() {
@@ -210,7 +210,7 @@ async function getRejectedEventsCount() {
 		return events
 	}
 
-	return JSON.parse(cached) as number
+	return JSON.parse(cached as string) as number
 }
 
 async function getPurchasesCount() {
@@ -226,7 +226,7 @@ async function getPurchasesCount() {
 		return purchases
 	}
 
-	return JSON.parse(cached) as number
+	return JSON.parse(cached as string) as number
 }
 
 async function getRefundedPurchasesCount() {
@@ -242,7 +242,7 @@ async function getRefundedPurchasesCount() {
 		return purchases
 	}
 
-	return JSON.parse(cached) as number
+	return JSON.parse(cached as string) as number
 }
 
 async function getPurchases() {
@@ -259,7 +259,7 @@ async function getPurchases() {
 		return purchases
 	}
 
-	return JSON.parse(cached) as Record<string, never>[]
+	return JSON.parse(cached as string) as Record<string, never>[]
 }
 
 async function getRefundedPurchases() {
@@ -276,7 +276,7 @@ async function getRefundedPurchases() {
 		return purchases
 	}
 
-	return JSON.parse(cached) as Record<string, never>[]
+	return JSON.parse(cached as string) as Record<string, never>[]
 }
 
 async function getRecentEvents() {
@@ -314,7 +314,7 @@ async function getRecentEvents() {
 		return recentEvents
 	}
 
-	return JSON.parse(cached) as Record<string, never>[]
+	return JSON.parse(cached as string) as Record<string, never>[]
 }
 
 async function getUsersCount() {
@@ -330,5 +330,5 @@ async function getUsersCount() {
 		return users
 	}
 
-	return JSON.parse(cached) as number
+	return JSON.parse(cached as string) as number
 }

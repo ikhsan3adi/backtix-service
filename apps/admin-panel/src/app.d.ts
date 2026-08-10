@@ -1,7 +1,6 @@
 import type { UserEntity } from '$lib/server/entities/users/user.entity'
 import { PrismaClient } from '@prisma/client'
 
-/* eslint-disable no-var */
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {

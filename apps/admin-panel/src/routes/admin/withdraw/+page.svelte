@@ -62,7 +62,7 @@
 </div>
 
 <div class="p-4">
-	<Breadcrumb aria-label="breadcrumb" navClass="mb-5">
+	<Breadcrumb aria-label="breadcrumb" olClass="mb-5">
 		<BreadcrumbItem home>
 			<svelte:fragment slot="icon">
 				<DollarOutline class="me-2 h-4 w-4" />
@@ -148,7 +148,7 @@
 						{#if withdraw.status === 'PENDING'}
 							<div class="flex items-center gap-2">
 								<Button
-									on:click={() => {
+									onclick={() => {
 										actionModal = true
 										actionCtx = 'confirm'
 										actionWithdrawId = withdraw.id
@@ -159,7 +159,7 @@
 									color="green">Confirm</Button
 								>
 								<Button
-									on:click={() => {
+									onclick={() => {
 										actionModal = true
 										actionCtx = 'reject'
 										actionWithdrawId = withdraw.id
@@ -174,7 +174,7 @@
 							</div>
 						{:else}
 							<Button
-								on:click={() => {
+								onclick={() => {
 									actionModal = true
 									actionCtx = 'cancel'
 									actionWithdrawId = withdraw.id
@@ -204,7 +204,7 @@
 </Table>
 {#if data.page > 0 || data.withdraws.length}
 	<div class="m-4">
-		<Pagination large on:previous={previous} on:next={next} />
+		<Pagination {previous} {next} />
 	</div>
 {/if}
 
@@ -217,7 +217,7 @@
 				<input type="hidden" name="id" value={actionWithdrawId} />
 				<Button type="submit" color="red">Confirm</Button>
 			</form>
-			<Button on:click={() => (actionModal = false)} color="alternative">Cancel</Button>
+			<Button onclick={() => (actionModal = false)} color="alternative">Cancel</Button>
 		</div>
 	</div>
 </Modal>
