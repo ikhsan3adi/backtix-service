@@ -33,9 +33,9 @@
   "dependencies": {
     "@prisma/client": "^6.19.3"
   },
-	"devDependencies": {
-		"concurrently": "^10.0.4"
-	},
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  },
   "prisma": {
     "seed": "ts-node --transpile-only prisma/seed.ts"
   },
@@ -50,7 +50,8 @@
     "esbuild@0.21.5": true,
     "esbuild@0.28.1": true,
     "prisma@6.19.3": true,
-    "svelte-preprocess@6.0.4": true
+    "svelte-preprocess@6.0.4": true,
+    "@scarf/scarf@1.4.0": true
   },
   "overrides": {
     "js-yaml": "^5.2.3"
